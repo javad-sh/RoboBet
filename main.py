@@ -15,13 +15,11 @@ from datetime import datetime, timedelta
 import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import chromedriver_autoinstaller
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def setup_driver():
-    chromedriver_autoinstaller.install()
     
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # اجرای بدون رابط گرافیکی
