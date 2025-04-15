@@ -247,6 +247,46 @@ def scrape_results_job():
     try:
         results = scrape_betforward_results(driver, results_url)
         if results:
+            # Load odds file to check conditions
+            odds_data = load_json_file("betforward_odds.json")
+
+            for match in results:
+                match_id = (match["team1"], match["team2"])
+                # Find corresponding odds for this match
+                odds_match = next(
+                    (m for m in odds_data if (m["home_team"], m["away_team"]) == match_id), None
+                )
+
+                if odds_match:
+                    try:
+                        home_odds = float(odds_match["odds"]["home_win"]) if odds_match["odds"]["home_win"] != "N/A" else float('inf')
+                        away_odds = float(odds_match["odds"]["away_win"]) if odds_match["odds"]["away_win"] != "N/A" else float('inf')
+                        score1 = int(match["score"]["team1"]) if match["score"]["team1"].isdigit() else 0
+                        score2 = int(match["score"]["team2"]) if match["score"]["team2"].isdigit() else 0
+                        minute = match["minute"]
+
+                        # Check if minute is valid and greater than 30
+                        if minute and match["status"] in ["In Progress", "Extra Time"]:
+                            try:
+                                base_minute = int(minute.split("+")[0])  # Handle cases like "45+2"
+                                if base_minute > 30:
+                                    # Check if home team has low odds and is losing
+                                    if home_odds < 1.5 and score1 < score2:
+                                        logging.info(
+                                            f"Alert: {match['team1']} (odds: {home_odds}) is losing {score1}-{score2} "
+                                            f"to {match['team2']} at minute {minute}"
+                                        )
+                                    # Check if away team has low odds and is losing
+                                    if away_odds < 1.5 and score2 < score1:
+                                        logging.info(
+                                            f"Alert: {match['team2']} (odds: {away_odds}) is losing {score2}-{score1} "
+                                            f"to {match['team1']} at minute {minute}"
+                                        )
+                            except ValueError:
+                                logging.warning(f"Invalid minute format for {match_id[0]} vs {match_id[1]}: {minute}")
+                    except ValueError as e:
+                        logging.warning(f"Error processing odds or scores for {match_id[0]} vs {match_id[1]}: {e}")
+
             update_results_file(results, "betforward_results.json")
             logging.info("Results updated successfully")
         else:
