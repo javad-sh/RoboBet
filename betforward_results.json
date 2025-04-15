@@ -1,0 +1,686 @@
+[
+    {
+        "team1": "Al Sharjah SC",
+        "team2": "Al Taawon Buraidah",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Not Started",
+        "extra_info": null,
+        "last_updated": "2025-04-15T19:33:46.334003"
+    },
+    {
+        "team1": "Duhok FC",
+        "team2": "Al Qadsia SC",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "4",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.334003"
+    },
+    {
+        "team1": "SSh-2 VO Zvezda",
+        "team2": "Izhorets-m Inkon",
+        "score": {
+            "team1": "4",
+            "team2": "0"
+        },
+        "minute": "46",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 4,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.335031"
+    },
+    {
+        "team1": "Lokomotiv Moscow",
+        "team2": "Akhmat Grozny",
+        "score": {
+            "team1": "2",
+            "team2": "1"
+        },
+        "minute": null,
+        "status": "Unknown",
+        "extra_info": [
+            {
+                "team1": 2,
+                "team2": 1
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.335031"
+    },
+    {
+        "team1": "Club Lujan (Reserves)",
+        "team2": "CA Argentino de Rosario (Reserves)",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Unknown",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.335031"
+    },
+    {
+        "team1": "CA Excursionistas (Reserves)",
+        "team2": "Villa Dalmine Campana (Reserves)",
+        "score": {
+            "team1": "1",
+            "team2": "0"
+        },
+        "minute": "31",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.335031"
+    },
+    {
+        "team1": "CA San Telmo (Reserves)",
+        "team2": "Chacarita Juniors (Reserves)",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "2",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.335031"
+    },
+    {
+        "team1": "San Martin De Burzaco (Reserves)",
+        "team2": "Club Sportivo Italiano (Reserves)",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Not Started",
+        "extra_info": null,
+        "last_updated": "2025-04-15T19:33:46.335031"
+    },
+    {
+        "team1": "Chivas Guadalajara U23",
+        "team2": "Puebla FC U23",
+        "score": {
+            "team1": "1",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Unknown",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.335031"
+    },
+    {
+        "team1": "Cruz Azul AC U23",
+        "team2": "Club Leon U23",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Unknown",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336032"
+    },
+    {
+        "team1": "CF Pachuca U23",
+        "team2": "Tigres UANL U23",
+        "score": {
+            "team1": "1",
+            "team2": "0"
+        },
+        "minute": "43",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336032"
+    },
+    {
+        "team1": "PFC Navbahor",
+        "team2": "Neftchi Fargona",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "45+1",
+        "status": "Extra Time",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336032"
+    },
+    {
+        "team1": "Al Shabab Ahmadi",
+        "team2": "Al Salibikhat",
+        "score": {
+            "team1": "2",
+            "team2": "2"
+        },
+        "minute": "78",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 1
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336032"
+    },
+    {
+        "team1": "Sur SC",
+        "team2": "Al Rustaq SC",
+        "score": {
+            "team1": "0",
+            "team2": "1"
+        },
+        "minute": "53",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 1
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336032"
+    },
+    {
+        "team1": "Bnei Yehuda Tel Aviv",
+        "team2": "Hapoel Rishon LeZion",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "4",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336623"
+    },
+    {
+        "team1": "Etar 1924 Veliko Tarnovo",
+        "team2": "PFC Dobrudzha 1919 Dobrich",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "5",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336623"
+    },
+    {
+        "team1": "FC Pyunik",
+        "team2": "FC Ararat-Armenia",
+        "score": {
+            "team1": "0",
+            "team2": "1"
+        },
+        "minute": "74",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336623"
+    },
+    {
+        "team1": "FC Neman Grodno",
+        "team2": "FC Vitebsk",
+        "score": {
+            "team1": "1",
+            "team2": "0"
+        },
+        "minute": "47",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336623"
+    },
+    {
+        "team1": "EPS (Reserves)",
+        "team2": "Atlantis FC Helsinki",
+        "score": {
+            "team1": "1",
+            "team2": "3"
+        },
+        "minute": "72",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 1
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.336623"
+    },
+    {
+        "team1": "Grankulla IFK",
+        "team2": "IFK Mariehamn",
+        "score": {
+            "team1": "1",
+            "team2": "0"
+        },
+        "minute": "33",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.337716"
+    },
+    {
+        "team1": "Jakobstads BK",
+        "team2": "Rovaniemen PS",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "32",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.337716"
+    },
+    {
+        "team1": "Nummelan Palloseura",
+        "team2": "HJS Akatemia",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "4",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.337716"
+    },
+    {
+        "team1": "Tampere United",
+        "team2": "Turun Palloseura",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "4",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.337716"
+    },
+    {
+        "team1": "Littoisten Tyovaen Urheilijat",
+        "team2": "FC Jazz Pori",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "5",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.337716"
+    },
+    {
+        "team1": "FC Kiisto",
+        "team2": "Oulun Luistinseura",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "3",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.338752"
+    },
+    {
+        "team1": "HooGee",
+        "team2": "Esbo Bollklubb",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Not Started",
+        "extra_info": null,
+        "last_updated": "2025-04-15T19:33:46.338752"
+    },
+    {
+        "team1": "FC Voluntari",
+        "team2": "FC Arges",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "73",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.338752"
+    },
+    {
+        "team1": "FC Spartak Trnava",
+        "team2": "SK Slovan Bratislava",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Not Started",
+        "extra_info": null,
+        "last_updated": "2025-04-15T19:33:46.338752"
+    },
+    {
+        "team1": "Paradou AC U21",
+        "team2": "JS Saoura U21",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Unknown",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.338752"
+    },
+    {
+        "team1": "US Biskra U21",
+        "team2": "NC Magra U21",
+        "score": {
+            "team1": "0",
+            "team2": "1"
+        },
+        "minute": "45+6",
+        "status": "Extra Time",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 1
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.338752"
+    },
+    {
+        "team1": "Olympique Akbou",
+        "team2": "MC Alger",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "35",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.339864"
+    },
+    {
+        "team1": "Malkiya Club",
+        "team2": "Al Shabab Manama",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Not Started",
+        "extra_info": null,
+        "last_updated": "2025-04-15T19:33:46.339864"
+    },
+    {
+        "team1": "Aali",
+        "team2": "Manama Club",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "4",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.339864"
+    },
+    {
+        "team1": "FK Borac Banja Luka",
+        "team2": "FK Sarajevo",
+        "score": {
+            "team1": "0",
+            "team2": "1"
+        },
+        "minute": "33",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 1
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.339864"
+    },
+    {
+        "team1": "Mechal SC",
+        "team2": "Arba Minch City FC",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Unknown",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.339864"
+    },
+    {
+        "team1": "Banjul Hawks FC",
+        "team2": "Medina United",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "4",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.340891"
+    },
+    {
+        "team1": "Gambia Armed Forces FC",
+        "team2": "Gambia Ports Authority",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "6",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.340891"
+    },
+    {
+        "team1": "Grobinas SC",
+        "team2": "Rigas FS",
+        "score": {
+            "team1": "0",
+            "team2": "1"
+        },
+        "minute": "49",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 1
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.340891"
+    },
+    {
+        "team1": "BFC Daugavpils",
+        "team2": "SK Super Nova Salaspils",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": "3",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.340891"
+    },
+    {
+        "team1": "Nouakchott Academie FC",
+        "team2": "ASAC Concorde",
+        "score": {
+            "team1": "1",
+            "team2": "2"
+        },
+        "minute": "73",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.340891"
+    },
+    {
+        "team1": "CSCT Saksan",
+        "team2": "FC Zimbru Chisinau",
+        "score": {
+            "team1": "1",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Unknown",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 0
+            }
+        ],
+        "last_updated": "2025-04-15T19:33:46.340891"
+    },
+    {
+        "team1": "Tekeleza FC",
+        "team2": "Mafunzo FC",
+        "score": {
+            "team1": "0",
+            "team2": "0"
+        },
+        "minute": null,
+        "status": "Not Started",
+        "extra_info": null,
+        "last_updated": "2025-04-15T19:33:46.341947"
+    }
+]

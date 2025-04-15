@@ -32,7 +32,7 @@ def setup_driver():
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
 
     # فقط اگر داخل داکر هستی اینو بذار
-    # chrome_options.binary_location = "/usr/bin/google-chrome"
+    chrome_options.binary_location = "/usr/bin/google-chrome"
     driver = webdriver.Chrome(options=chrome_options)
     return driver
     # return webdriver.Chrome(

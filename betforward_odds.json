@@ -1,0 +1,82 @@
+[
+    {
+        "home_team": "Burgan SC",
+        "away_team": "Al Jahra",
+        "odds": {
+            "home_win": "3.17",
+            "draw": "3.41",
+            "away_win": "2.04"
+        },
+        "last_updated": "2025-04-15T19:33:38.118342"
+    },
+    {
+        "home_team": "SV Grodig",
+        "away_team": "SV Burmoos",
+        "odds": {
+            "home_win": "1.61",
+            "draw": "4.00",
+            "away_win": "4.33"
+        },
+        "last_updated": "2025-04-15T19:33:38.118342"
+    },
+    {
+        "home_team": "Orebro SK",
+        "away_team": "Helsingborgs IF",
+        "odds": {
+            "home_win": "2.81",
+            "draw": "3.14",
+            "away_win": "2.35"
+        },
+        "last_updated": "2025-04-15T19:33:38.118342"
+    },
+    {
+        "home_team": "CA General Lamadrid (Reserves)",
+        "away_team": "Club El Porvenir (Reserves)",
+        "odds": {
+            "home_win": "1.59",
+            "draw": "3.66",
+            "away_win": "4.20"
+        },
+        "last_updated": "2025-04-15T19:33:38.118342"
+    },
+    {
+        "home_team": "Stade Malien",
+        "away_team": "USFAS Bamako",
+        "odds": {
+            "home_win": "1.75",
+            "draw": "3.15",
+            "away_win": "4.70"
+        },
+        "last_updated": "2025-04-15T19:33:38.119355"
+    },
+    {
+        "home_team": "CR Belouizdad",
+        "away_team": "MCE Bayadh",
+        "odds": {
+            "home_win": "1.51",
+            "draw": "3.47",
+            "away_win": "6.70"
+        },
+        "last_updated": "2025-04-15T19:33:38.119355"
+    },
+    {
+        "home_team": "FC Puch",
+        "away_team": "SV Strasswalchen",
+        "odds": {
+            "home_win": "2.07",
+            "draw": "3.55",
+            "away_win": "2.98"
+        },
+        "last_updated": "2025-04-15T19:33:38.119355"
+    },
+    {
+        "home_team": "Torpedo-BelAZ Zhodino",
+        "away_team": "Maxline Vitebsk",
+        "odds": {
+            "home_win": "-",
+            "draw": "-",
+            "away_win": "-"
+        },
+        "last_updated": "2025-04-15T19:33:38.119355"
+    }
+]
