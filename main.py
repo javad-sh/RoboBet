@@ -13,7 +13,6 @@ import schedule
 import time
 from datetime import datetime, timedelta
 import os
-import tempfile
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,17 +25,14 @@ def setup_driver():
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
     
-    # ایجاد دایرکتوری موقت منحصربه‌فرد
-    temp_dir = tempfile.mkdtemp()
-    chrome_options.add_argument(f"--user-data-dir={temp_dir}")
-    
-    # تنظیم مسیر اجرایی Chrome
-    chrome_options.binary_location = "/usr/bin/google-chrome"
-    
+    # فقط اگر داخل داکر هستی اینو بذار
+    # chrome_options.binary_location = "/usr/bin/google-chrome"
+
     return webdriver.Chrome(
         service=Service(ChromeDriverManager().install()),
         options=chrome_options
     )
+
 def scrape_betforward_odds(driver, url):
     try:
         driver.get(url)
