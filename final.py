@@ -75,7 +75,7 @@ def scrape_betforward_results(driver, url):
         )
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
-        match_elements = soup.find_all("div", class_="competition-bc")
+        match_elements = soup.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
 
         for match in match_elements:
             try:
