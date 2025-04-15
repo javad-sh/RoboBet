@@ -30,10 +30,9 @@ def setup_driver():
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
     chrome_options.binary_location = "/usr/bin/google-chrome"
 
-    return webdriver.Chrome(
-        executable_path="/usr/bin/chromedriver",  # مسیری که داکر ایمیج Selenium خودش استفاده می‌کنه
-        options=chrome_options
-    )
+    service = Service("/usr/bin/chromedriver")
+
+    return webdriver.Chrome(service=service, options=chrome_options)
 
 def scrape_betforward_odds(driver, url):
     try:
