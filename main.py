@@ -305,8 +305,8 @@ def scrape_results_job():
         driver.quit()
 
 def run_schedule():
-    schedule.every(5).minutes.do(scrape_odds_job)
-    schedule.every(5).minutes.do(scrape_results_job)
+    schedule.every(3).minutes.do(scrape_odds_job)
+    schedule.every(3).minutes.do(scrape_results_job)
     logging.info("Scheduler started. Odds every 15 minutes, Results every 5 minutes.")
     while True:
         schedule.run_pending()
