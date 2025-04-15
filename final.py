@@ -205,8 +205,6 @@ def update_odds_file(new_odds, filename="betforward_odds.json"):
 def update_results_file(new_results, filename="betforward_results.json"):
     current_results = load_json_file(filename)
     updated_results = []
-    current_time = datetime.now()
-
     new_matches = {(match["team1"], match["team2"]) for match in new_results}
 
     for new_match in new_results:
@@ -216,88 +214,58 @@ def update_results_file(new_results, filename="betforward_results.json"):
         )
 
         if existing_match:
+            updated_results.append(new_match)
             if (
                 existing_match["score"] != new_match["score"] or
                 existing_match["status"] != new_match["status"] or
                 existing_match["minute"] != new_match["minute"]
             ):
-                new_match["last_updated"] = current_time.isoformat()
-                updated_results.append(new_match)
                 logging.info(f"Updated result for {match_id[0]} vs {match_id[1]}")
-            else:
-                updated_results.append(existing_match)
         else:
             updated_results.append(new_match)
             logging.info(f"Added new result: {match_id[0]} vs {match_id[1]}")
 
-    for existing_match in current_results:
-        match_id = (existing_match["team1"], existing_match["team2"])
-        if match_id not in new_matches:
-            last_updated = datetime.fromisoformat(existing_match["last_updated"])
-            if current_time - last_updated > timedelta(hours=3):
-                logging.info(f"Removing old result: {match_id[0]} vs {match_id[1]}")
-                continue
-            updated_results.append(existing_match)
-
+    # Only keep matches that are in new_results
     save_to_file(updated_results, filename)
 
-def main():
+def scrape_odds_job():
     odds_url = "https://m.betforward.com/en/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
-    results_url = "https://m.betforward.com/en/sports/live/event-view/Soccer"
-    
     driver = setup_driver()
     try:
-        # Scrape odds
         odds = scrape_betforward_odds(driver, odds_url)
         if odds:
-            print("Updating odds:")
-            for match in odds:
-                print(f"{match['home_team']} vs {match['away_team']}:")
-                print(f"  {match['home_team']} win: {match['odds']['home_win']}")
-                print(f"  Draw: {match['odds']['draw']}")
-                print(f"  {match['away_team']} win: {match['odds']['away_win']}\n")
             update_odds_file(odds, "betforward_odds.json")
+            logging.info("Odds updated successfully")
         else:
-            print("No odds retrieved.")
+            logging.warning("No odds retrieved.")
+    finally:
+        driver.quit()
 
-        # Scrape results
+def scrape_results_job():
+    results_url = "https://m.betforward.com/en/sports/live/event-view/Soccer"
+    driver = setup_driver()
+    try:
         results = scrape_betforward_results(driver, results_url)
         if results:
-            print("\nUpdating live match results:")
-            for match in results:
-                status = match['status']
-                print(f"{match['team1']} {match['score']['team1']} - {match['score']['team2']} {match['team2']}", end="")
-                if status == "In Progress" and match['minute']:
-                    print(f" ({match['minute']}')")
-                elif status == "Extra Time" and match['minute']:
-                    print(f" (Extra Time: {match['minute']}')")
-                elif status == "Half Time":
-                    print(" (Half Time)")
-                elif status == "Finished":
-                    print(" (Finished)")
-                elif status == "Not Started":
-                    print(" (Not Started)")
-                else:
-                    print()
-                if match.get('extra_info'):
-                    print(f"  Additional Info: {match['extra_info']}")
             update_results_file(results, "betforward_results.json")
+            logging.info("Results updated successfully")
         else:
-            print("No results retrieved.")
-            
+            logging.warning("No results retrieved.")
     finally:
         driver.quit()
 
 def run_schedule():
-    schedule.every(15).minutes.do(main)
-    logging.info("Scheduler started. Running every 15 minutes.")
+    schedule.every(15).minutes.do(scrape_odds_job)
+    schedule.every(5).minutes.do(scrape_results_job)
+    logging.info("Scheduler started. Odds every 15 minutes, Results every 5 minutes.")
     while True:
         schedule.run_pending()
         time.sleep(60)
 
 if __name__ == "__main__":
     try:
-        main()
+        scrape_odds_job()
+        scrape_results_job()
         run_schedule()
     except KeyboardInterrupt:
         logging.info("Scheduler stopped by user.")
