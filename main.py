@@ -13,32 +13,34 @@ import schedule
 import time
 from datetime import datetime, timedelta
 import os
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import chromedriver_autoinstaller
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def setup_driver():
+    chromedriver_autoinstaller.install()
+    
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")  # خیلی مهم برای محیط Railway
-    chrome_options.add_argument("--disable-dev-shm-usage")  # حل مشکل حافظه در محیط‌های کانتینری
-    chrome_options.add_argument("--ignore-certificate-errors")
-    chrome_options.add_argument("--disable-software-rasterizer")  # گاهی لازمه برای headless
-    chrome_options.add_argument("--disable-extensions")  # سریع‌تر و سبک‌تر
+    chrome_options.add_argument("--headless")  # اجرای بدون رابط گرافیکی
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-background-networking")
-
-    # User agent و زبان مثل قبل
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
 
     # فقط اگر داخل داکر هستی اینو بذار
     # chrome_options.binary_location = "/usr/bin/google-chrome"
-
-    return webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
-        options=chrome_options
-    )
+    driver = webdriver.Chrome(options=chrome_options)
+    return driver
+    # return webdriver.Chrome(
+    #     service=Service(ChromeDriverManager().install()),
+    #     options=chrome_options
+    # )
 
 def scrape_betforward_odds(driver, url):
     try:
