@@ -19,9 +19,8 @@ from selenium.webdriver.chrome.options import Options
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def setup_driver():
-    
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # اجرای بدون رابط گرافیکی
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-software-rasterizer")
@@ -29,15 +28,12 @@ def setup_driver():
     chrome_options.add_argument("--disable-background-networking")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-
-    # فقط اگر داخل داکر هستی اینو بذار
     chrome_options.binary_location = "/usr/bin/google-chrome"
-    driver = webdriver.Chrome(options=chrome_options)
-    return driver
-    # return webdriver.Chrome(
-    #     service=Service(ChromeDriverManager().install()),
-    #     options=chrome_options
-    # )
+
+    return webdriver.Chrome(
+        executable_path="/usr/bin/chromedriver",  # مسیری که داکر ایمیج Selenium خودش استفاده می‌کنه
+        options=chrome_options
+    )
 
 def scrape_betforward_odds(driver, url):
     try:
