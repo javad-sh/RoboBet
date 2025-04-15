@@ -25,6 +25,8 @@ def setup_driver():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-software-rasterizer")
     chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920x1080")
     chrome_options.add_argument("--disable-background-networking")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
@@ -37,7 +39,7 @@ def setup_driver():
 def scrape_betforward_odds(driver, url):
     try:
         driver.get(url)
-        WebDriverWait(driver, 100).until(
+        WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.CLASS_NAME, "c-segment-holder-bc"))
         )
         soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -83,7 +85,7 @@ def scrape_betforward_odds(driver, url):
 def scrape_betforward_results(driver, url):
     try:
         driver.get(url)
-        WebDriverWait(driver, 100).until(
+        WebDriverWait(driver, 20).until(
             EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc"))
         )
         soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -303,8 +305,8 @@ def scrape_results_job():
         driver.quit()
 
 def run_schedule():
-    schedule.every(15).minutes.do(scrape_odds_job)
-    schedule.every(5).minutes.do(scrape_results_job)
+    schedule.every(1).minutes.do(scrape_odds_job)
+    schedule.every(1).minutes.do(scrape_results_job)
     logging.info("Scheduler started. Odds every 15 minutes, Results every 5 minutes.")
     while True:
         schedule.run_pending()
