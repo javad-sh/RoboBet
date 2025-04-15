@@ -21,10 +21,17 @@ def setup_driver():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")  # خیلی مهم برای محیط Railway
+    chrome_options.add_argument("--disable-dev-shm-usage")  # حل مشکل حافظه در محیط‌های کانتینری
     chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument("--disable-software-rasterizer")  # گاهی لازمه برای headless
+    chrome_options.add_argument("--disable-extensions")  # سریع‌تر و سبک‌تر
+    chrome_options.add_argument("--disable-background-networking")
+
+    # User agent و زبان مثل قبل
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-    
+
     # فقط اگر داخل داکر هستی اینو بذار
     # chrome_options.binary_location = "/usr/bin/google-chrome"
 
