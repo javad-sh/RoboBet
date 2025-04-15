@@ -71,7 +71,7 @@ def scrape_betforward_results(driver, url):
     try:
         driver.get(url)
         WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-team-bc"))
+            EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc"))
         )
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []

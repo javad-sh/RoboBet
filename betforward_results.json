@@ -1,28 +1,12 @@
 [
     {
-        "team1": "Rio Ave U23",
-        "team2": "Academico de Viseu FC U23",
-        "score": {
-            "team1": "1",
-            "team2": "1"
-        },
-        "minute": "47",
-        "status": "In Progress",
-        "extra_info": [
-            {
-                "team1": 1,
-                "team2": 1
-            }
-        ]
-    },
-    {
-        "team1": "Macarthur Rams",
-        "team2": "Canterbury Bankstown Berries FC",
+        "team1": "Bournemouth U21",
+        "team2": "Sheffield United U21",
         "score": {
             "team1": "0",
             "team2": "0"
         },
-        "minute": "47",
+        "minute": "24",
         "status": "In Progress",
         "extra_info": [
             {
@@ -32,66 +16,34 @@
         ]
     },
     {
-        "team1": "Nepean FC",
-        "team2": "Sydney University SFC",
-        "score": {
-            "team1": "0",
-            "team2": "0"
-        },
-        "minute": "52",
-        "status": "In Progress",
-        "extra_info": [
-            {
-                "team1": 0,
-                "team2": 0
-            }
-        ]
-    },
-    {
-        "team1": "Hellenic AC",
-        "team2": "Darwin Hearts FC",
+        "team1": "Derby County (Reserves)",
+        "team2": "Notts County (Reserves)",
         "score": {
             "team1": "1",
-            "team2": "1"
-        },
-        "minute": "78",
-        "status": "In Progress",
-        "extra_info": [
-            {
-                "team1": 1,
-                "team2": 0
-            }
-        ]
-    },
-    {
-        "team1": "Sunshine Coast Wanderers (Wom)",
-        "team2": "North Lakes United FC (Wom)",
-        "score": {
-            "team1": "3",
             "team2": "0"
         },
-        "minute": "75",
+        "minute": "25",
         "status": "In Progress",
         "extra_info": [
             {
-                "team1": 2,
+                "team1": 1,
                 "team2": 0
             }
         ]
     },
     {
-        "team1": "Brisbane Knights U23",
-        "team2": "Pine Hills U23",
+        "team1": "Sportivo Barracas (Reserves)",
+        "team2": "CD Juventud Unida San Miguel (Reserves)",
         "score": {
-            "team1": "2",
-            "team2": "3"
+            "team1": "1",
+            "team2": "0"
         },
-        "minute": "90+1",
-        "status": "Extra Time",
+        "minute": "11",
+        "status": "In Progress",
         "extra_info": [
             {
                 "team1": 1,
-                "team2": 2
+                "team2": 0
             }
         ]
     },
@@ -100,26 +52,10 @@
         "team2": "Shandong Taishan FC",
         "score": {
             "team1": "0",
-            "team2": "0"
+            "team2": "5"
         },
-        "minute": "38",
-        "status": "In Progress",
-        "extra_info": [
-            {
-                "team1": 0,
-                "team2": 0
-            }
-        ]
-    },
-    {
-        "team1": "FK Radnicki Nis U19",
-        "team2": "FK Real Nis U19",
-        "score": {
-            "team1": "0",
-            "team2": "1"
-        },
-        "minute": "52",
-        "status": "In Progress",
+        "minute": "90+1",
+        "status": "Extra Time",
         "extra_info": [
             {
                 "team1": 0,
@@ -128,13 +64,45 @@
         ]
     },
     {
-        "team1": "NK Lokomotiva Zagreb U19",
-        "team2": "HNK Hajduk Split U19",
+        "team1": "Wuhan Three Towns FC",
+        "team2": "Beijing Guoan FC",
+        "score": {
+            "team1": "1",
+            "team2": "3"
+        },
+        "minute": null,
+        "status": "Unknown",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 3
+            }
+        ]
+    },
+    {
+        "team1": "Shenzhen Peng City",
+        "team2": "Changchun Yatai",
+        "score": {
+            "team1": "1",
+            "team2": "1"
+        },
+        "minute": "25",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 1
+            }
+        ]
+    },
+    {
+        "team1": "FK Zemun U19",
+        "team2": "FK Sindelic Beograd U19",
         "score": {
             "team1": "1",
             "team2": "0"
         },
-        "minute": "8",
+        "minute": "66",
         "status": "In Progress",
         "extra_info": [
             {
@@ -144,13 +112,45 @@
         ]
     },
     {
-        "team1": "Elimai FC-M",
-        "team2": "FC Okzhetpes-M",
+        "team1": "NK Lokomotiva Zagreb U19",
+        "team2": "HNK Hajduk Split U19",
         "score": {
             "team1": "2",
+            "team2": "1"
+        },
+        "minute": "64",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 1
+            }
+        ]
+    },
+    {
+        "team1": "IK Start U19",
+        "team2": "Odds BK U19",
+        "score": {
+            "team1": "0",
+            "team2": "2"
+        },
+        "minute": "25",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 0,
+                "team2": 2
+            }
+        ]
+    },
+    {
+        "team1": "FC Jeyran",
+        "team2": "FC Zhas Kyran",
+        "score": {
+            "team1": "0",
             "team2": "0"
         },
-        "minute": "83",
+        "minute": "22",
         "status": "In Progress",
         "extra_info": [
             {
@@ -160,49 +160,49 @@
         ]
     },
     {
-        "team1": "ASEAC (Wom)",
-        "team2": "FC Bejaia (Wom)",
+        "team1": "Ethiopia Bunna SC",
+        "team2": "Fasil Kenema FC",
+        "score": {
+            "team1": "1",
+            "team2": "0"
+        },
+        "minute": "27",
+        "status": "In Progress",
+        "extra_info": [
+            {
+                "team1": 1,
+                "team2": 0
+            }
+        ]
+    },
+    {
+        "team1": "Chiangrai United FC",
+        "team2": "Ratchaburi FC",
         "score": {
             "team1": "0",
-            "team2": "0"
+            "team2": "2"
         },
         "minute": null,
         "status": "Unknown",
         "extra_info": [
             {
                 "team1": 0,
-                "team2": 0
+                "team2": 2
             }
         ]
     },
     {
-        "team1": "Deportivo Recoleta (Reserve)",
-        "team2": "Club Libertad (Reserves)",
+        "team1": "Lady Doves (Wom)",
+        "team2": "Kawempe Muslim Ladies FC (Wom)",
         "score": {
-            "team1": "0",
-            "team2": "1"
-        },
-        "minute": "40",
-        "status": "In Progress",
-        "extra_info": [
-            {
-                "team1": 0,
-                "team2": 1
-            }
-        ]
-    },
-    {
-        "team1": "Birgunj United FC",
-        "team2": "Tushal Youth Club",
-        "score": {
-            "team1": "2",
+            "team1": "1",
             "team2": "0"
         },
-        "minute": "49",
+        "minute": "20",
         "status": "In Progress",
         "extra_info": [
             {
-                "team1": 2,
+                "team1": 1,
                 "team2": 0
             }
         ]
