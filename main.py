@@ -1,7 +1,3 @@
-import os
-os.system("apt-get update && apt-get install -y wget unzip xvfb libxi6 libgconf-2-4")
-os.system("wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb")
-os.system("apt install -y ./google-chrome-stable_current_amd64.deb")
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -28,7 +24,6 @@ def setup_driver():
     chrome_options.add_argument("--ignore-certificate-errors")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-    chrome_options.binary_location = "/usr/bin/google-chrome"
     return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
 def scrape_betforward_odds(driver, url):
