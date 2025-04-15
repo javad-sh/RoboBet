@@ -1,0 +1,38 @@
+[
+    {
+        "home_team": "Shenzhen Peng City",
+        "away_team": "Changchun Yatai",
+        "odds": {
+            "home_win": "1.83",
+            "draw": "3.68",
+            "away_win": "3.55"
+        }
+    },
+    {
+        "home_team": "Ethiopia Bunna SC",
+        "away_team": "Fasil Kenema FC",
+        "odds": {
+            "home_win": "2.34",
+            "draw": "2.90",
+            "away_win": "3.06"
+        }
+    },
+    {
+        "home_team": "Sportivo Barracas (Reserves)",
+        "away_team": "CD Juventud Unida San Miguel (Reserves)",
+        "odds": {
+            "home_win": "1.43",
+            "draw": "4.10",
+            "away_win": "5.10"
+        }
+    },
+    {
+        "home_team": "IK Start U19",
+        "away_team": "Odds BK U19",
+        "odds": {
+            "home_win": "4.60",
+            "draw": "5.00",
+            "away_win": "1.47"
+        }
+    }
+]
