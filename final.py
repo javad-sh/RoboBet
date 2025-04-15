@@ -9,13 +9,17 @@ from bs4 import BeautifulSoup
 import json
 import re
 import logging
+import schedule
+import time
+from datetime import datetime, timedelta
+import os
 
-# Configure logging for debugging
+# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def setup_driver():
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Enabled to reduce resource usage
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--ignore-certificate-errors")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
@@ -54,7 +58,8 @@ def scrape_betforward_odds(driver, url):
                 match_info = {
                     "home_team": home_team,
                     "away_team": away_team,
-                    "odds": odds
+                    "odds": odds,
+                    "last_updated": datetime.now().isoformat()
                 }
                 matches.append(match_info)
             except Exception as e:
@@ -98,7 +103,6 @@ def scrape_betforward_results(driver, url):
 
                 if time_info:
                     time_text = time_info.text.strip()
-                    # Pattern to handle regular minutes (e.g., 45') and extra time (e.g., 90+7')
                     minute_match = re.search(r"(\d+)(?:\s*\+\s*(\d+))?\s*`", time_text)
                     if minute_match:
                         base_minute = int(minute_match.group(1))
@@ -115,7 +119,6 @@ def scrape_betforward_results(driver, url):
                     else:
                         match_status = "Unknown"
                     
-                    # Extract additional info like (3:3), (1:1)
                     extra_info_match = re.search(r"\((\d+):(\d+)\)", time_text)
                     if extra_info_match:
                         extra_info = [{"team1": int(extra_info_match.group(1)), "team2": int(extra_info_match.group(2))} ]
@@ -132,7 +135,8 @@ def scrape_betforward_results(driver, url):
                     },
                     "minute": minute,
                     "status": match_status,
-                    "extra_info": extra_info
+                    "extra_info": extra_info,
+                    "last_updated": datetime.now().isoformat()
                 }
                 matches.append(match_info)
             except Exception as e:
@@ -145,6 +149,16 @@ def scrape_betforward_results(driver, url):
         logging.error(f"Error scraping results: {e}")
         return []
 
+def load_json_file(filename):
+    if os.path.exists(filename):
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            logging.error(f"Error loading {filename}: {e}")
+            return []
+    return []
+
 def save_to_file(data, filename):
     try:
         with open(filename, "w", encoding="utf-8") as f:
@@ -152,6 +166,80 @@ def save_to_file(data, filename):
         logging.info(f"Data saved to {filename}")
     except IOError as e:
         logging.error(f"Error saving data: {e}")
+
+def update_odds_file(new_odds, filename="betforward_odds.json"):
+    current_odds = load_json_file(filename)
+    updated_odds = []
+    current_time = datetime.now()
+
+    new_matches = {(match["home_team"], match["away_team"]) for match in new_odds}
+
+    for new_match in new_odds:
+        match_id = (new_match["home_team"], new_match["away_team"])
+        existing_match = next(
+            (m for m in current_odds if (m["home_team"], m["away_team"]) == match_id), None
+        )
+
+        if existing_match:
+            if existing_match["odds"] != new_match["odds"]:
+                new_match["last_updated"] = current_time.isoformat()
+                updated_odds.append(new_match)
+                logging.info(f"Updated odds for {match_id[0]} vs {match_id[1]}")
+            else:
+                updated_odds.append(existing_match)
+        else:
+            updated_odds.append(new_match)
+            logging.info(f"Added new match: {match_id[0]} vs {match_id[1]}")
+
+    for existing_match in current_odds:
+        match_id = (existing_match["home_team"], existing_match["away_team"])
+        if match_id not in new_matches:
+            last_updated = datetime.fromisoformat(existing_match["last_updated"])
+            if current_time - last_updated > timedelta(hours=3):
+                logging.info(f"Removing old match: {match_id[0]} vs {match_id[1]}")
+                continue
+            updated_odds.append(existing_match)
+
+    save_to_file(updated_odds, filename)
+
+def update_results_file(new_results, filename="betforward_results.json"):
+    current_results = load_json_file(filename)
+    updated_results = []
+    current_time = datetime.now()
+
+    new_matches = {(match["team1"], match["team2"]) for match in new_results}
+
+    for new_match in new_results:
+        match_id = (new_match["team1"], new_match["team2"])
+        existing_match = next(
+            (m for m in current_results if (m["team1"], m["team2"]) == match_id), None
+        )
+
+        if existing_match:
+            if (
+                existing_match["score"] != new_match["score"] or
+                existing_match["status"] != new_match["status"] or
+                existing_match["minute"] != new_match["minute"]
+            ):
+                new_match["last_updated"] = current_time.isoformat()
+                updated_results.append(new_match)
+                logging.info(f"Updated result for {match_id[0]} vs {match_id[1]}")
+            else:
+                updated_results.append(existing_match)
+        else:
+            updated_results.append(new_match)
+            logging.info(f"Added new result: {match_id[0]} vs {match_id[1]}")
+
+    for existing_match in current_results:
+        match_id = (existing_match["team1"], existing_match["team2"])
+        if match_id not in new_matches:
+            last_updated = datetime.fromisoformat(existing_match["last_updated"])
+            if current_time - last_updated > timedelta(hours=3):
+                logging.info(f"Removing old result: {match_id[0]} vs {match_id[1]}")
+                continue
+            updated_results.append(existing_match)
+
+    save_to_file(updated_results, filename)
 
 def main():
     odds_url = "https://m.betforward.com/en/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
@@ -162,20 +250,20 @@ def main():
         # Scrape odds
         odds = scrape_betforward_odds(driver, odds_url)
         if odds:
-            print("Upcoming matches odds:")
+            print("Updating odds:")
             for match in odds:
                 print(f"{match['home_team']} vs {match['away_team']}:")
                 print(f"  {match['home_team']} win: {match['odds']['home_win']}")
                 print(f"  Draw: {match['odds']['draw']}")
                 print(f"  {match['away_team']} win: {match['odds']['away_win']}\n")
-            save_to_file(odds, "betforward_odds.json")
+            update_odds_file(odds, "betforward_odds.json")
         else:
             print("No odds retrieved.")
 
         # Scrape results
         results = scrape_betforward_results(driver, results_url)
         if results:
-            print("\nLive match results:")
+            print("\nUpdating live match results:")
             for match in results:
                 status = match['status']
                 print(f"{match['team1']} {match['score']['team1']} - {match['score']['team2']} {match['team2']}", end="")
@@ -193,12 +281,23 @@ def main():
                     print()
                 if match.get('extra_info'):
                     print(f"  Additional Info: {match['extra_info']}")
-            save_to_file(results, "betforward_results.json")
+            update_results_file(results, "betforward_results.json")
         else:
             print("No results retrieved.")
             
     finally:
         driver.quit()
 
+def run_schedule():
+    schedule.every(15).minutes.do(main)
+    logging.info("Scheduler started. Running every 15 minutes.")
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+        run_schedule()
+    except KeyboardInterrupt:
+        logging.info("Scheduler stopped by user.")
