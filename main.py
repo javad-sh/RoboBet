@@ -304,14 +304,14 @@ def scrape_results_job():
                             try:
                                 base_minute = int(minute.split("+")[0])
                                 if base_minute > 30:
-                                    if home_odds < 1.5 and score1 < score2:
+                                    if home_odds > 1.5 and score1 < score2:
                                         alert_message = (
                                             f"⚠️ هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute} "
                                             f"با نتیجه {score1}-{score2} از {match['team2']} عقب است!"
                                         )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
-                                    if away_odds < 1.5 and score2 < score1:
+                                    if away_odds > 1.5 and score2 < score1:
                                         alert_message = (
                                             f"⚠️ هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute} "
                                             f"با نتیجه {score2}-{score1} از {match['team1']} عقب است!"
