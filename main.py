@@ -147,22 +147,24 @@ def scrape_betforward_results(driver, url):
                         extra_minute = int(minute_match.group(2)) if minute_match.group(2) else 0
                         minute = f"{base_minute}+{extra_minute}" if extra_minute else str(base_minute)
                         if base_minute > 90 or extra_minute:
-                            match_status = "Extra Time"
+                            match_status = "وقت اضافه"
                         else:
-                            match_status = "In Progress"
-                    elif "HT" in time_text.upper():
-                        match_status = "Half Time"
-                    elif "FT" in time_text.upper():
-                        match_status = "Finished"
+                            match_status = "در جریان"
                     else:
-                        match_status = "Unknown"
-                    
+                        # اگر دقیقه پیدا نشد، دنبال تگ برادر با کلاس c-info-score-bc (بدون fixed-direction) بگرد
+                        sibling_status_tag = match.find("span", class_="c-info-score-bc")
+                        if sibling_status_tag:
+                            match_status = sibling_status_tag.text.strip()
+                        else:
+                            match_status = "Unknown"  # fallback نهایی
+
+                    # استخراج نتایج وقت اضافه (در صورت وجود)
                     extra_info_match = re.search(r"\((\d+):(\d+)\)", time_text)
                     if extra_info_match:
                         extra_info = [{"team1": int(extra_info_match.group(1)), "team2": int(extra_info_match.group(2))} ]
 
                 else:
-                    match_status = "Not Started"
+                    match_status = "شروع نشده"
 
                 match_info = {
                     "team1": team1,
@@ -304,17 +306,17 @@ def scrape_results_job():
                             try:
                                 base_minute = int(minute.split("+")[0])
                                 if base_minute > 30:
-                                    if home_odds > 1.5 and score1 < score2:
+                                    if home_odds < 1.6 and score1 < score2:
                                         alert_message = (
                                             f"⚠️ هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute} "
-                                            f"با نتیجه {score1}-{score2} از {match['team2']} عقب است!"
+                                            f"با نتیجه {score1}-{score2} از {match['team2']} عقب است !"
                                         )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
-                                    if away_odds > 1.5 and score2 < score1:
+                                    if away_odds < 1.6 and score2 < score1:
                                         alert_message = (
                                             f"⚠️ هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute} "
-                                            f"با نتیجه {score2}-{score1} از {match['team1']} عقب است!"
+                                            f"با نتیجه {score2}-{score1} از {match['team1']} عقب است !"
                                         )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
