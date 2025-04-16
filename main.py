@@ -303,10 +303,15 @@ def scrape_results_job():
                         score2 = int(match["score"]["team2"]) if match["score"]["team2"].isdigit() else 0
                         minute = match["minute"]
 
-                        if minute and match["status"] in ["در جریان", "وقت اضافه"]:
+                        if match["status"] in ["در جریان", "وقت اضافه", "بین دو نیمه", "تایم اوت"]:
                             try:
-                                base_minute = int(minute.split("+")[0])
-                                if base_minute > 30:
+                                # Set default minute to 30 if minute is missing or empty
+                                if not minute or minute.strip() == "":
+                                    base_minute = 30
+                                else:
+                                    base_minute = int(minute.split("+")[0])
+                                
+                                if base_minute >= 30:
                                     # Determine circle color based on odds
                                     circle_color = "⚪"  # Default white circle
                                     if 1.4 < home_odds < 1.6:
@@ -318,7 +323,7 @@ def scrape_results_job():
 
                                     if home_odds < 1.6 and score1 < score2:
                                         alert_message = (
-                                            f"{circle_color} هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute} "
+                                            f"{circle_color} هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match["status"]} "
                                             f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!"
                                         )
                                         logging.info(alert_message)
@@ -335,7 +340,7 @@ def scrape_results_job():
 
                                     if away_odds < 1.6 and score2 < score1:
                                         alert_message = (
-                                            f"{circle_color} هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute} "
+                                            f"{circle_color} هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match["status"]} "
                                             f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!"
                                         )
                                         logging.info(alert_message)
@@ -351,7 +356,6 @@ def scrape_results_job():
             logging.warning("No results retrieved.")
     finally:
         driver.quit()
-
 def run_schedule():
     schedule.every(3).minutes.do(scrape_odds_job)
     schedule.every(3).minutes.do(scrape_results_job)
