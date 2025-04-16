@@ -266,7 +266,7 @@ def update_results_file(new_results, filename="betforward_results.json"):
 
     save_to_file(updated_results, filename)
 def scrape_odds_job():
-    odds_url = "https://m.betforward.com/en/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
+    odds_url = "https://m.betforward.com/fa/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
     driver = setup_driver()
     try:
         odds = scrape_betforward_odds(driver, odds_url)
@@ -279,7 +279,7 @@ def scrape_odds_job():
         driver.quit()
 
 def scrape_results_job():
-    results_url = "https://m.betforward.com/en/sports/live/event-view/Soccer"
+    results_url = "https://m.betforward.com/fa/sports/live/event-view/Soccer"
     driver = setup_driver()
     try:
         results = scrape_betforward_results(driver, results_url)
