@@ -27,6 +27,26 @@ def load_json_file(filename):
         logging.error(f"Error loading {filename}: {e}")
         return []
 
+def save_json_file(data, filename):
+    """Save data to JSON file."""
+    try:
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        logging.info(f"Data saved to {filename}")
+    except Exception as e:
+        logging.error(f"Error saving {filename}: {e}")
+
+def add_chat_id(chat_id):
+    """Add a chat ID to the list of subscribers if not already present."""
+    chat_ids_file = "chat_ids.json"
+    chat_ids = load_json_file(chat_ids_file)
+    if str(chat_id) not in chat_ids:
+        chat_ids.append(str(chat_id))
+        save_json_file(chat_ids, chat_ids_file)
+        logging.info(f"Added chat ID {chat_id} to subscribers")
+    else:
+        logging.info(f"Chat ID {chat_id} already subscribed")
+
 def convert_to_persian_time(iso_str):
     """Convert ISO time string to Persian (Jalali) datetime string in Iran timezone."""
     try:
@@ -70,7 +90,9 @@ def get_reply_keyboard():
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Send welcome message with keyboard on /start"""
+    """Send welcome message with keyboard on /start and store chat ID."""
+    chat_id = update.effective_chat.id
+    add_chat_id(chat_id)
     reply_markup = get_reply_keyboard()
     await update.message.reply_text(
         "سلام! یکی از گزینه‌های زیر را انتخاب کن:",
@@ -78,7 +100,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle incoming messages and respond based on user input."""
+    """Handle incoming messages, store chat ID, and respond based on user input."""
+    chat_id = update.effective_chat.id
+    add_chat_id(chat_id)
     text = update.message.text
     reply_markup = get_reply_keyboard()
 

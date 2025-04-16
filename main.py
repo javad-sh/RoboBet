@@ -12,11 +12,14 @@ import schedule
 import time
 from datetime import datetime, timedelta
 import os
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+import telegram
+import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Bot token
+BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
 def setup_driver():
     chrome_options = Options()
@@ -35,6 +38,31 @@ def setup_driver():
     service = Service("/usr/bin/chromedriver")
 
     return webdriver.Chrome(service=service, options=chrome_options)
+
+def load_json_file(filename):
+    if os.path.exists(filename):
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            logging.error(f"Error loading {filename}: {e}")
+            return []
+    return []
+
+async def send_alert_message(message):
+    """Send alert message to all subscribed chat IDs."""
+    bot = telegram.Bot(token=BOT_TOKEN)
+    chat_ids = load_json_file("chat_ids.json")
+    for chat_id in chat_ids:
+        try:
+            await bot.send_message(
+                chat_id=chat_id,
+                text=message,
+                parse_mode=telegram.constants.ParseMode.MARKDOWN
+            )
+            logging.info(f"Sent alert to chat ID {chat_id}")
+        except Exception as e:
+            logging.error(f"Error sending message to chat ID {chat_id}: {e}")
 
 def scrape_betforward_odds(driver, url):
     try:
@@ -159,16 +187,6 @@ def scrape_betforward_results(driver, url):
         logging.error(f"Error scraping results: {e}")
         return []
 
-def load_json_file(filename):
-    if os.path.exists(filename):
-        try:
-            with open(filename, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            logging.error(f"Error loading {filename}: {e}")
-            return []
-    return []
-
 def save_to_file(data, filename):
     try:
         with open(filename, "w", encoding="utf-8") as f:
@@ -235,7 +253,6 @@ def update_results_file(new_results, filename="betforward_results.json"):
             updated_results.append(new_match)
             logging.info(f"Added new result: {match_id[0]} vs {match_id[1]}")
 
-    # Only keep matches that are in new_results
     save_to_file(updated_results, filename)
 
 def scrape_odds_job():
@@ -257,12 +274,10 @@ def scrape_results_job():
     try:
         results = scrape_betforward_results(driver, results_url)
         if results:
-            # Load odds file to check conditions
             odds_data = load_json_file("betforward_odds.json")
 
             for match in results:
                 match_id = (match["team1"], match["team2"])
-                # Find corresponding odds for this match
                 odds_match = next(
                     (m for m in odds_data if (m["home_team"], m["away_team"]) == match_id), None
                 )
@@ -275,23 +290,24 @@ def scrape_results_job():
                         score2 = int(match["score"]["team2"]) if match["score"]["team2"].isdigit() else 0
                         minute = match["minute"]
 
-                        # Check if minute is valid and greater than 30
                         if minute and match["status"] in ["In Progress", "Extra Time"]:
                             try:
-                                base_minute = int(minute.split("+")[0])  # Handle cases like "45+2"
+                                base_minute = int(minute.split("+")[0])
                                 if base_minute > 30:
-                                    # Check if home team has low odds and is losing
                                     if home_odds < 1.5 and score1 < score2:
-                                        logging.info(
-                                            f"Alert: {match['team1']} (odds: {home_odds}) is losing {score1}-{score2} "
-                                            f"to {match['team2']} at minute {minute}"
+                                        alert_message = (
+                                            f"⚠️ هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute} "
+                                            f"با نتیجه {score1}-{score2} از {match['team2']} عقب است!"
                                         )
-                                    # Check if away team has low odds and is losing
+                                        logging.info(alert_message)
+                                        asyncio.run(send_alert_message(alert_message))
                                     if away_odds < 1.5 and score2 < score1:
-                                        logging.info(
-                                            f"Alert: {match['team2']} (odds: {away_odds}) is losing {score2}-{score1} "
-                                            f"to {match['team1']} at minute {minute}"
+                                        alert_message = (
+                                            f"⚠️ هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute} "
+                                            f"با نتیجه {score2}-{score1} از {match['team1']} عقب است!"
                                         )
+                                        logging.info(alert_message)
+                                        asyncio.run(send_alert_message(alert_message))
                             except ValueError:
                                 logging.warning(f"Invalid minute format for {match_id[0]} vs {match_id[1]}: {minute}")
                     except ValueError as e:
@@ -307,7 +323,7 @@ def scrape_results_job():
 def run_schedule():
     schedule.every(3).minutes.do(scrape_odds_job)
     schedule.every(3).minutes.do(scrape_results_job)
-    logging.info("Scheduler started. Odds every 15 minutes, Results every 5 minutes.")
+    logging.info("Scheduler started. Odds and Results every 3 minutes.")
     while True:
         schedule.run_pending()
         time.sleep(60)
