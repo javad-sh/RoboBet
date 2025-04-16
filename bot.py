@@ -87,24 +87,29 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    messages = []
+
     if query.data == "odds":
         odds = load_json_file("betforward_odds.json")
         if odds:
-            for match in odds:
-                await query.message.reply_text(format_odds_match(match), parse_mode=ParseMode.MARKDOWN)
+            for match in odds[:10]:  # برای جلوگیری از اسپم
+                messages.append(format_odds_match(match))
         else:
-            await query.message.reply_text("هیچ داده‌ای برای ضرایب موجود نیست.", parse_mode=ParseMode.MARKDOWN)
+            messages.append("هیچ داده‌ای برای ضرایب موجود نیست.")
     elif query.data == "results":
         results = load_json_file("betforward_results.json")
         if results:
-            for match in results:
-                await query.message.reply_text(format_results_match(match), parse_mode=ParseMode.MARKDOWN)
+            for match in results[:10]:
+                messages.append(format_results_match(match))
         else:
-            await query.message.reply_text("هیچ داده‌ای برای نتایج زنده موجود نیست.", parse_mode=ParseMode.MARKDOWN)
+            messages.append("هیچ داده‌ای برای نتایج زنده موجود نیست.")
 
-    # Re-display the keyboard after sending data
+    for msg in messages:
+        await query.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
+
+    # فقط یکبار کیبورد رو نشون بده با پیام پایانی
     await query.message.reply_text(
-        "لطفاً گزینه دیگری انتخاب کنید:",
+        "برای انتخاب گزینه‌ی دیگر:",
         reply_markup=get_keyboard(),
         parse_mode=ParseMode.MARKDOWN
     )
