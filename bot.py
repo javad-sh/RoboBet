@@ -5,13 +5,13 @@ from datetime import datetime
 import pytz
 import jdatetime
 from telegram import ReplyKeyboardMarkup, Update
-from telegram.ext import Application, MessageHandler, ContextTypes, filters
+from telegram.ext import Application, MessageHandler, CommandHandler, ContextTypes, filters
 from telegram.constants import ParseMode
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Load environment variables
+# Bot token
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
 def load_json_file(filename):
@@ -69,6 +69,14 @@ def get_reply_keyboard():
     keyboard = [["لیست ضرایب", "نتایج زنده"]]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
 
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Send welcome message with keyboard on /start"""
+    reply_markup = get_reply_keyboard()
+    await update.message.reply_text(
+        "سلام! یکی از گزینه‌های زیر را انتخاب کن:",
+        reply_markup=reply_markup
+    )
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle incoming messages and respond based on user input."""
     text = update.message.text
@@ -120,6 +128,7 @@ def main():
     application = Application.builder().token(BOT_TOKEN).build()
 
     # Add handlers
+    application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Start the bot
