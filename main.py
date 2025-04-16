@@ -335,3 +335,4 @@ if __name__ == "__main__":
         run_schedule()
     except KeyboardInterrupt:
         logging.info("Scheduler stopped by user.")
+        
