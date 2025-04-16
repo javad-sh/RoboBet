@@ -234,6 +234,7 @@ def update_results_file(new_results, filename="betforward_results.json"):
     current_results = load_json_file(filename)
     updated_results = []
     new_matches = {(match["team1"], match["team2"]) for match in new_results}
+    current_time = datetime.now()
 
     for new_match in new_results:
         match_id = (new_match["team1"], new_match["team2"])
@@ -253,8 +254,17 @@ def update_results_file(new_results, filename="betforward_results.json"):
             updated_results.append(new_match)
             logging.info(f"Added new result: {match_id[0]} vs {match_id[1]}")
 
-    save_to_file(updated_results, filename)
+    # حذف مسابقات قدیمی
+    for existing_match in current_results:
+        match_id = (existing_match["team1"], existing_match["team2"])
+        if match_id not in new_matches:
+            last_updated = datetime.fromisoformat(existing_match["last_updated"])
+            if current_time - last_updated > timedelta(minutes=30):  
+                logging.info(f"Removing old match: {match_id[0]} vs {match_id[1]}")
+                continue
+            updated_results.append(existing_match)
 
+    save_to_file(updated_results, filename)
 def scrape_odds_job():
     odds_url = "https://m.betforward.com/en/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
     driver = setup_driver()
