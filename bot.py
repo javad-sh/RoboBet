@@ -1,6 +1,9 @@
 import json
 import os
 import logging
+from datetime import datetime
+import pytz
+import jdatetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, MessageHandler, CallbackQueryHandler, ContextTypes, filters
 from telegram.constants import ParseMode
@@ -24,27 +27,41 @@ def load_json_file(filename):
         logging.error(f"Error loading {filename}: {e}")
         return []
 
+def convert_to_persian_time(iso_str):
+    """Convert ISO time string to Persian (Jalali) datetime string in Iran timezone."""
+    try:
+        dt = datetime.fromisoformat(iso_str)
+        tehran = pytz.timezone("Asia/Tehran")
+        dt_tehran = dt.astimezone(tehran)
+        jdt = jdatetime.datetime.fromgregorian(datetime=dt_tehran)
+        return jdt.strftime("%m/%d - %H:%M")
+    except Exception as e:
+        logging.warning(f"Cannot parse time: {iso_str} — {e}")
+        return "N/A"
+
 def format_odds_match(match):
     """Format odds match data for Telegram message."""
     odds = match.get("odds", {})
+    updated = convert_to_persian_time(match.get("last_updated", ""))
     return (
-        f"مسابقه: {match['home_team']} vs {match['away_team']}\n"
-        f"ضرایب:\n"
-        f"برد میزبان: {odds.get('home_win', 'N/A')}\n"
-        f"مساوی: {odds.get('draw', 'N/A')}\n"
-        f"برد میهمان: {odds.get('away_win', 'N/A')}\n"
-        f"آخرین به‌روزرسانی: {match.get('last_updated', 'N/A')}"
+        f"🏟 مسابقه: {match['home_team']} vs {match['away_team']}\n"
+        f"🎲 ضرایب:\n"
+        f"▫️ برد میزبان: {odds.get('home_win', 'N/A')}\n"
+        f"▫️ مساوی: {odds.get('draw', 'N/A')}\n"
+        f"▫️ برد میهمان: {odds.get('away_win', 'N/A')}\n"
+        f"🕓 آخرین به‌روزرسانی: {updated}"
     )
 
 def format_results_match(match):
     """Format results match data for Telegram message."""
     score = match.get("score", {})
+    updated = convert_to_persian_time(match.get("last_updated", ""))
     return (
-        f"مسابقه: {match['team1']} vs {match['team2']}\n"
-        f"امتیاز: {score.get('team1', 'N/A')} - {score.get('team2', 'N/A')}\n"
-        f"دقیقه: {match.get('minute', 'N/A')}\n"
-        f"وضعیت: {match.get('status', 'N/A')}\n"
-        f"آخرین به‌روزرسانی: {match.get('last_updated', 'N/A')}"
+        f"🏟 مسابقه: {match['team1']} vs {match['team2']}\n"
+        f"🔢 امتیاز: {score.get('team1', 'N/A')} - {score.get('team2', 'N/A')}\n"
+        f"⏱ دقیقه: {match.get('minute', 'N/A')}\n"
+        f"📊 وضعیت: {match.get('status', 'N/A')}\n"
+        f"🕓 آخرین به‌روزرسانی: {updated}"
     )
 
 def get_keyboard():
