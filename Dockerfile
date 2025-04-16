@@ -1,5 +1,3 @@
-FROM selenium/standalone-chrome:latest
-
 USER root
 
 # Install Python, pip, and supervisor
