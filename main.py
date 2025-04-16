@@ -267,6 +267,7 @@ def update_results_file(new_results, filename="betforward_results.json"):
             updated_results.append(existing_match)
 
     save_to_file(updated_results, filename)
+
 def scrape_odds_job():
     odds_url = "https://m.betforward.com/fa/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
     driver = setup_driver()
@@ -302,21 +303,40 @@ def scrape_results_job():
                         score2 = int(match["score"]["team2"]) if match["score"]["team2"].isdigit() else 0
                         minute = match["minute"]
 
-                        if minute and match["status"] in ["In Progress", "Extra Time"]:
+                        if minute and match["status"] in ["در جریان", "وقت اضافه"]:
                             try:
                                 base_minute = int(minute.split("+")[0])
                                 if base_minute > 30:
+                                    # Determine circle color based on odds
+                                    circle_color = "⚪"  # Default white circle
+                                    if 1.4 < home_odds < 1.6:
+                                        circle_color = "🟠"  # Orange
+                                    elif 1.2 < home_odds <= 1.4:
+                                        circle_color = "🟡"  # Yellow
+                                    elif home_odds <= 1.2:
+                                        circle_color = "🟢"  # Green
+
                                     if home_odds < 1.6 and score1 < score2:
                                         alert_message = (
-                                            f"⚠️ هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute} "
-                                            f"با نتیجه {score1}-{score2} از {match['team2']} عقب است !"
+                                            f"{circle_color} هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute} "
+                                            f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!"
                                         )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
+
+                                    # Determine circle color for away team
+                                    circle_color = "⚪"  # Default white circle
+                                    if 1.4 < away_odds < 1.6:
+                                        circle_color = "🟠"  # Orange
+                                    elif 1.2 < away_odds <= 1.4:
+                                        circle_color = "🟡"  # Yellow
+                                    elif away_odds <= 1.2:
+                                        circle_color = "🟢"  # Green
+
                                     if away_odds < 1.6 and score2 < score1:
                                         alert_message = (
-                                            f"⚠️ هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute} "
-                                            f"با نتیجه {score2}-{score1} از {match['team1']} عقب است !"
+                                            f"{circle_color} هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute} "
+                                            f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!"
                                         )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
@@ -347,4 +367,3 @@ if __name__ == "__main__":
         run_schedule()
     except KeyboardInterrupt:
         logging.info("Scheduler stopped by user.")
-        
