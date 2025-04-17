@@ -33,12 +33,25 @@ def setup_driver():
     chrome_options.add_argument("--disable-background-networking")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-    chrome_options.binary_location = "/usr/bin/google-chrome"
+    chrome_options.add_argument("--blink-settings=imagesEnabled=false")  # غیرفعال کردن تصاویر
+    chrome_options.add_experimental_option("prefs", {
+        "profile.default_content_setting_values": {
+            "images": 2,  # غیرفعال کردن تصاویر
+            "stylesheets": 2  # غیرفعال کردن CSS
+        }
+    })
 
+    chrome_options.binary_location = "/usr/bin/google-chrome"
     service = Service("/usr/bin/chromedriver")
 
-    return webdriver.Chrome(service=service, options=chrome_options)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
+    # بلاک کردن درخواست‌های CSS و تصاویر خاص
+    driver.execute_cdp_cmd("Network.setBlockedURLs", {
+        "urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]
+    })
+
+    return driver
 def load_json_file(filename):
     if os.path.exists(filename):
         try:
