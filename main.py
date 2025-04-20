@@ -353,11 +353,10 @@ def scrape_results_job():
 
                                     if home_odds <= 1.6 and score1 < score2:
                                         alert_message = (
-                                            f"{circle_color} هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
-                                            f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
-                                            f"🌍 کشور: {match['country']}\n"
-                                            f"🏆 لیگ: {match['league']}"
-                                        )
+                                                        f"{circle_color} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                        f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
+                                                        f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!"
+                                                    )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
                                     # Determine circle color for away team
@@ -371,10 +370,9 @@ def scrape_results_job():
 
                                     if away_odds <= 1.6 and score2 < score1:
                                         alert_message = (
-                                            f"{circle_color} هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
-                                            f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!\n"
-                                            f"🌍 کشور: {match['country']}\n"
-                                            f"🏆 لیگ: {match['league']}"
+                                            f"{circle_color} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                            f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
+                                            f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!"
                                         )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
