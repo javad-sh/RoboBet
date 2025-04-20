@@ -65,6 +65,8 @@ def format_odds_match(match):
     updated = convert_to_persian_time(match.get("last_updated", ""))
     return (
         f"🏟 مسابقه: {match['home_team']} vs {match['away_team']}\n"
+        f"🌍 کشور: {match.get('country', 'N/A')}\n"
+        f"🏆 لیگ: {match.get('league', 'N/A')}\n"
         f"🎲 ضرایب:\n"
         f"▫️ برد میزبان: {odds.get('home_win', 'N/A')}\n"
         f"▫️ مساوی: {odds.get('draw', 'N/A')}\n"
@@ -78,6 +80,8 @@ def format_results_match(match):
     updated = convert_to_persian_time(match.get("last_updated", ""))
     return (
         f"🏟 مسابقه: {match['team1']} vs {match['team2']}\n"
+        f"🌍 کشور: {match.get('country', 'N/A')}\n"
+        f"🏆 لیگ: {match.get('league', 'N/A')}\n"
         f"🔢 امتیاز: {score.get('team1', 'N/A')} - {score.get('team2', 'N/A')}\n"
         f"⏱ دقیقه: {match.get('minute', 'N/A')}\n"
         f"📊 وضعیت: {match.get('status', 'N/A')}\n"

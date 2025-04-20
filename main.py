@@ -80,41 +80,61 @@ async def send_alert_message(message):
 def scrape_betforward_odds(driver, url):
     try:
         driver.get(url)
-        WebDriverWait(driver, 20).until(
+        WebDriverWait(driver, 40).until(
             EC.presence_of_element_located((By.CLASS_NAME, "c-segment-holder-bc"))
         )
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
-        match_elements = soup.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
+        competition_elements = soup.find_all("div", class_="competition-bc")
 
-        for match in match_elements:
+        for competition in competition_elements:
             try:
-                teams = match.find_all("span", class_="c-team-info-team-bc team")
-                if len(teams) < 2:
-                    logging.warning("Number of teams is less than 2")
-                    continue
-                home_team = teams[0].text.strip()
-                away_team = teams[1].text.strip()
-
-                odds_elements = match.find_all("span", class_="market-odd-bc")
-                odds = {"home_win": "N/A", "draw": "N/A", "away_win": "N/A"}
-                if len(odds_elements) >= 3:
-                    odds["home_win"] = odds_elements[0].text.strip()
-                    odds["draw"] = odds_elements[1].text.strip()
-                    odds["away_win"] = odds_elements[2].text.strip()
+                # استخراج نام کشور و سری رقابت
+                title_elements = competition.find_all("span", class_="c-title-bc ellipsis")
+                if len(title_elements) < 2:
+                    logging.warning("Insufficient title elements for competition")
+                    country = "Unknown"
+                    league = "Unknown"
                 else:
-                    logging.warning(f"Insufficient odds for {home_team} vs {away_team}")
-                    continue
+                    country = title_elements[0].text.strip()
+                    league = title_elements[1].text.strip()
 
-                match_info = {
-                    "home_team": home_team,
-                    "away_team": away_team,
-                    "odds": odds,
-                    "last_updated": datetime.now().isoformat()
-                }
-                matches.append(match_info)
+                # یافتن تمام مسابقات در این رقابت
+                match_elements = competition.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
+
+                for match in match_elements:
+                    try:
+                        teams = match.find_all("span", class_="c-team-info-team-bc team")
+                        if len(teams) < 2:
+                            logging.warning("Number of teams is less than 2")
+                            continue
+                        home_team = teams[0].text.strip()
+                        away_team = teams[1].text.strip()
+
+                        odds_elements = match.find_all("span", class_="market-odd-bc")
+                        odds = {"home_win": "N/A", "draw": "N/A", "away_win": "N/A"}
+                        if len(odds_elements) >= 3:
+                            odds["home_win"] = odds_elements[0].text.strip()
+                            odds["draw"] = odds_elements[1].text.strip()
+                            odds["away_win"] = odds_elements[2].text.strip()
+                        else:
+                            logging.warning(f"Insufficient odds for {home_team} vs {away_team}")
+                            continue
+
+                        match_info = {
+                            "home_team": home_team,
+                            "away_team": away_team,
+                            "odds": odds,
+                            "country": country,
+                            "league": league,
+                            "last_updated": datetime.now().isoformat()
+                        }
+                        matches.append(match_info)
+                    except Exception as e:
+                        logging.error(f"Error processing match: {e}")
+                        continue
             except Exception as e:
-                logging.error(f"Error processing match: {e}")
+                logging.error(f"Error processing competition: {e}")
                 continue
 
         return matches
@@ -122,78 +142,96 @@ def scrape_betforward_odds(driver, url):
     except Exception as e:
         logging.error(f"Error scraping odds: {e}")
         return []
-
+    
 def scrape_betforward_results(driver, url):
     try:
         driver.get(url)
-        WebDriverWait(driver, 20).until(
+        WebDriverWait(driver, 40).until(
             EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc"))
         )
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
-        match_elements = soup.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
+        competition_elements = soup.find_all("div", class_="competition-bc")
 
-        for match in match_elements:
+        for competition in competition_elements:
             try:
-                team_names = match.find_all("span", class_="c-team-info-team-bc team")
-                scores = match.find_all("b", class_="c-team-info-scores-bc")
-                time_info = match.find("span", class_="c-info-score-bc fixed-direction")
-
-                if len(team_names) < 2 or len(scores) < 2:
-                    logging.warning("Insufficient number of teams or scores")
-                    continue
-
-                team1 = team_names[0].text.strip()
-                team2 = team_names[1].text.strip()
-                score1 = scores[0].text.strip()
-                score2 = scores[1].text.strip()
-
-                minute = None
-                match_status = "Unknown"
-                extra_info = None
-
-                if time_info:
-                    time_text = time_info.text.strip()
-                    minute_match = re.search(r"(\d+)(?:\s*\+\s*(\d+))?\s*`", time_text)
-                    if minute_match:
-                        base_minute = int(minute_match.group(1))
-                        extra_minute = int(minute_match.group(2)) if minute_match.group(2) else 0
-                        minute = f"{base_minute}+{extra_minute}" if extra_minute else str(base_minute)
-                        if base_minute > 90 or extra_minute:
-                            match_status = "وقت اضافه"
-                        else:
-                            match_status = "در جریان"
-                    else:
-                        # اگر دقیقه پیدا نشد، دنبال تگ برادر با کلاس c-info-score-bc (بدون fixed-direction) بگرد
-                        sibling_status_tag = match.find("span", class_="c-info-score-bc")
-                        if sibling_status_tag:
-                            match_status = sibling_status_tag.text.strip()
-                        else:
-                            match_status = "Unknown"  # fallback نهایی
-
-                    # استخراج نتایج وقت اضافه (در صورت وجود)
-                    extra_info_match = re.search(r"\((\d+):(\d+)\)", time_text)
-                    if extra_info_match:
-                        extra_info = [{"team1": int(extra_info_match.group(1)), "team2": int(extra_info_match.group(2))} ]
-
+                # استخراج نام کشور و سری رقابت
+                title_elements = competition.find_all("span", class_="c-title-bc ellipsis")
+                if len(title_elements) < 2:
+                    logging.warning("Insufficient title elements for competition")
+                    country = "Unknown"
+                    league = "Unknown"
                 else:
-                    match_status = "شروع نشده"
+                    country = title_elements[0].text.strip()
+                    league = title_elements[1].text.strip()
 
-                match_info = {
-                    "team1": team1,
-                    "team2": team2,
-                    "score": {
-                        "team1": score1,
-                        "team2": score2
-                    },
-                    "minute": minute,
-                    "status": match_status,
-                    "extra_info": extra_info,
-                    "last_updated": datetime.now().isoformat()
-                }
-                matches.append(match_info)
+                # یافتن تمام مسابقات در این رقابت
+                match_elements = competition.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
+
+                for match in match_elements:
+                    try:
+                        team_names = match.find_all("span", class_="c-team-info-team-bc team")
+                        scores = match.find_all("b", class_="c-team-info-scores-bc")
+                        time_info = match.find("span", class_="c-info-score-bc fixed-direction")
+
+                        if len(team_names) < 2 or len(scores) < 2:
+                            logging.warning("Insufficient number of teams or scores")
+                            continue
+
+                        team1 = team_names[0].text.strip()
+                        team2 = team_names[1].text.strip()
+                        score1 = scores[0].text.strip()
+                        score2 = scores[1].text.strip()
+
+                        minute = None
+                        match_status = "Unknown"
+                        extra_info = None
+
+                        if time_info:
+                            time_text = time_info.text.strip()
+                            minute_match = re.search(r"(\d+)(?:\s*\+\s*(\d+))?\s*`", time_text)
+                            if minute_match:
+                                base_minute = int(minute_match.group(1))
+                                extra_minute = int(minute_match.group(2)) if minute_match.group(2) else 0
+                                minute = f"{base_minute}+{extra_minute}" if extra_minute else str(base_minute)
+                                if base_minute > 90 or extra_minute:
+                                    match_status = "وقت اضافه"
+                                else:
+                                    match_status = "در جریان"
+                            else:
+                                sibling_status_tag = match.find("span", class_="c-info-score-bc")
+                                if sibling_status_tag:
+                                    match_status = sibling_status_tag.text.strip()
+                                else:
+                                    match_status = "Unknown"
+
+                            extra_info_match = re.search(r"\((\d+):(\d+)\)", time_text)
+                            if extra_info_match:
+                                extra_info = [{"team1": int(extra_info_match.group(1)), "team2": int(extra_info_match.group(2))}]
+
+                        else:
+                            match_status = "شروع نشده"
+
+                        match_info = {
+                            "team1": team1,
+                            "team2": team2,
+                            "score": {
+                                "team1": score1,
+                                "team2": score2
+                            },
+                            "minute": minute,
+                            "status": match_status,
+                            "extra_info": extra_info,
+                            "country": country,
+                            "league": league,
+                            "last_updated": datetime.now().isoformat()
+                        }
+                        matches.append(match_info)
+                    except Exception as e:
+                        logging.error(f"Error processing match: {e}")
+                        continue
             except Exception as e:
-                logging.error(f"Error processing match: {e}")
+                logging.error(f"Error processing competition: {e}")
                 continue
 
         return matches
@@ -201,7 +239,6 @@ def scrape_betforward_results(driver, url):
     except Exception as e:
         logging.error(f"Error scraping results: {e}")
         return []
-
 def save_to_file(data, filename):
     try:
         with open(filename, "w", encoding="utf-8") as f:
@@ -336,12 +373,13 @@ def scrape_results_job():
 
                                     if home_odds <= 1.6 and score1 < score2:
                                         alert_message = (
-                                            f"{circle_color} هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match["status"]} "
-                                            f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!"
+                                            f"{circle_color} هشدار: {match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
+                                            f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
+                                            f"🌍 کشور: {match['country']}\n"
+                                            f"🏆 لیگ: {match['league']}"
                                         )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
-
                                     # Determine circle color for away team
                                     circle_color = "⚪"  # Default white circle
                                     if 1.4 < away_odds < 1.6:
@@ -353,8 +391,10 @@ def scrape_results_job():
 
                                     if away_odds <= 1.6 and score2 < score1:
                                         alert_message = (
-                                            f"{circle_color} هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match["status"]} "
-                                            f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!"
+                                            f"{circle_color} هشدار: {match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
+                                            f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!\n"
+                                            f"🌍 کشور: {match['country']}\n"
+                                            f"🏆 لیگ: {match['league']}"
                                         )
                                         logging.info(alert_message)
                                         asyncio.run(send_alert_message(alert_message))
@@ -371,7 +411,7 @@ def scrape_results_job():
         driver.quit()
 def run_schedule():
     schedule.every(20).minutes.do(scrape_odds_job)
-    schedule.every(4).minutes.do(scrape_results_job)
+    schedule.every(5).minutes.do(scrape_results_job)
     logging.info("Scheduler started. Odds and Results every 3 minutes.")
     while True:
         schedule.run_pending()
