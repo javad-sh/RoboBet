@@ -85,56 +85,36 @@ def scrape_betforward_odds(driver, url):
         )
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
-        competition_elements = soup.find_all("div", class_="competition-bc")
+        match_elements = soup.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
 
-        for competition in competition_elements:
+        for match in match_elements:
             try:
-                # استخراج نام کشور و سری رقابت
-                title_elements = competition.find_all("span", class_="c-title-bc ellipsis")
-                if len(title_elements) < 2:
-                    logging.warning("Insufficient title elements for competition")
-                    country = "Unknown"
-                    league = "Unknown"
+                teams = match.find_all("span", class_="c-team-info-team-bc team")
+                if len(teams) < 2:
+                    logging.warning("Number of teams is less than 2")
+                    continue
+                home_team = teams[0].text.strip()
+                away_team = teams[1].text.strip()
+
+                odds_elements = match.find_all("span", class_="market-odd-bc")
+                odds = {"home_win": "N/A", "draw": "N/A", "away_win": "N/A"}
+                if len(odds_elements) >= 3:
+                    odds["home_win"] = odds_elements[0].text.strip()
+                    odds["draw"] = odds_elements[1].text.strip()
+                    odds["away_win"] = odds_elements[2].text.strip()
                 else:
-                    country = title_elements[0].text.strip()
-                    league = title_elements[1].text.strip()
+                    logging.warning(f"Insufficient odds for {home_team} vs {away_team}")
+                    continue
 
-                # یافتن تمام مسابقات در این رقابت
-                match_elements = competition.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
-
-                for match in match_elements:
-                    try:
-                        teams = match.find_all("span", class_="c-team-info-team-bc team")
-                        if len(teams) < 2:
-                            logging.warning("Number of teams is less than 2")
-                            continue
-                        home_team = teams[0].text.strip()
-                        away_team = teams[1].text.strip()
-
-                        odds_elements = match.find_all("span", class_="market-odd-bc")
-                        odds = {"home_win": "N/A", "draw": "N/A", "away_win": "N/A"}
-                        if len(odds_elements) >= 3:
-                            odds["home_win"] = odds_elements[0].text.strip()
-                            odds["draw"] = odds_elements[1].text.strip()
-                            odds["away_win"] = odds_elements[2].text.strip()
-                        else:
-                            logging.warning(f"Insufficient odds for {home_team} vs {away_team}")
-                            continue
-
-                        match_info = {
-                            "home_team": home_team,
-                            "away_team": away_team,
-                            "odds": odds,
-                            "country": country,
-                            "league": league,
-                            "last_updated": datetime.now().isoformat()
-                        }
-                        matches.append(match_info)
-                    except Exception as e:
-                        logging.error(f"Error processing match: {e}")
-                        continue
+                match_info = {
+                    "home_team": home_team,
+                    "away_team": away_team,
+                    "odds": odds,
+                    "last_updated": datetime.now().isoformat()
+                }
+                matches.append(match_info)
             except Exception as e:
-                logging.error(f"Error processing competition: {e}")
+                logging.error(f"Error processing match: {e}")
                 continue
 
         return matches
@@ -142,7 +122,7 @@ def scrape_betforward_odds(driver, url):
     except Exception as e:
         logging.error(f"Error scraping odds: {e}")
         return []
-    
+  
 def scrape_betforward_results(driver, url):
     try:
         driver.get(url)

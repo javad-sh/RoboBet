@@ -65,8 +65,6 @@ def format_odds_match(match):
     updated = convert_to_persian_time(match.get("last_updated", ""))
     return (
         f"🏟 مسابقه: {match['home_team']} vs {match['away_team']}\n"
-        f"🌍 کشور: {match.get('country', 'N/A')}\n"
-        f"🏆 لیگ: {match.get('league', 'N/A')}\n"
         f"🎲 ضرایب:\n"
         f"▫️ برد میزبان: {odds.get('home_win', 'N/A')}\n"
         f"▫️ مساوی: {odds.get('draw', 'N/A')}\n"
