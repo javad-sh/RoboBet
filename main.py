@@ -21,6 +21,28 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # Bot token
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
+def normalize_string(s):
+    """Normalize a string by removing extra spaces and trimming."""
+    if not s:
+        return ""
+    return " ".join(s.split()).strip()
+
+# Define whitelist as a dictionary mapping countries to allowed leagues
+WHITELIST = {
+    normalize_string("انگلیس"): [normalize_string("لیگ برتر انگلیس"), normalize_string("جام حذفی انگلیس") ,normalize_string("چمپیونشیپ انگلیس") ],
+    normalize_string("اروپا"): [normalize_string("لیگ قهرمانان اروپا"),normalize_string("لیگ اروپا")],
+    normalize_string("ایتالیا"): [normalize_string("سری آ ایتالیا"), normalize_string("جام حذفی ایتالیا")],
+    normalize_string("اسپانیا"): [normalize_string("لالیگا اسپانیا"),normalize_string("کوپا دل ری اسپانیا")],
+    normalize_string("آلمان"): [normalize_string("بوندس‌لیگا آلمان"), normalize_string("جام حذفی آلمان")],
+    normalize_string("فرانسه"): [normalize_string("لیگ ۱ فرانسه")],
+    normalize_string("عربستان سعودی"): [normalize_string("لیگ حرفه‌ای عربستان سعودی")],
+    normalize_string("ترکیه"): [normalize_string("سوپر لیگ ترکیه")],
+    normalize_string("هلند"): [normalize_string("لیگ برتر هلند"),normalize_string("جام حذفی هلند")],
+    normalize_string("پرتغال"): [normalize_string("لیگ برتر پرتغال"),normalize_string("جام حذفی پرتغال")],
+
+
+}
+
 def setup_driver():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -33,11 +55,11 @@ def setup_driver():
     chrome_options.add_argument("--disable-background-networking")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-    chrome_options.add_argument("--blink-settings=imagesEnabled=false")  # غیرفعال کردن تصاویر
+    chrome_options.add_argument("--blink-settings=imagesEnabled=false")
     chrome_options.add_experimental_option("prefs", {
         "profile.default_content_setting_values": {
-            "images": 2,  # غیرفعال کردن تصاویر
-            "stylesheets": 2  # غیرفعال کردن CSS
+            "images": 2,
+            "stylesheets": 2
         }
     })
 
@@ -46,12 +68,12 @@ def setup_driver():
 
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
-    # بلاک کردن درخواست‌های CSS و تصاویر خاص
     driver.execute_cdp_cmd("Network.setBlockedURLs", {
         "urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]
     })
 
     return driver
+
 def load_json_file(filename):
     if os.path.exists(filename):
         try:
@@ -62,20 +84,22 @@ def load_json_file(filename):
             return []
     return []
 
-async def send_alert_message(message):
-    """Send alert message to all subscribed chat IDs."""
+async def send_all_alerts(messages):
+    """Send all alert messages to subscribed chat IDs with a 5-second delay between each."""
     bot = telegram.Bot(token=BOT_TOKEN)
     chat_ids = load_json_file("chat_ids.json")
-    for chat_id in chat_ids:
-        try:
-            await bot.send_message(
-                chat_id=chat_id,
-                text=message,
-                parse_mode=telegram.constants.ParseMode.MARKDOWN
-            )
-            logging.info(f"Sent alert to chat ID {chat_id}")
-        except Exception as e:
-            logging.error(f"Error sending message to chat ID {chat_id}: {e}")
+    for message in messages:
+        for chat_id in chat_ids:
+            try:
+                await bot.send_message(
+                    chat_id=chat_id,
+                    text=message,
+                    parse_mode=telegram.constants.ParseMode.MARKDOWN
+                )
+                logging.info(f"Sent alert to chat ID {chat_id}: {message[:50]}...")
+                await asyncio.sleep(5)
+            except Exception as e:
+                logging.error(f"Error sending message to chat ID {chat_id}: {e}")
 
 def scrape_betforward_odds(driver, url):
     try:
@@ -122,7 +146,7 @@ def scrape_betforward_odds(driver, url):
     except Exception as e:
         logging.error(f"Error scraping odds: {e}")
         return []
-  
+
 def scrape_betforward_results(driver, url):
     try:
         driver.get(url)
@@ -135,7 +159,6 @@ def scrape_betforward_results(driver, url):
 
         for competition in competition_elements:
             try:
-                # استخراج نام کشور و سری رقابت
                 title_elements = competition.find_all("span", class_="c-title-bc ellipsis")
                 if len(title_elements) < 2:
                     logging.warning("Insufficient title elements for competition")
@@ -145,7 +168,6 @@ def scrape_betforward_results(driver, url):
                     country = title_elements[0].text.strip()
                     league = title_elements[1].text.strip()
 
-                # یافتن تمام مسابقات در این رقابت
                 match_elements = competition.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
 
                 for match in match_elements:
@@ -188,7 +210,6 @@ def scrape_betforward_results(driver, url):
                             extra_info_match = re.search(r"\((\d+):(\d+)\)", time_text)
                             if extra_info_match:
                                 extra_info = [{"team1": int(extra_info_match.group(1)), "team2": int(extra_info_match.group(2))}]
-
                         else:
                             match_status = "شروع نشده"
 
@@ -219,6 +240,7 @@ def scrape_betforward_results(driver, url):
     except Exception as e:
         logging.error(f"Error scraping results: {e}")
         return []
+
 def save_to_file(data, filename):
     try:
         with open(filename, "w", encoding="utf-8") as f:
@@ -286,12 +308,11 @@ def update_results_file(new_results, filename="betforward_results.json"):
             updated_results.append(new_match)
             logging.info(f"Added new result: {match_id[0]} vs {match_id[1]}")
 
-    # حذف مسابقات قدیمی
     for existing_match in current_results:
         match_id = (existing_match["team1"], existing_match["team2"])
         if match_id not in new_matches:
             last_updated = datetime.fromisoformat(existing_match["last_updated"])
-            if current_time - last_updated > timedelta(minutes=30):  
+            if current_time - last_updated > timedelta(minutes=30):
                 logging.info(f"Removing old match: {match_id[0]} vs {match_id[1]}")
                 continue
             updated_results.append(existing_match)
@@ -318,6 +339,7 @@ def scrape_results_job():
         results = scrape_betforward_results(driver, results_url)
         if results:
             odds_data = load_json_file("betforward_odds.json")
+            alert_messages = []
 
             for match in results:
                 match_id = (match["team1"], match["team2"])
@@ -335,51 +357,75 @@ def scrape_results_job():
 
                         if match["status"] in ["در جریان", "وقت اضافه", "بین دو نیمه", "تایم اوت"]:
                             try:
-                                # Set default minute to 30 if minute is missing or empty
                                 if not minute or minute.strip() == "":
                                     base_minute = 30
                                 else:
                                     base_minute = int(minute.split("+")[0])
-                                
-                                if base_minute >= 30:
-                                    # Determine circle color based on odds
-                                    circle_color = "⚪"  # Default white circle
-                                    if 1.4 < home_odds < 1.6:
-                                        circle_color = "🟠"  # Orange
-                                    elif 1.2 < home_odds <= 1.4:
-                                        circle_color = "🟡"  # Yellow
-                                    elif home_odds <= 1.2:
-                                        circle_color = "🟢"  # Green
 
-                                    if home_odds <= 1.6 and score1 < score2:
-                                        alert_message = (
-                                                        f"{circle_color} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
-                                                        f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
-                                                        f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!"
-                                                    )
-                                        logging.info(alert_message)
-                                        asyncio.run(send_alert_message(alert_message))
-                                    # Determine circle color for away team
-                                    circle_color = "⚪"  # Default white circle
-                                    if 1.4 < away_odds < 1.6:
-                                        circle_color = "🟠"  # Orange
-                                    elif 1.2 < away_odds <= 1.4:
-                                        circle_color = "🟡"  # Yellow
-                                    elif away_odds <= 1.2:
-                                        circle_color = "🟢"  # Green
+                                if base_minute >= 60:
+                                    if (normalize_string(match["country"]) in WHITELIST and
+                                        normalize_string(match["league"]) in WHITELIST.get(normalize_string(match["country"]), [])):
+                                        # دایره اول بر اساس ضریب
+                                        circle_color = "⚪"
+                                        if 1.4 < home_odds <= 1.6:
+                                            circle_color = "🟠"
+                                        elif 1.2 < home_odds <= 1.4:
+                                            circle_color = "🟡"
+                                        elif home_odds <= 1.2:
+                                            circle_color = "🟢"
 
-                                    if away_odds <= 1.6 and score2 < score1:
-                                        alert_message = (
-                                            f"{circle_color} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
-                                            f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
-                                            f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!"
-                                        )
-                                        logging.info(alert_message)
-                                        asyncio.run(send_alert_message(alert_message))
+                                        # دایره دوم بر اساس اختلاف گل برای تیم میزبان
+                                        circle_color_diff = "⚪"
+                                        score_diff = score2 - score1  # اختلاف گل (میهمان - میزبان)
+                                        if score_diff == 1:
+                                            circle_color_diff = "🟡"  # یک گل عقب
+                                        elif score_diff > 1:
+                                            circle_color_diff = "🟢"  # بیش از یک گل عقب
+
+                                        if home_odds >= 1.6 and score1 < score2:
+                                            alert_message = (
+                                                f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
+                                                f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!"
+                                            )
+                                            logging.info(alert_message)
+                                            alert_messages.append(alert_message)
+
+                                        # دایره اول بر اساس ضریب برای تیم میهمان
+                                        circle_color = "⚪"
+                                        if 1.4 < away_odds <= 1.6:
+                                            circle_color = "🟠"
+                                        elif 1.2 < away_odds <= 1.4:
+                                            circle_color = "🟡"
+                                        elif away_odds <= 1.2:
+                                            circle_color = "🟢"
+
+                                        # دایره دوم بر اساس اختلاف گل برای تیم میهمان
+                                        circle_color_diff = "⚪"
+                                        score_diff = score1 - score2  # اختلاف گل (میزبان - میهمان)
+                                        if score_diff == 1:
+                                            circle_color_diff = "🟡"  # یک گل عقب
+                                        elif score_diff > 1:
+                                            circle_color_diff = "🟢"  # بیش از یک گل عقب
+
+                                        if away_odds >= 1.6 and score2 < score1:
+                                            alert_message = (
+                                                f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
+                                                f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!"
+                                            )
+                                            logging.info(alert_message)
+                                            alert_messages.append(alert_message)
+                                    else:
+                                        logging.info(f"Match {match_id[0]} vs {match_id[1]} skipped: country ({match['country']}) or league ({match['league']}) not in whitelist")
                             except ValueError:
                                 logging.warning(f"Invalid minute format for {match_id[0]} vs {match_id[1]}: {minute}")
                     except ValueError as e:
                         logging.warning(f"Error processing odds or scores for {match_id[0]} vs {match_id[1]}: {e}")
+
+            if alert_messages:
+                asyncio.run(send_all_alerts(alert_messages))
+                logging.info("All alerts sent successfully")
 
             update_results_file(results, "betforward_results.json")
             logging.info("Results updated successfully")
@@ -387,6 +433,7 @@ def scrape_results_job():
             logging.warning("No results retrieved.")
     finally:
         driver.quit()
+
 def run_schedule():
     schedule.every(20).minutes.do(scrape_odds_job)
     schedule.every(5).minutes.do(scrape_results_job)
