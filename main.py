@@ -382,7 +382,7 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
 
-                                        if home_odds >= 1.6 and score1 < score2:
+                                        if home_odds <= 1.6 and score1 < score2:
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
@@ -408,7 +408,7 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
 
-                                        if away_odds >= 1.6 and score2 < score1:
+                                        if away_odds <= 1.6 and score2 < score1:
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
