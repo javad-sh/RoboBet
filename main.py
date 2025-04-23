@@ -16,10 +16,13 @@ import telegram
 import asyncio
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 # Bot token
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
+
 
 def normalize_string(s):
     """Normalize a string by removing extra spaces and trimming."""
@@ -27,21 +30,58 @@ def normalize_string(s):
         return ""
     return " ".join(s.split()).strip()
 
+
 # Define whitelist as a dictionary mapping countries to allowed leagues
 WHITELIST = {
-    normalize_string("انگلیس"): [normalize_string("لیگ برتر انگلیس"), normalize_string("جام حذفی انگلیس") ,normalize_string("چمپیونشیپ انگلیس") ],
-    normalize_string("اروپا"): [normalize_string("لیگ قهرمانان اروپا"),normalize_string("لیگ اروپا")],
-    normalize_string("ایتالیا"): [normalize_string("سری آ ایتالیا"), normalize_string("جام حذفی ایتالیا")],
-    normalize_string("اسپانیا"): [normalize_string("لالیگا اسپانیا"),normalize_string("کوپا دل ری اسپانیا")],
-    normalize_string("آلمان"): [normalize_string("بوندس‌لیگا آلمان"), normalize_string("جام حذفی آلمان")],
-    normalize_string("فرانسه"): [normalize_string("لیگ ۱ فرانسه")],
+    normalize_string("انگلیس"): [
+        normalize_string("لیگ برتر انگلیس"),
+        normalize_string("جام حذفی انگلیس"),
+        normalize_string("چمپیونشیپ انگلیس"),
+        normalize_string("جام اتحادیه انگلیس"),
+        normalize_string("سوپرجام انگلیس (جام خیریه)"),
+        
+    ],
+    normalize_string("اروپا"): [
+        normalize_string("لیگ قهرمانان اروپا"),
+        normalize_string("لیگ اروپا"),
+        normalize_string("لیگ کنفرانس اروپا"),
+        normalize_string("سوپر جام اروپا"),
+    ],
+    normalize_string("آسیا"): [
+        normalize_string("لیگ نخبگان آسیا"),
+        normalize_string("لیگ قهرمانان آسیا ۲"),
+    ],
+    normalize_string("ایتالیا"): [
+        normalize_string("سری آ ایتالیا"),
+        normalize_string("جام حذفی ایتالیا"),
+        normalize_string("سوپر جام ایتالیا"),
+
+    ],
+    normalize_string("اسپانیا"): [
+        normalize_string("لالیگا اسپانیا"),
+        normalize_string("کوپا دل ری اسپانیا"),
+    ],
+    normalize_string("آلمان"): [
+        normalize_string("بوندس‌لیگا آلمان"),
+        normalize_string("جام حذفی آلمان"),
+    ],
+    normalize_string("فرانسه"): [
+        normalize_string("لیگ ۱ فرانسه"),
+        normalize_string("جام حذفی فرانسه"),
+    ],
+    normalize_string("برزیل"): [normalize_string("سری آ برزیل")],
     normalize_string("عربستان سعودی"): [normalize_string("لیگ حرفه‌ای عربستان سعودی")],
     normalize_string("ترکیه"): [normalize_string("سوپر لیگ ترکیه")],
-    normalize_string("هلند"): [normalize_string("لیگ برتر هلند"),normalize_string("جام حذفی هلند")],
-    normalize_string("پرتغال"): [normalize_string("لیگ برتر پرتغال"),normalize_string("جام حذفی پرتغال")],
-
-
+    normalize_string("هلند"): [
+        normalize_string("لیگ برتر هلند"),
+        normalize_string("جام حذفی هلند"),
+    ],
+    normalize_string("پرتغال"): [
+        normalize_string("لیگ برتر پرتغال"),
+        normalize_string("جام حذفی پرتغال"),
+    ],
 }
+
 
 def setup_driver():
     chrome_options = Options()
@@ -53,26 +93,28 @@ def setup_driver():
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--window-size=1920x1080")
     chrome_options.add_argument("--disable-background-networking")
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+    chrome_options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    )
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
     chrome_options.add_argument("--blink-settings=imagesEnabled=false")
-    chrome_options.add_experimental_option("prefs", {
-        "profile.default_content_setting_values": {
-            "images": 2,
-            "stylesheets": 2
-        }
-    })
+    chrome_options.add_experimental_option(
+        "prefs",
+        {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}},
+    )
 
     chrome_options.binary_location = "/usr/bin/google-chrome"
     service = Service("/usr/bin/chromedriver")
 
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
-    driver.execute_cdp_cmd("Network.setBlockedURLs", {
-        "urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]
-    })
+    driver.execute_cdp_cmd(
+        "Network.setBlockedURLs",
+        {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
+    )
 
     return driver
+
 
 def load_json_file(filename):
     if os.path.exists(filename):
@@ -84,6 +126,7 @@ def load_json_file(filename):
             return []
     return []
 
+
 async def send_all_alerts(messages):
     """Send all alert messages to subscribed chat IDs with a 5-second delay between each."""
     bot = telegram.Bot(token=BOT_TOKEN)
@@ -94,12 +137,13 @@ async def send_all_alerts(messages):
                 await bot.send_message(
                     chat_id=chat_id,
                     text=message,
-                    parse_mode=telegram.constants.ParseMode.MARKDOWN
+                    parse_mode=telegram.constants.ParseMode.MARKDOWN,
                 )
                 logging.info(f"Sent alert to chat ID {chat_id}: {message[:50]}...")
                 await asyncio.sleep(5)
             except Exception as e:
                 logging.error(f"Error sending message to chat ID {chat_id}: {e}")
+
 
 def scrape_betforward_odds(driver, url):
     try:
@@ -109,7 +153,9 @@ def scrape_betforward_odds(driver, url):
         )
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
-        match_elements = soup.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
+        match_elements = soup.find_all(
+            "div", class_="c-segment-holder-bc single-g-info-bc"
+        )
 
         for match in match_elements:
             try:
@@ -134,7 +180,7 @@ def scrape_betforward_odds(driver, url):
                     "home_team": home_team,
                     "away_team": away_team,
                     "odds": odds,
-                    "last_updated": datetime.now().isoformat()
+                    "last_updated": datetime.now().isoformat(),
                 }
                 matches.append(match_info)
             except Exception as e:
@@ -146,6 +192,7 @@ def scrape_betforward_odds(driver, url):
     except Exception as e:
         logging.error(f"Error scraping odds: {e}")
         return []
+
 
 def scrape_betforward_results(driver, url):
     try:
@@ -159,7 +206,9 @@ def scrape_betforward_results(driver, url):
 
         for competition in competition_elements:
             try:
-                title_elements = competition.find_all("span", class_="c-title-bc ellipsis")
+                title_elements = competition.find_all(
+                    "span", class_="c-title-bc ellipsis"
+                )
                 if len(title_elements) < 2:
                     logging.warning("Insufficient title elements for competition")
                     country = "Unknown"
@@ -168,13 +217,19 @@ def scrape_betforward_results(driver, url):
                     country = title_elements[0].text.strip()
                     league = title_elements[1].text.strip()
 
-                match_elements = competition.find_all("div", class_="c-segment-holder-bc single-g-info-bc")
+                match_elements = competition.find_all(
+                    "div", class_="c-segment-holder-bc single-g-info-bc"
+                )
 
                 for match in match_elements:
                     try:
-                        team_names = match.find_all("span", class_="c-team-info-team-bc team")
+                        team_names = match.find_all(
+                            "span", class_="c-team-info-team-bc team"
+                        )
                         scores = match.find_all("b", class_="c-team-info-scores-bc")
-                        time_info = match.find("span", class_="c-info-score-bc fixed-direction")
+                        time_info = match.find(
+                            "span", class_="c-info-score-bc fixed-direction"
+                        )
 
                         if len(team_names) < 2 or len(scores) < 2:
                             logging.warning("Insufficient number of teams or scores")
@@ -191,17 +246,29 @@ def scrape_betforward_results(driver, url):
 
                         if time_info:
                             time_text = time_info.text.strip()
-                            minute_match = re.search(r"(\d+)(?:\s*\+\s*(\d+))?\s*`", time_text)
+                            minute_match = re.search(
+                                r"(\d+)(?:\s*\+\s*(\d+))?\s*`", time_text
+                            )
                             if minute_match:
                                 base_minute = int(minute_match.group(1))
-                                extra_minute = int(minute_match.group(2)) if minute_match.group(2) else 0
-                                minute = f"{base_minute}+{extra_minute}" if extra_minute else str(base_minute)
+                                extra_minute = (
+                                    int(minute_match.group(2))
+                                    if minute_match.group(2)
+                                    else 0
+                                )
+                                minute = (
+                                    f"{base_minute}+{extra_minute}"
+                                    if extra_minute
+                                    else str(base_minute)
+                                )
                                 if base_minute > 90 or extra_minute:
                                     match_status = "وقت اضافه"
                                 else:
                                     match_status = "در جریان"
                             else:
-                                sibling_status_tag = match.find("span", class_="c-info-score-bc")
+                                sibling_status_tag = match.find(
+                                    "span", class_="c-info-score-bc"
+                                )
                                 if sibling_status_tag:
                                     match_status = sibling_status_tag.text.strip()
                                 else:
@@ -209,23 +276,25 @@ def scrape_betforward_results(driver, url):
 
                             extra_info_match = re.search(r"\((\d+):(\d+)\)", time_text)
                             if extra_info_match:
-                                extra_info = [{"team1": int(extra_info_match.group(1)), "team2": int(extra_info_match.group(2))}]
+                                extra_info = [
+                                    {
+                                        "team1": int(extra_info_match.group(1)),
+                                        "team2": int(extra_info_match.group(2)),
+                                    }
+                                ]
                         else:
                             match_status = "شروع نشده"
 
                         match_info = {
                             "team1": team1,
                             "team2": team2,
-                            "score": {
-                                "team1": score1,
-                                "team2": score2
-                            },
+                            "score": {"team1": score1, "team2": score2},
                             "minute": minute,
                             "status": match_status,
                             "extra_info": extra_info,
                             "country": country,
                             "league": league,
-                            "last_updated": datetime.now().isoformat()
+                            "last_updated": datetime.now().isoformat(),
                         }
                         matches.append(match_info)
                     except Exception as e:
@@ -241,6 +310,7 @@ def scrape_betforward_results(driver, url):
         logging.error(f"Error scraping results: {e}")
         return []
 
+
 def save_to_file(data, filename):
     try:
         with open(filename, "w", encoding="utf-8") as f:
@@ -248,6 +318,7 @@ def save_to_file(data, filename):
         logging.info(f"Data saved to {filename}")
     except IOError as e:
         logging.error(f"Error saving data: {e}")
+
 
 def update_odds_file(new_odds, filename="betforward_odds.json"):
     current_odds = load_json_file(filename)
@@ -259,7 +330,8 @@ def update_odds_file(new_odds, filename="betforward_odds.json"):
     for new_match in new_odds:
         match_id = (new_match["home_team"], new_match["away_team"])
         existing_match = next(
-            (m for m in current_odds if (m["home_team"], m["away_team"]) == match_id), None
+            (m for m in current_odds if (m["home_team"], m["away_team"]) == match_id),
+            None,
         )
 
         if existing_match:
@@ -284,6 +356,7 @@ def update_odds_file(new_odds, filename="betforward_odds.json"):
 
     save_to_file(updated_odds, filename)
 
+
 def update_results_file(new_results, filename="betforward_results.json"):
     current_results = load_json_file(filename)
     updated_results = []
@@ -299,9 +372,9 @@ def update_results_file(new_results, filename="betforward_results.json"):
         if existing_match:
             updated_results.append(new_match)
             if (
-                existing_match["score"] != new_match["score"] or
-                existing_match["status"] != new_match["status"] or
-                existing_match["minute"] != new_match["minute"]
+                existing_match["score"] != new_match["score"]
+                or existing_match["status"] != new_match["status"]
+                or existing_match["minute"] != new_match["minute"]
             ):
                 logging.info(f"Updated result for {match_id[0]} vs {match_id[1]}")
         else:
@@ -319,6 +392,7 @@ def update_results_file(new_results, filename="betforward_results.json"):
 
     save_to_file(updated_results, filename)
 
+
 def scrape_odds_job():
     odds_url = "https://m.betforward.com/fa/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
     driver = setup_driver()
@@ -332,6 +406,7 @@ def scrape_odds_job():
     finally:
         driver.quit()
 
+
 def scrape_results_job():
     results_url = "https://m.betforward.com/fa/sports/live/event-view/Soccer"
     driver = setup_driver()
@@ -344,18 +419,44 @@ def scrape_results_job():
             for match in results:
                 match_id = (match["team1"], match["team2"])
                 odds_match = next(
-                    (m for m in odds_data if (m["home_team"], m["away_team"]) == match_id), None
+                    (
+                        m
+                        for m in odds_data
+                        if (m["home_team"], m["away_team"]) == match_id
+                    ),
+                    None,
                 )
 
                 if odds_match:
                     try:
-                        home_odds = float(odds_match["odds"]["home_win"]) if odds_match["odds"]["home_win"] != "N/A" else float('inf')
-                        away_odds = float(odds_match["odds"]["away_win"]) if odds_match["odds"]["away_win"] != "N/A" else float('inf')
-                        score1 = int(match["score"]["team1"]) if match["score"]["team1"].isdigit() else 0
-                        score2 = int(match["score"]["team2"]) if match["score"]["team2"].isdigit() else 0
+                        home_odds = (
+                            float(odds_match["odds"]["home_win"])
+                            if odds_match["odds"]["home_win"] != "N/A"
+                            else float("inf")
+                        )
+                        away_odds = (
+                            float(odds_match["odds"]["away_win"])
+                            if odds_match["odds"]["away_win"] != "N/A"
+                            else float("inf")
+                        )
+                        score1 = (
+                            int(match["score"]["team1"])
+                            if match["score"]["team1"].isdigit()
+                            else 0
+                        )
+                        score2 = (
+                            int(match["score"]["team2"])
+                            if match["score"]["team2"].isdigit()
+                            else 0
+                        )
                         minute = match["minute"]
 
-                        if match["status"] in ["در جریان", "وقت اضافه", "بین دو نیمه", "تایم اوت"]:
+                        if match["status"] in [
+                            "در جریان",
+                            "وقت اضافه",
+                            "بین دو نیمه",
+                            "تایم اوت",
+                        ]:
                             try:
                                 if not minute or minute.strip() == "":
                                     base_minute = 30
@@ -363,8 +464,13 @@ def scrape_results_job():
                                     base_minute = int(minute.split("+")[0])
 
                                 if base_minute >= 60:
-                                    if (normalize_string(match["country"]) in WHITELIST and
-                                        normalize_string(match["league"]) in WHITELIST.get(normalize_string(match["country"]), [])):
+                                    if normalize_string(
+                                        match["country"]
+                                    ) in WHITELIST and normalize_string(
+                                        match["league"]
+                                    ) in WHITELIST.get(
+                                        normalize_string(match["country"]), []
+                                    ):
                                         # دایره اول بر اساس ضریب
                                         circle_color = "⚪"
                                         if 1.4 < home_odds <= 1.6:
@@ -376,7 +482,9 @@ def scrape_results_job():
 
                                         # دایره دوم بر اساس اختلاف گل برای تیم میزبان
                                         circle_color_diff = "⚪"
-                                        score_diff = score2 - score1  # اختلاف گل (میهمان - میزبان)
+                                        score_diff = (
+                                            score2 - score1
+                                        )  # اختلاف گل (میهمان - میزبان)
                                         if score_diff == 1:
                                             circle_color_diff = "🟡"  # یک گل عقب
                                         elif score_diff > 1:
@@ -402,7 +510,9 @@ def scrape_results_job():
 
                                         # دایره دوم بر اساس اختلاف گل برای تیم میهمان
                                         circle_color_diff = "⚪"
-                                        score_diff = score1 - score2  # اختلاف گل (میزبان - میهمان)
+                                        score_diff = (
+                                            score1 - score2
+                                        )  # اختلاف گل (میزبان - میهمان)
                                         if score_diff == 1:
                                             circle_color_diff = "🟡"  # یک گل عقب
                                         elif score_diff > 1:
@@ -417,11 +527,17 @@ def scrape_results_job():
                                             logging.info(alert_message)
                                             alert_messages.append(alert_message)
                                     else:
-                                        logging.info(f"Match {match_id[0]} vs {match_id[1]} skipped: country ({match['country']}) or league ({match['league']}) not in whitelist")
+                                        logging.info(
+                                            f"Match {match_id[0]} vs {match_id[1]} skipped: country ({match['country']}) or league ({match['league']}) not in whitelist"
+                                        )
                             except ValueError:
-                                logging.warning(f"Invalid minute format for {match_id[0]} vs {match_id[1]}: {minute}")
+                                logging.warning(
+                                    f"Invalid minute format for {match_id[0]} vs {match_id[1]}: {minute}"
+                                )
                     except ValueError as e:
-                        logging.warning(f"Error processing odds or scores for {match_id[0]} vs {match_id[1]}: {e}")
+                        logging.warning(
+                            f"Error processing odds or scores for {match_id[0]} vs {match_id[1]}: {e}"
+                        )
 
             if alert_messages:
                 asyncio.run(send_all_alerts(alert_messages))
@@ -434,6 +550,7 @@ def scrape_results_job():
     finally:
         driver.quit()
 
+
 def run_schedule():
     schedule.every(20).minutes.do(scrape_odds_job)
     schedule.every(5).minutes.do(scrape_results_job)
@@ -441,6 +558,7 @@ def run_schedule():
     while True:
         schedule.run_pending()
         time.sleep(60)
+
 
 if __name__ == "__main__":
     try:
