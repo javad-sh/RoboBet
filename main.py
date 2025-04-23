@@ -55,7 +55,6 @@ WHITELIST = {
         normalize_string("سری آ ایتالیا"),
         normalize_string("جام حذفی ایتالیا"),
         normalize_string("سوپر جام ایتالیا"),
-
     ],
     normalize_string("اسپانیا"): [
         normalize_string("لالیگا اسپانیا"),
@@ -494,7 +493,8 @@ def scrape_results_job():
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
-                                                f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!"
+                                                f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
+                                                f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
                                             )
                                             logging.info(alert_message)
                                             alert_messages.append(alert_message)
@@ -522,14 +522,58 @@ def scrape_results_job():
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
-                                                f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!"
+                                                f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!\n"
+                                                f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
                                             )
                                             logging.info(alert_message)
                                             alert_messages.append(alert_message)
-                                    else:
-                                        logging.info(
-                                            f"Match {match_id[0]} vs {match_id[1]} skipped: country ({match['country']}) or league ({match['league']}) not in whitelist"
-                                        )
+
+                                # New condition: Halftime, tied score, and low odds
+                                if match["status"] == "بین دو نیمه" and score1 == score2:
+                                    if normalize_string(
+                                        match["country"]
+                                    ) in WHITELIST and normalize_string(
+                                        match["league"]
+                                    ) in WHITELIST.get(
+                                        normalize_string(match["country"]), []
+                                    ):
+                                        if home_odds <= 1.6 or away_odds <= 1.6:
+                                            # Determine which team has low odds
+                                            low_odds_team = None
+                                            low_odds_value = None
+                                            if home_odds <= 1.6:
+                                                low_odds_team = match["team1"]
+                                                low_odds_value = home_odds
+                                            elif away_odds <= 1.6:
+                                                low_odds_team = match["team2"]
+                                                low_odds_value = away_odds
+
+                                            if low_odds_team:
+                                                # دایره اول بر اساس ضریب
+                                                circle_color = "⚪"
+                                                if 1.4 < low_odds_value <= 1.6:
+                                                    circle_color = "🟠"
+                                                elif 1.2 < low_odds_value <= 1.4:
+                                                    circle_color = "🟡"
+                                                elif low_odds_value <= 1.2:
+                                                    circle_color = "🟢"
+
+                                                # دایره دوم بر اساس نتیجه
+                                                circle_color_diff = "⚪"
+                                                if score1 == 0 and score2 == 0:
+                                                    circle_color_diff = "🟢"  # 0-0
+                                                elif score1 > 0 and score2 > 0:
+                                                    circle_color_diff = "🟡"  # Tied with goals
+
+                                                alert_message = (
+                                                    f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                    f"مسابقه بین {match['team1']} (ضریب: {home_odds}) و {match['team2']} (ضریب: {away_odds}) "
+                                                    f"در نیمه اول با نتیجه {score1}-{score2} مساوی است!\n"
+                                                    f"📝 پیشنهاد: 1_گل داشتن بازی 2_گل زدن تیم قوی"
+                                                )
+                                                logging.info(alert_message)
+                                                alert_messages.append(alert_message)
+
                             except ValueError:
                                 logging.warning(
                                     f"Invalid minute format for {match_id[0]} vs {match_id[1]}: {minute}"
