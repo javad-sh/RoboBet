@@ -449,7 +449,7 @@ def scrape_results_job():
                             else 0
                         )
                         minute = match["minute"]
-
+                        logging.info(match["status"])
                         if match["status"] in [
                             "در جریان",
                             "وقت اضافه",
@@ -462,7 +462,7 @@ def scrape_results_job():
                                 else:
                                     base_minute = int(minute.split("+")[0])
 
-                                if base_minute >= 20:
+                                if base_minute >= 10:
                                     # if normalize_string(
                                     #     match["country"]
                                     # ) in WHITELIST and normalize_string(
@@ -491,9 +491,9 @@ def scrape_results_job():
 
                                         if home_odds >= 1.6 and score1 < score2:
                                             alert_message = (
-                                                f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
-                                                f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
-                                                f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
+                                                # f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                # f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
+                                                # f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
                                                 f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
                                             )
                                             logging.info(alert_message)
