@@ -462,14 +462,14 @@ def scrape_results_job():
                                 else:
                                     base_minute = int(minute.split("+")[0])
 
-                                if base_minute >= 60:
-                                    if normalize_string(
-                                        match["country"]
-                                    ) in WHITELIST and normalize_string(
-                                        match["league"]
-                                    ) in WHITELIST.get(
-                                        normalize_string(match["country"]), []
-                                    ):
+                                if base_minute >= 20:
+                                    # if normalize_string(
+                                    #     match["country"]
+                                    # ) in WHITELIST and normalize_string(
+                                    #     match["league"]
+                                    # ) in WHITELIST.get(
+                                    #     normalize_string(match["country"]), []
+                                    # ):
                                         # دایره اول بر اساس ضریب
                                         circle_color = "⚪"
                                         if 1.4 < home_odds <= 1.6:
@@ -489,7 +489,7 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
 
-                                        if home_odds <= 1.6 and score1 < score2:
+                                        if home_odds >= 1.6 and score1 < score2:
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
@@ -518,7 +518,7 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
 
-                                        if away_odds <= 1.6 and score2 < score1:
+                                        if away_odds >= 1.6 and score2 < score1:
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
@@ -530,13 +530,13 @@ def scrape_results_job():
 
                                 # New condition: Halftime, tied score, and low odds
                                 if match["status"] == "بین دو نیمه" and score1 == score2:
-                                    if normalize_string(
-                                        match["country"]
-                                    ) in WHITELIST and normalize_string(
-                                        match["league"]
-                                    ) in WHITELIST.get(
-                                        normalize_string(match["country"]), []
-                                    ):
+                                    # if normalize_string(
+                                    #     match["country"]
+                                    # ) in WHITELIST and normalize_string(
+                                    #     match["league"]
+                                    # ) in WHITELIST.get(
+                                    #     normalize_string(match["country"]), []
+                                    # ):
                                         if home_odds <= 1.6 or away_odds <= 1.6:
                                             # Determine which team has low odds
                                             low_odds_team = None
