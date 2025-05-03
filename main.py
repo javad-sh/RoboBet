@@ -139,7 +139,7 @@ async def send_all_alerts(messages):
                     parse_mode=telegram.constants.ParseMode.MARKDOWN,
                 )
                 logging.info(f"Sent alert to chat ID {chat_id}: {message[:50]}...")
-                await asyncio.sleep(5)
+                await asyncio.sleep(2)
             except Exception as e:
                 logging.error(f"Error sending message to chat ID {chat_id}: {e}")
 
@@ -450,20 +450,16 @@ def scrape_results_job():
                         )
                         minute = match["minute"]
                         logging.info(match["status"])
-                        if match["status"] in [
-                            "در جریان",
-                            "وقت اضافه",
-                            "بین دو نیمه",
-                            "تایم اوت",
-                        ]:
+                        alert_messages.append(match["status"])
+
+                        if True:
                             try:
                                 if not minute or minute.strip() == "":
                                     base_minute = 30
                                 else:
                                     base_minute = int(minute.split("+")[0])
-                                    alert_messages.append(base_minute)
-                                    
-                                if True:
+
+                                if base_minute >= 5:
                                     # if normalize_string(
                                     #     match["country"]
                                     # ) in WHITELIST and normalize_string(
@@ -485,8 +481,6 @@ def scrape_results_job():
                                         score_diff = (
                                             score2 - score1
                                         )  # اختلاف گل (میهمان - میزبان)
-                                        alert_messages.append(score_diff)
-                                        
                                         if score_diff == 1:
                                             circle_color_diff = "🟡"  # یک گل عقب
                                         elif score_diff > 1:
@@ -494,9 +488,9 @@ def scrape_results_job():
 
                                         if home_odds >= 1.6 and score1 < score2:
                                             alert_message = (
-                                                # f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
-                                                # f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
-                                                # f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
+                                                f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
+                                                f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
                                                 f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
                                             )
                                             logging.info(alert_message)
@@ -523,9 +517,9 @@ def scrape_results_job():
 
                                         if away_odds >= 1.6 and score2 < score1:
                                             alert_message = (
-                                                # f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
-                                                # f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
-                                                # f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!\n"
+                                                f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
+                                                f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!\n"
                                                 f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
                                             )
                                             logging.info(alert_message)
@@ -533,13 +527,13 @@ def scrape_results_job():
 
                                 # New condition: Halftime, tied score, and low odds
                                 if match["status"] == "بین دو نیمه" and score1 == score2:
-                                    # if normalize_string(
-                                    #     match["country"]
-                                    # ) in WHITELIST and normalize_string(
-                                    #     match["league"]
-                                    # ) in WHITELIST.get(
-                                    #     normalize_string(match["country"]), []
-                                    # ):
+                                    if normalize_string(
+                                        match["country"]
+                                    ) in WHITELIST and normalize_string(
+                                        match["league"]
+                                    ) in WHITELIST.get(
+                                        normalize_string(match["country"]), []
+                                    ):
                                         if home_odds <= 1.6 or away_odds <= 1.6:
                                             # Determine which team has low odds
                                             low_odds_team = None
