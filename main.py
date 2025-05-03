@@ -466,7 +466,7 @@ def scrape_results_job():
                                     base_minute = 30
                                 else:
                                     base_minute = int(minute.split("+")[0])
-                                if base_minute >= 5:
+                                if base_minute >= 60:
                                         # دایره اول بر اساس ضریب
                                         circle_color = "⚪"
                                         if 1.4 < home_odds <= 1.6:
@@ -486,7 +486,7 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
                                         
-                                        if home_odds >= 1.1 and score1 < score2:
+                                        if home_odds <= 1.6 and score1 < score2:
                                             
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
@@ -515,7 +515,7 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
 
-                                        if away_odds >= 1.1 and score2 < score1:
+                                        if away_odds <= 1.6 and score2 < score1:
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
                                                 f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
@@ -585,7 +585,7 @@ def scrape_results_job():
 
 def run_schedule():
     schedule.every(20).minutes.do(scrape_odds_job)
-    schedule.every(1).minutes.do(scrape_results_job)
+    schedule.every(5).minutes.do(scrape_results_job)
     logging.info("Scheduler started. Odds and Results every 3 minutes.")
     while True:
         schedule.run_pending()
