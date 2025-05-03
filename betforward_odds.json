@@ -1,0 +1,1662 @@
+[
+    {
+        "home_team": "عمان کلاب",
+        "away_team": "النهضه البریمی",
+        "odds": {
+            "home_win": "5.40",
+            "draw": "3.51",
+            "away_win": "1.59"
+        },
+        "last_updated": "2025-05-03T17:47:08.702635"
+    },
+    {
+        "home_team": "الرستاق",
+        "away_team": "السیب",
+        "odds": {
+            "home_win": "7.50",
+            "draw": "4.10",
+            "away_win": "1.38"
+        },
+        "last_updated": "2025-05-03T17:50:24.683575"
+    },
+    {
+        "home_team": "صحم",
+        "away_team": "صحار",
+        "odds": {
+            "home_win": "3.36",
+            "draw": "3.14",
+            "away_win": "2.07"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "النصر صلاله",
+        "away_team": "الخابوره",
+        "odds": {
+            "home_win": "2.09",
+            "draw": "3.13",
+            "away_win": "3.31"
+        },
+        "last_updated": "2025-05-03T18:10:27.476296"
+    },
+    {
+        "home_team": "عبری کلاب",
+        "away_team": "بهلا کلاب",
+        "odds": {
+            "home_win": "3.61",
+            "draw": "3.21",
+            "away_win": "1.95"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "سورخون ترمذ",
+        "away_team": "پاختاکور",
+        "odds": {
+            "home_win": "5.00",
+            "draw": "3.39",
+            "away_win": "1.66"
+        },
+        "last_updated": "2025-05-03T17:47:08.702635"
+    },
+    {
+        "home_team": "کالیش ۱۹۲۵",
+        "away_team": "پولونیا بیتوم",
+        "odds": {
+            "home_win": "3.50",
+            "draw": "3.27",
+            "away_win": "1.97"
+        },
+        "last_updated": "2025-05-03T18:02:19.033443"
+    },
+    {
+        "home_team": "پولونیا ورشو",
+        "away_team": "استال استالووا وولا",
+        "odds": {
+            "home_win": "1.71",
+            "draw": "3.66",
+            "away_win": "4.10"
+        },
+        "last_updated": "2025-05-03T18:02:19.033443"
+    },
+    {
+        "home_team": "شلاسک وروتسواف",
+        "away_team": "زاگلبیه لوبین",
+        "odds": {
+            "home_win": "1.91",
+            "draw": "3.67",
+            "away_win": "3.29"
+        },
+        "last_updated": "2025-05-03T18:10:27.476296"
+    },
+    {
+        "home_team": "هالمستاد",
+        "away_team": "ورنمو",
+        "odds": {
+            "home_win": "3.50",
+            "draw": "3.12",
+            "away_win": "2.16"
+        },
+        "last_updated": "2025-05-03T18:02:19.034447"
+    },
+    {
+        "home_team": "ووی اسپورتس",
+        "away_team": "یانگ بویز ۲",
+        "odds": {
+            "home_win": "1.96",
+            "draw": "3.60",
+            "away_win": "3.20"
+        },
+        "last_updated": "2025-05-03T18:02:19.034447"
+    },
+    {
+        "home_team": "دژیوگاس تلشیای",
+        "away_team": "دایناوا الیتاس",
+        "odds": {
+            "home_win": "2.13",
+            "draw": "2.99",
+            "away_win": "3.38"
+        },
+        "last_updated": "2025-05-03T18:02:19.034447"
+    },
+    {
+        "home_team": "ماجسی",
+        "away_team": "سخوخونه یونایتد",
+        "odds": {
+            "home_win": "2.91",
+            "draw": "2.70",
+            "away_win": "2.59"
+        },
+        "last_updated": "2025-05-03T18:02:19.034447"
+    },
+    {
+        "home_team": "آراز نخجوان",
+        "away_team": "صباح",
+        "odds": {
+            "home_win": "2.88",
+            "draw": "3.29",
+            "away_win": "2.23"
+        },
+        "last_updated": "2025-05-03T18:02:19.034447"
+    },
+    {
+        "home_team": "رادوملیه",
+        "away_team": "مورا",
+        "odds": {
+            "home_win": "2.49",
+            "draw": "3.04",
+            "away_win": "2.94"
+        },
+        "last_updated": "2025-05-03T18:02:19.034447"
+    },
+    {
+        "home_team": "چانتریا",
+        "away_team": "سن خوان پامپلونا",
+        "odds": {
+            "home_win": "2.58",
+            "draw": "3.55",
+            "away_win": "2.32"
+        },
+        "last_updated": "2025-05-03T18:10:27.476296"
+    },
+    {
+        "home_team": "پامپلونا",
+        "away_team": "آرتاخونس",
+        "odds": {
+            "home_win": "1.76",
+            "draw": "3.51",
+            "away_win": "4.00"
+        },
+        "last_updated": "2025-05-03T18:02:19.034447"
+    },
+    {
+        "home_team": "گارس",
+        "away_team": "پنا اسپورت",
+        "odds": {
+            "home_win": "6.60",
+            "draw": "4.33",
+            "away_win": "1.39"
+        },
+        "last_updated": "2025-05-03T18:02:19.035191"
+    },
+    {
+        "home_team": "آردوی",
+        "away_team": "موتیلورا",
+        "odds": {
+            "home_win": "3.50",
+            "draw": "3.04",
+            "away_win": "2.06"
+        },
+        "last_updated": "2025-05-03T18:02:19.035191"
+    },
+    {
+        "home_team": "هوارته",
+        "away_team": "بتی کوزکور",
+        "odds": {
+            "home_win": "1.35",
+            "draw": "4.60",
+            "away_win": "7.00"
+        },
+        "last_updated": "2025-05-03T18:02:19.035191"
+    },
+    {
+        "home_team": "بتی اوناک",
+        "away_team": "روتساپیا",
+        "odds": {
+            "home_win": "1.84",
+            "draw": "4.20",
+            "away_win": "3.17"
+        },
+        "last_updated": "2025-05-03T18:02:19.035191"
+    },
+    {
+        "home_team": "کارینان پویات",
+        "away_team": "آبو آی‌‌اف‌کی",
+        "odds": {
+            "home_win": "4.33",
+            "draw": "5.00",
+            "away_win": "1.50"
+        },
+        "last_updated": "2025-05-03T18:10:27.476296"
+    },
+    {
+        "home_team": "استیوردالس-بلینک",
+        "away_team": "آلتا",
+        "odds": {
+            "home_win": "1.58",
+            "draw": "4.10",
+            "away_win": "4.50"
+        },
+        "last_updated": "2025-05-03T18:02:19.035191"
+    },
+    {
+        "home_team": "بی‌۳۶ توشهاون",
+        "away_team": "ای‌بی استریمور",
+        "odds": {
+            "home_win": "1.32",
+            "draw": "4.70",
+            "away_win": "7.70"
+        },
+        "last_updated": "2025-05-03T18:02:19.035191"
+    },
+    {
+        "home_team": "فولگوره فالکانو",
+        "away_team": "سان جیووانی",
+        "odds": {
+            "home_win": "2.64",
+            "draw": "2.88",
+            "away_win": "2.68"
+        },
+        "last_updated": "2025-05-03T18:02:19.036201"
+    },
+    {
+        "home_team": "دراسبورگ",
+        "away_team": "پارندورف",
+        "odds": {
+            "home_win": "11.00",
+            "draw": "6.30",
+            "away_win": "1.18"
+        },
+        "last_updated": "2025-05-03T18:02:19.036201"
+    },
+    {
+        "home_team": "دومبه",
+        "away_team": "گبولوزیو",
+        "odds": {
+            "home_win": "3.66",
+            "draw": "3.25",
+            "away_win": "1.93"
+        },
+        "last_updated": "2025-05-03T18:02:19.036201"
+    },
+    {
+        "home_team": "اس‌دی سن پدرو",
+        "away_team": "آبانتو",
+        "odds": {
+            "home_win": "2.01",
+            "draw": "3.33",
+            "away_win": "3.31"
+        },
+        "last_updated": "2025-05-03T18:02:19.036535"
+    },
+    {
+        "home_team": "فارول کنستانتا",
+        "away_team": "بوزائو",
+        "odds": {
+            "home_win": "1.25",
+            "draw": "5.70",
+            "away_win": "8.30"
+        },
+        "last_updated": "2025-05-03T18:05:33.888890"
+    },
+    {
+        "home_team": "وایه اخس",
+        "away_team": "بیدسارا",
+        "odds": {
+            "home_win": "-",
+            "draw": "-",
+            "away_win": "-"
+        },
+        "last_updated": "2025-05-03T18:02:19.035191"
+    },
+    {
+        "home_team": "زسکا صوفیه بی",
+        "away_team": "اتار ۱۹۲۴ ولیکو ترنوو",
+        "odds": {
+            "home_win": "2.19",
+            "draw": "3.05",
+            "away_win": "3.17"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "فراتریا بنکووسکی",
+        "away_team": "مارک دوپنیتسا",
+        "odds": {
+            "home_win": "2.92",
+            "draw": "3.16",
+            "away_win": "2.27"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "اسپورتیس سوگه",
+        "away_team": "لوکومتیو گورنا اوریاهوویتسا",
+        "odds": {
+            "home_win": "1.64",
+            "draw": "3.62",
+            "away_win": "4.70"
+        },
+        "last_updated": "2025-05-03T17:40:32.565734"
+    },
+    {
+        "home_team": "لووچ",
+        "away_team": "دوناو روسه",
+        "odds": {
+            "home_win": "6.40",
+            "draw": "3.23",
+            "away_win": "1.57"
+        },
+        "last_updated": "2025-05-03T17:40:32.565734"
+    },
+    {
+        "home_team": "دوبروجا ۱۹۱۹ دبریچ",
+        "away_team": "زسکا ۱۹۴۸ ۲",
+        "odds": {
+            "home_win": "1.28",
+            "draw": "5.00",
+            "away_win": "8.80"
+        },
+        "last_updated": "2025-05-03T17:47:08.703725"
+    },
+    {
+        "home_team": "نسبار",
+        "away_team": "استرومسکا اسلاوا",
+        "odds": {
+            "home_win": "3.23",
+            "draw": "3.14",
+            "away_win": "2.12"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "ورس ریونه",
+        "away_team": "اوبولون کیف",
+        "odds": {
+            "home_win": "1.98",
+            "draw": "3.16",
+            "away_win": "3.61"
+        },
+        "last_updated": "2025-05-03T17:50:24.683575"
+    },
+    {
+        "home_team": "استراسبورگ",
+        "away_team": "پاری سن ژرمن",
+        "odds": {
+            "home_win": "2.40",
+            "draw": "3.84",
+            "away_win": "2.88"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "لیشن",
+        "away_team": "سیلون تابورسکو",
+        "odds": {
+            "home_win": "2.53",
+            "draw": "3.14",
+            "away_win": "2.59"
+        },
+        "last_updated": "2025-05-03T17:40:32.566826"
+    },
+    {
+        "home_team": "بلخاتوف",
+        "away_team": "استومیل اولشتین",
+        "odds": {
+            "home_win": "1.79",
+            "draw": "3.71",
+            "away_win": "3.68"
+        },
+        "last_updated": "2025-05-03T17:40:32.566826"
+    },
+    {
+        "home_team": "خوینیچانکا خوینیتسه",
+        "away_team": "اسکرا چنستوخوا",
+        "odds": {
+            "home_win": "1.54",
+            "draw": "3.76",
+            "away_win": "5.40"
+        },
+        "last_updated": "2025-05-03T17:50:24.683575"
+    },
+    {
+        "home_team": "پرادسیو",
+        "away_team": "اف‌سی بادن",
+        "odds": {
+            "home_win": "1.83",
+            "draw": "3.33",
+            "away_win": "3.94"
+        },
+        "last_updated": "2025-05-03T17:40:32.566826"
+    },
+    {
+        "home_team": "یونگه ویکینگر رید",
+        "away_team": "زانکت ماریانکیرشن/والرن",
+        "odds": {
+            "home_win": "2.93",
+            "draw": "3.94",
+            "away_win": "1.98"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "تیرول",
+        "away_team": "لاسک لینتس",
+        "odds": {
+            "home_win": "4.00",
+            "draw": "3.77",
+            "away_win": "1.70"
+        },
+        "last_updated": "2025-05-03T17:40:32.566826"
+    },
+    {
+        "home_team": "رودش",
+        "away_team": "زرینسکی یورواچ",
+        "odds": {
+            "home_win": "1.43",
+            "draw": "4.10",
+            "away_win": "6.40"
+        },
+        "last_updated": "2025-05-03T17:40:32.566826"
+    },
+    {
+        "home_team": "گراند-ساکونکس",
+        "away_team": "زوریخ ۲",
+        "odds": {
+            "home_win": "2.15",
+            "draw": "3.97",
+            "away_win": "2.62"
+        },
+        "last_updated": "2025-05-03T17:40:32.566826"
+    },
+    {
+        "home_team": "هوهنمس",
+        "away_team": "رایندورف آلتاخ (آماتور)",
+        "odds": {
+            "home_win": "1.64",
+            "draw": "4.10",
+            "away_win": "4.10"
+        },
+        "last_updated": "2025-05-03T17:40:32.566826"
+    },
+    {
+        "home_team": "دوگو-سلو",
+        "away_team": "سگستا سیساک",
+        "odds": {
+            "home_win": "1.87",
+            "draw": "3.90",
+            "away_win": "3.23"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "بیلوار",
+        "away_team": "سلین",
+        "odds": {
+            "home_win": "2.28",
+            "draw": "3.33",
+            "away_win": "2.77"
+        },
+        "last_updated": "2025-05-03T17:47:08.703725"
+    },
+    {
+        "home_team": "گروبنیچان",
+        "away_team": "ترنیه زاگرب",
+        "odds": {
+            "home_win": "1.95",
+            "draw": "3.51",
+            "away_win": "3.31"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "دروخترزن/آسل",
+        "away_team": "تودسفلده",
+        "odds": {
+            "home_win": "1.33",
+            "draw": "4.75",
+            "away_win": "7.20"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "سی‌اس‌او بیکوی",
+        "away_team": "پلوپنی",
+        "odds": {
+            "home_win": "1.34",
+            "draw": "5.00",
+            "away_win": "6.70"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "توناری",
+        "away_team": "اوربان تیترو",
+        "odds": {
+            "home_win": "1.13",
+            "draw": "7.60",
+            "away_win": "12.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "پروگرسول ۱۹۴۴",
+        "away_team": "سی‌اس دینامو بخارست",
+        "odds": {
+            "home_win": "2.40",
+            "draw": "3.29",
+            "away_win": "2.63"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "مینور بایا ماره",
+        "away_team": "کریسول سانتاندری",
+        "odds": {
+            "home_win": "1.17",
+            "draw": "6.50",
+            "away_win": "11.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "پولیتکنیکا تیمیشوارا",
+        "away_team": "گیرودا",
+        "odds": {
+            "home_win": "1.20",
+            "draw": "5.30",
+            "away_win": "12.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "گلوریا بیستریتسا-نسئود",
+        "away_team": "مدیاش",
+        "odds": {
+            "home_win": "1.10",
+            "draw": "8.40",
+            "away_win": "15.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "پوپستی لئوردنی",
+        "away_team": "پروگرسول فوندوله",
+        "odds": {
+            "home_win": "1.50",
+            "draw": "3.65",
+            "away_win": "6.30"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "اونیرئا برانیشتئا",
+        "away_team": "تارگو سکویسچ",
+        "odds": {
+            "home_win": "1.38",
+            "draw": "4.20",
+            "away_win": "7.20"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "سموز فالتیکنی",
+        "away_team": "یو‌اس‌وی یاش",
+        "odds": {
+            "home_win": "1.58",
+            "draw": "3.82",
+            "away_win": "4.80"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "اونیورسیداد کنسپسیون (زنان)",
+        "away_team": "ایکیکه (زنان)",
+        "odds": {
+            "home_win": "8.60",
+            "draw": "5.30",
+            "away_win": "1.26"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "کوکیمبو اونیدو (زنان)",
+        "away_team": "پالستینو (زنان)",
+        "odds": {
+            "home_win": "1.28",
+            "draw": "5.30",
+            "away_win": "7.60"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "ویسوکا دنبیتسا",
+        "away_team": "ویسلا کراکوف ۲",
+        "odds": {
+            "home_win": "2.06",
+            "draw": "3.51",
+            "away_win": "3.03"
+        },
+        "last_updated": "2025-05-03T17:40:32.567910"
+    },
+    {
+        "home_team": "ام‌کی‌اس پوگون-سوکول لوباچوف",
+        "away_team": "شیارکا تارنوبزک",
+        "odds": {
+            "home_win": "3.57",
+            "draw": "3.67",
+            "away_win": "1.83"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "آواسا سیتی",
+        "away_team": "سیداما بونا",
+        "odds": {
+            "home_win": "1.99",
+            "draw": "3.30",
+            "away_win": "3.40"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "ویلنیوس",
+        "away_team": "مینیا کرتینگا",
+        "odds": {
+            "home_win": "1.36",
+            "draw": "4.50",
+            "away_win": "7.00"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "سکول ژیوانیچ",
+        "away_team": "سوکول بورزانی",
+        "odds": {
+            "home_win": "3.80",
+            "draw": "3.45",
+            "away_win": "1.83"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "سنت-میکائیل (زنان)",
+        "away_team": "هالادش ویکتوریا (زنان)",
+        "odds": {
+            "home_win": "1.86",
+            "draw": "3.57",
+            "away_win": "3.55"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "جی‌کی‌اس ۱۹۰۹ یاروسواو",
+        "away_team": "چارنی ۱۹۱۰ یاسلو",
+        "odds": {
+            "home_win": "1.10",
+            "draw": "8.60",
+            "away_win": "11.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "المپیا زامبروف",
+        "away_team": "وارمی گرایوو",
+        "odds": {
+            "home_win": "1.65",
+            "draw": "4.40",
+            "away_win": "3.77"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "رويسات",
+        "away_team": "یواس‌ام الحراش",
+        "odds": {
+            "home_win": "3.26",
+            "draw": "2.50",
+            "away_win": "2.54"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "اوستروف",
+        "away_team": "اوستی ناد لابم بی",
+        "odds": {
+            "home_win": "1.79",
+            "draw": "3.97",
+            "away_win": "3.23"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "روکیتزاین",
+        "away_team": "TJ Prestice",
+        "odds": {
+            "home_win": "1.69",
+            "draw": "3.78",
+            "away_win": "3.78"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "لیتوئیستن",
+        "away_team": "آی اف کی ماریهامن 2",
+        "odds": {
+            "home_win": "1.58",
+            "draw": "4.10",
+            "away_win": "4.50"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "اتلتیکو لیسبون",
+        "away_team": "آمارانته",
+        "odds": {
+            "home_win": "2.35",
+            "draw": "3.13",
+            "away_win": "2.82"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "گروتا",
+        "away_team": "هاتور/هاگین",
+        "odds": {
+            "home_win": "1.42",
+            "draw": "5.10",
+            "away_win": "5.10"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "سی‌دی پورت‌مانی",
+        "away_team": "ماناکور",
+        "odds": {
+            "home_win": "4.70",
+            "draw": "3.77",
+            "away_win": "1.61"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "بینیسسالم",
+        "away_team": "میگخورن",
+        "odds": {
+            "home_win": "1.23",
+            "draw": "5.40",
+            "away_win": "10.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "سیلوا اس‌دی",
+        "away_team": "آروسا",
+        "odds": {
+            "home_win": "3.78",
+            "draw": "3.25",
+            "away_win": "1.89"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "آلوندراس",
+        "away_team": "آرتیکسو",
+        "odds": {
+            "home_win": "2.15",
+            "draw": "3.31",
+            "away_win": "3.00"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "بیشیم",
+        "away_team": "واسکهال",
+        "odds": {
+            "home_win": "1.88",
+            "draw": "3.98",
+            "away_win": "3.16"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "پوچوف",
+        "away_team": "زولن",
+        "odds": {
+            "home_win": "1.92",
+            "draw": "3.33",
+            "away_win": "3.58"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "تاتران لیپتوسکی میکولاش",
+        "away_team": "ستارا لوبونیا",
+        "odds": {
+            "home_win": "1.74",
+            "draw": "4.40",
+            "away_win": "3.36"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "بیلی",
+        "away_team": "بیستریتسا",
+        "odds": {
+            "home_win": "2.71",
+            "draw": "3.51",
+            "away_win": "2.24"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "تلمین",
+        "away_team": "رودار",
+        "odds": {
+            "home_win": "2.96",
+            "draw": "3.32",
+            "away_win": "2.17"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "ان‌دی اسلوان",
+        "away_team": "ایلیریجا",
+        "odds": {
+            "home_win": "2.25",
+            "draw": "3.13",
+            "away_win": "2.98"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "تیگرس زیر ۱۹ سال",
+        "away_team": "کلوب آمریکا زیر ۱۹ سال",
+        "odds": {
+            "home_win": "1.58",
+            "draw": "3.82",
+            "away_win": "4.80"
+        },
+        "last_updated": "2025-05-03T17:40:32.570110"
+    },
+    {
+        "home_team": "تولوکا زیر ۲۳ سال",
+        "away_team": "سانتوس لاگونا زیر ۲۳ سال",
+        "odds": {
+            "home_win": "1.41",
+            "draw": "3.61",
+            "away_win": "8.70"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "وینوتینتو اف سی اکوادور(زنان)",
+        "away_team": "ماکارا (زنان)",
+        "odds": {
+            "home_win": "2.37",
+            "draw": "3.62",
+            "away_win": "2.49"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "بالزان",
+        "away_team": "ناسار لاینز",
+        "odds": {
+            "home_win": "2.21",
+            "draw": "3.39",
+            "away_win": "2.83"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "گزیرا یونایتد",
+        "away_team": "ملیتا",
+        "odds": {
+            "home_win": "1.43",
+            "draw": "4.40",
+            "away_win": "5.70"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "گارجی",
+        "away_team": "سامگورالی تسقالتوبو",
+        "odds": {
+            "home_win": "3.34",
+            "draw": "3.34",
+            "away_win": "2.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "تانزانیا زیر ۲۰ سال",
+        "away_team": "سیرالئون زیر ۲۰ سال",
+        "odds": {
+            "home_win": "3.05",
+            "draw": "3.25",
+            "away_win": "2.15"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "سوئیفت اسپرانژ",
+        "away_team": "اف۹۱ دودلانژ",
+        "odds": {
+            "home_win": "2.82",
+            "draw": "3.37",
+            "away_win": "2.23"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "استاروشچین",
+        "away_team": "پولونیا کارلوویتسه",
+        "odds": {
+            "home_win": "1.64",
+            "draw": "4.50",
+            "away_win": "3.76"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "والتسه",
+        "away_team": "کی‌اس پولونیا نیسا",
+        "odds": {
+            "home_win": "3.70",
+            "draw": "4.40",
+            "away_win": "1.66"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "بودوچنوست بانوویچی",
+        "away_team": "توشک تشانی",
+        "odds": {
+            "home_win": "1.73",
+            "draw": "3.51",
+            "away_win": "4.20"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "اندرلشت ۲ (زنان)",
+        "away_team": "کلوب بروژ ۲ (زنان)",
+        "odds": {
+            "home_win": "9.00",
+            "draw": "6.20",
+            "away_win": "1.21"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "بیستریتسا ایربیس",
+        "away_team": "ان‌کی درن ورخنیکا",
+        "odds": {
+            "home_win": "2.17",
+            "draw": "3.94",
+            "away_win": "2.60"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "گرادینا",
+        "away_team": "براتستوو گراچانیتسا",
+        "odds": {
+            "home_win": "1.80",
+            "draw": "3.45",
+            "away_win": "3.94"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "رولتک دوب",
+        "away_team": "رودار تربولیه",
+        "odds": {
+            "home_win": "1.23",
+            "draw": "6.40",
+            "away_win": "7.80"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "بیتار/ریگا مارینرز",
+        "away_team": "JFK Ventspils",
+        "odds": {
+            "home_win": "2.39",
+            "draw": "3.47",
+            "away_win": "2.54"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "اسپارتا پراگ ب (زنان)",
+        "away_team": "هرادتس کرالووه (زنان)",
+        "odds": {
+            "home_win": "1.10",
+            "draw": "8.30",
+            "away_win": "15.00"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "زاگورا یونسیچ",
+        "away_team": "کامن ایوانبگونیا",
+        "odds": {
+            "home_win": "1.25",
+            "draw": "5.60",
+            "away_win": "8.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "لانسی",
+        "away_team": "کفران",
+        "odds": {
+            "home_win": "1.18",
+            "draw": "5.50",
+            "away_win": "14.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "راپید واد زم",
+        "away_team": "شباب المسیره",
+        "odds": {
+            "home_win": "2.06",
+            "draw": "2.78",
+            "away_win": "3.92"
+        },
+        "last_updated": "2025-05-03T17:47:08.703725"
+    },
+    {
+        "home_team": "استاد ماروکن",
+        "away_team": "رجا بنی ملال",
+        "odds": {
+            "home_win": "2.98",
+            "draw": "2.71",
+            "away_win": "2.53"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "هلال اسپورتیف تماره (زنان)",
+        "away_team": "آی‌تی‌اف‌اف طنجه (زنان)",
+        "odds": {
+            "home_win": "1.72",
+            "draw": "3.86",
+            "away_win": "3.83"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "کی‌تی‌اس-کی لوژنو",
+        "away_team": "ویرژتسا پلپلین",
+        "odds": {
+            "home_win": "1.12",
+            "draw": "8.10",
+            "away_win": "12.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "المپیک دشیره",
+        "away_team": "وداد فاس",
+        "odds": {
+            "home_win": "1.64",
+            "draw": "3.25",
+            "away_win": "5.50"
+        },
+        "last_updated": "2025-05-03T17:40:32.572325"
+    },
+    {
+        "home_team": "شباب بنجریر",
+        "away_team": "ریسینگ کازابلانکا",
+        "odds": {
+            "home_win": "2.06",
+            "draw": "2.55",
+            "away_win": "4.50"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "شباب اطلس خنیفره",
+        "away_team": "المپیک خریبکه",
+        "odds": {
+            "home_win": "2.29",
+            "draw": "2.71",
+            "away_win": "3.40"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "شهرداری ماهشهر",
+        "away_team": "سپاهان ب",
+        "odds": {
+            "home_win": "2.28",
+            "draw": "2.79",
+            "away_win": "3.30"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "آکادمی کیا",
+        "away_team": "شاهین بندر عامری",
+        "odds": {
+            "home_win": "2.73",
+            "draw": "2.73",
+            "away_win": "2.73"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "عقاب تهران",
+        "away_team": "شناورسازی قشم",
+        "odds": {
+            "home_win": "2.70",
+            "draw": "2.80",
+            "away_win": "2.70"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "مالسکی",
+        "away_team": "دروزتونیک ولکه لودینچ",
+        "odds": {
+            "home_win": "1.90",
+            "draw": "3.28",
+            "away_win": "3.71"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "کاستکووچ",
+        "away_team": "آکادمی همشیک",
+        "odds": {
+            "home_win": "2.97",
+            "draw": "3.69",
+            "away_win": "2.03"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "فومات مارتین",
+        "away_team": "اینتر براتیسلاوا",
+        "odds": {
+            "home_win": "4.20",
+            "draw": "3.62",
+            "away_win": "1.71"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "یدنوتا بانووا",
+        "away_team": "نووه زاکی",
+        "odds": {
+            "home_win": "2.31",
+            "draw": "3.41",
+            "away_win": "2.67"
+        },
+        "last_updated": "2025-05-03T17:55:19.799004"
+    },
+    {
+        "home_team": "سرچ",
+        "away_team": "اسلوان گالنتا",
+        "odds": {
+            "home_win": "1.37",
+            "draw": "4.33",
+            "away_win": "7.10"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "پارتیزان باردیو",
+        "away_team": "اودوا لیپانی",
+        "odds": {
+            "home_win": "1.84",
+            "draw": "4.00",
+            "away_win": "3.26"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "نامیستوو",
+        "away_team": "سپیشسکا نوا وس",
+        "odds": {
+            "home_win": "4.20",
+            "draw": "3.72",
+            "away_win": "1.69"
+        },
+        "last_updated": "2025-05-03T17:50:24.683575"
+    },
+    {
+        "home_team": "ورانوو ناد توپلویو",
+        "away_team": "دولمنی کوبین",
+        "odds": {
+            "home_win": "1.29",
+            "draw": "5.20",
+            "away_win": "7.50"
+        },
+        "last_updated": "2025-05-03T17:40:32.573410"
+    },
+    {
+        "home_team": "هوریتشون",
+        "away_team": "ماترسبورگر اشپورتورین ۲۰۲۰",
+        "odds": {
+            "home_win": "3.14",
+            "draw": "3.81",
+            "away_win": "1.93"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "انویگادو زیر ۲۰ سال",
+        "away_team": "لئونس زیر ۲۰ سال",
+        "odds": {
+            "home_win": "2.32",
+            "draw": "3.29",
+            "away_win": "2.73"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "لگانیس (جوانان)",
+        "away_team": "فوئنلابرادا (جوانان)",
+        "odds": {
+            "home_win": "1.30",
+            "draw": "5.40",
+            "away_win": "6.80"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "هال-مونت بوخنیا",
+        "away_team": "اورزل ریچف",
+        "odds": {
+            "home_win": "4.30",
+            "draw": "3.94",
+            "away_win": "1.63"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "سوکول سووپنگتسه",
+        "away_team": "پسیمیانکا پسیم",
+        "odds": {
+            "home_win": "5.70",
+            "draw": "5.20",
+            "away_win": "1.36"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "یوسفیه برشید",
+        "away_team": "یعقوب المنصور",
+        "odds": {
+            "home_win": "2.98",
+            "draw": "2.77",
+            "away_win": "2.48"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "دویدا",
+        "away_team": "ام‌سی وجده",
+        "odds": {
+            "home_win": "2.34",
+            "draw": "2.37",
+            "away_win": "4.00"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "الدنسه بی",
+        "away_team": "تربیخا",
+        "odds": {
+            "home_win": "2.48",
+            "draw": "3.32",
+            "away_win": "2.52"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "پالامس",
+        "away_team": "بیلافرانکا",
+        "odds": {
+            "home_win": "3.79",
+            "draw": "3.62",
+            "away_win": "1.79"
+        },
+        "last_updated": "2025-05-03T17:40:32.574508"
+    },
+    {
+        "home_team": "هاپوئل نیر رمت هشارون زیر ۱۹ سال",
+        "away_team": "اشدود زیر ۱۹ سال",
+        "odds": {
+            "home_win": "2.53",
+            "draw": "3.25",
+            "away_win": "2.53"
+        },
+        "last_updated": "2025-05-03T17:16:06.160234"
+    },
+    {
+        "home_team": "آلند یونایتد (زنان)",
+        "away_team": "اچ‌جی‌کی هلسینکی (زنان)",
+        "odds": {
+            "home_win": "-",
+            "draw": "-",
+            "away_win": "-"
+        },
+        "last_updated": "2025-05-03T17:40:32.569013"
+    },
+    {
+        "home_team": "آرسیمی",
+        "away_team": "برگالنیکا اشتیپ",
+        "odds": {
+            "home_win": "-",
+            "draw": "-",
+            "away_win": "-"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "بلسیکا استرومیکا",
+        "away_team": "دتونیت پلاچکویتسا",
+        "odds": {
+            "home_win": "-",
+            "draw": "-",
+            "away_win": "-"
+        },
+        "last_updated": "2025-05-03T17:40:32.571219"
+    },
+    {
+        "home_team": "ان‌ای‌سی نایمخن",
+        "away_team": "ویلم دوم",
+        "odds": {
+            "home_win": "1.52",
+            "draw": "4.30",
+            "away_win": "5.70"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "لیوبندورف",
+        "away_team": "آستریا وین ۲",
+        "odds": {
+            "home_win": "3.17",
+            "draw": "3.34",
+            "away_win": "2.06"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "آرمینیا بیله‌فلد",
+        "away_team": "دینامو درسدن",
+        "odds": {
+            "home_win": "2.09",
+            "draw": "3.33",
+            "away_win": "3.12"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "فارنسی",
+        "away_team": "فامالیکاو",
+        "odds": {
+            "home_win": "2.74",
+            "draw": "3.11",
+            "away_win": "2.60"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "دیپورتیوو ناسیونال",
+        "away_team": "ویتوریا گیمارش",
+        "odds": {
+            "home_win": "4.00",
+            "draw": "3.62",
+            "away_win": "1.83"
+        },
+        "last_updated": "2025-05-03T17:19:34.075753"
+    },
+    {
+        "home_team": "سنت جوزفس",
+        "away_team": "لاینز جبل‌الطارق",
+        "odds": {
+            "home_win": "1.09",
+            "draw": "8.60",
+            "away_win": "15.00"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "پورتو بی",
+        "away_team": "ویزلا",
+        "odds": {
+            "home_win": "3.85",
+            "draw": "3.64",
+            "away_win": "1.77"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "آلمالیق",
+        "away_team": "اندیجان",
+        "odds": {
+            "home_win": "1.87",
+            "draw": "3.19",
+            "away_win": "3.98"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "زنیمو",
+        "away_team": "استرانی",
+        "odds": {
+            "home_win": "4.60",
+            "draw": "3.76",
+            "away_win": "1.63"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "اورسکی برود",
+        "away_team": "ترژینتس",
+        "odds": {
+            "home_win": "5.90",
+            "draw": "4.50",
+            "away_win": "1.41"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    },
+    {
+        "home_team": "اف‌کی بلانسکو",
+        "away_team": "هودونین",
+        "odds": {
+            "home_win": "2.60",
+            "draw": "3.72",
+            "away_win": "2.24"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "نفت میسان",
+        "away_team": "القاسم",
+        "odds": {
+            "home_win": "2.27",
+            "draw": "2.93",
+            "away_win": "3.14"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "ثور/کی‌ای آکوریری (زنان)",
+        "away_team": "اف‌اچ هافنارفیوردور (زنان)",
+        "odds": {
+            "home_win": "1.60",
+            "draw": "3.96",
+            "away_win": "4.50"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "پنیا ایندیپندنت",
+        "away_team": "سی‌ایی کامپوس",
+        "odds": {
+            "home_win": "1.19",
+            "draw": "6.20",
+            "away_win": "10.00"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "اتلتیکو ویالونگا (زنان)",
+        "away_team": "ایبار بی (زنان)",
+        "odds": {
+            "home_win": "1.82",
+            "draw": "3.82",
+            "away_win": "3.47"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "اویدو مدرنو (زنان)",
+        "away_team": "کورنیا (زنان)",
+        "odds": {
+            "home_win": "1.09",
+            "draw": "8.60",
+            "away_win": "15.00"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "سی‌اف‌اف کاسرس بی (زنان)",
+        "away_team": "رئال یونیون تنریف تاکوئنسه (زنان)",
+        "odds": {
+            "home_win": "3.51",
+            "draw": "4.10",
+            "away_win": "1.76"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "اروپا (زنان)",
+        "away_team": "رئال آبیلس (زنان)",
+        "odds": {
+            "home_win": "1.20",
+            "draw": "6.00",
+            "away_win": "10.00"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "اتلتیکو مادرید سی (زنان)",
+        "away_team": "اوئسکا (زنان)",
+        "odds": {
+            "home_win": "1.82",
+            "draw": "3.33",
+            "away_win": "4.00"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "مادرید ۲ (زنان)",
+        "away_team": "فمارگوین (زنان)",
+        "odds": {
+            "home_win": "2.21",
+            "draw": "3.45",
+            "away_win": "2.81"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "تنریف (زنان)",
+        "away_team": "پوفوئلو د آلارکون (زنان)",
+        "odds": {
+            "home_win": "1.33",
+            "draw": "4.80",
+            "away_win": "7.20"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "ساراگوسا (زنان)",
+        "away_team": "راسینگ سانتاندر (زنان)",
+        "odds": {
+            "home_win": "2.38",
+            "draw": "3.51",
+            "away_win": "2.53"
+        },
+        "last_updated": "2025-05-03T17:13:16.858077"
+    },
+    {
+        "home_team": "زویزدا ۰۹ برگوله",
+        "away_team": "رودار پرییدور",
+        "odds": {
+            "home_win": "2.13",
+            "draw": "3.67",
+            "away_win": "2.80"
+        },
+        "last_updated": "2025-05-03T17:13:16.859130"
+    },
+    {
+        "home_team": "اسپورتینگ خیخون (زنان)",
+        "away_team": "اوساسونا بی (زنان)",
+        "odds": {
+            "home_win": "2.87",
+            "draw": "3.57",
+            "away_win": "2.13"
+        },
+        "last_updated": "2025-05-03T17:13:16.859130"
+    },
+    {
+        "home_team": "FC Pinzgau Saalfelden (Wom)",
+        "away_team": "قوت-وایس رنکویل (زنان)",
+        "odds": {
+            "home_win": "1.85",
+            "draw": "4.20",
+            "away_win": "3.14"
+        },
+        "last_updated": "2025-05-03T17:13:16.859130"
+    },
+    {
+        "home_team": "بتیس وابدولید",
+        "away_team": "سالامانکا بی",
+        "odds": {
+            "home_win": "2.62",
+            "draw": "3.41",
+            "away_win": "2.34"
+        },
+        "last_updated": "2025-05-03T17:13:16.859130"
+    },
+    {
+        "home_team": "الشباب احمدی",
+        "away_team": "الجهرا",
+        "odds": {
+            "home_win": "2.35",
+            "draw": "3.35",
+            "away_win": "2.67"
+        },
+        "last_updated": "2025-05-03T17:13:16.859130"
+    },
+    {
+        "home_team": "ویارئال",
+        "away_team": "اوساسونا",
+        "odds": {
+            "home_win": "1.45",
+            "draw": "4.90",
+            "away_win": "7.30"
+        },
+        "last_updated": "2025-05-03T17:13:16.856400"
+    },
+    {
+        "home_team": "اوئسکا",
+        "away_team": "رئال اویدو",
+        "odds": {
+            "home_win": "2.74",
+            "draw": "2.59",
+            "away_win": "2.86"
+        },
+        "last_updated": "2025-05-03T17:13:16.856400"
+    },
+    {
+        "home_team": "اف‌سی آیندهوون ای‌وی",
+        "away_team": "فورتونا سیتارد (جوانان)",
+        "odds": {
+            "home_win": "2.25",
+            "draw": "3.79",
+            "away_win": "2.55"
+        },
+        "last_updated": "2025-05-03T17:13:16.857033"
+    }
+]

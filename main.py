@@ -14,6 +14,17 @@ from datetime import datetime, timedelta
 import os
 import telegram
 import asyncio
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import json
+import re
+import logging
 
 # Configure logging
 logging.basicConfig(
@@ -82,38 +93,46 @@ WHITELIST = {
 }
 
 
+# def setup_driver():
+#     chrome_options = Options()
+#     chrome_options.add_argument("--headless")
+#     chrome_options.add_argument("--no-sandbox")
+#     chrome_options.add_argument("--disable-dev-shm-usage")
+#     chrome_options.add_argument("--disable-software-rasterizer")
+#     chrome_options.add_argument("--disable-extensions")
+#     chrome_options.add_argument("--disable-gpu")
+#     chrome_options.add_argument("--window-size=1920x1080")
+#     chrome_options.add_argument("--disable-background-networking")
+#     chrome_options.add_argument(
+#         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+#     )
+#     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
+#     chrome_options.add_argument("--blink-settings=imagesEnabled=false")
+#     chrome_options.add_experimental_option(
+#         "prefs",
+#         {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}},
+#     )
+
+#     chrome_options.binary_location = "/usr/bin/google-chrome"
+#     service = Service("/usr/bin/chromedriver")
+
+#     driver = webdriver.Chrome(service=service, options=chrome_options)
+
+#     driver.execute_cdp_cmd(
+#         "Network.setBlockedURLs",
+#         {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
+#     )
+
+#     return driver
+
 def setup_driver():
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-software-rasterizer")
-    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--headless")  # Enabled to reduce resource usage
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920x1080")
-    chrome_options.add_argument("--disable-background-networking")
-    chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    )
+    chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-    chrome_options.add_argument("--blink-settings=imagesEnabled=false")
-    chrome_options.add_experimental_option(
-        "prefs",
-        {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}},
-    )
-
-    chrome_options.binary_location = "/usr/bin/google-chrome"
-    service = Service("/usr/bin/chromedriver")
-
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-
-    driver.execute_cdp_cmd(
-        "Network.setBlockedURLs",
-        {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
-    )
-
-    return driver
-
+    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
 def load_json_file(filename):
     if os.path.exists(filename):
@@ -136,7 +155,7 @@ async def send_all_alerts(messages):
                 await bot.send_message(
                     chat_id=chat_id,
                     text=message,
-                    parse_mode=telegram.constants.ParseMode.MARKDOWN,
+                    # parse_mode=telegram.constants.ParseMode.MARKDOWN,
                 )
                 logging.info(f"Sent alert to chat ID {chat_id}: {message[:50]}...")
                 await asyncio.sleep(2)
@@ -449,21 +468,18 @@ def scrape_results_job():
                             else 0
                         )
                         minute = match["minute"]
-                        logging.info(match["status"])
-                        alert_messages.append("status 453:",match["status"])
 
                         if match["status"] in [
                             "در جریان",
                             "وقت اضافه",
                             "بین دو نیمه",
                             "تایم اوت",
-                        ]:
+                        ]:  
                             try:
                                 if not minute or minute.strip() == "":
                                     base_minute = 30
                                 else:
                                     base_minute = int(minute.split("+")[0])
-                                alert_messages.append("minute 466 :", base_minute)
                                 if base_minute >= 5:
                                     # if normalize_string(
                                     #     match["country"]
@@ -491,10 +507,7 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
                                         
-                                        alert_messages.append("before fake:" + score_diff)
-                                        if home_odds >= 1.1 and score1 < score2:
-                                            alert_messages.append("fake")
-                                            
+                                        if home_odds >= 1.1 and score1 < score2:                                            
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
@@ -602,7 +615,7 @@ def scrape_results_job():
 
 def run_schedule():
     schedule.every(20).minutes.do(scrape_odds_job)
-    schedule.every(5).minutes.do(scrape_results_job)
+    schedule.every(1).minutes.do(scrape_results_job)
     logging.info("Scheduler started. Odds and Results every 3 minutes.")
     while True:
         schedule.run_pending()
