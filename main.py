@@ -136,7 +136,7 @@ async def send_all_alerts(messages):
                 await bot.send_message(
                     chat_id=chat_id,
                     text=message,
-                    # parse_mode=telegram.constants.ParseMode.MARKDOWN,
+                    parse_mode="HTML",
                 )
                 logging.info(f"Sent alert to chat ID {chat_id}: {message[:50]}...")
                 await asyncio.sleep(2)
@@ -489,10 +489,10 @@ def scrape_results_job():
                                         if home_odds >= 1.1 and score1 < score2:
                                             
                                             alert_message = (
-                                                f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                f"{circle_color}{circle_color_diff} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
                                                 f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
                                                 f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
-                                                f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
+                                                f"📝 پیشنهاد: 1- کرنر یا شوت زدن قوی 2- کرنر یا شوت نزدن ضعیف 3- گل زدن قوی"
                                             )
                                             alert_messages.append(alert_message)
 
@@ -517,10 +517,10 @@ def scrape_results_job():
 
                                         if away_odds >= 1.1 and score2 < score1:
                                             alert_message = (
-                                                f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                f"{circle_color}{circle_color_diff} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
                                                 f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
                                                 f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!\n"
-                                                f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
+                                                f"📝 پیشنهاد: 1- کرنر یا شوت زدن قوی 2- کرنر یا شوت نزدن ضعیف 3- گل زدن قوی"
                                             )
                                             alert_messages.append(alert_message)
 
@@ -555,7 +555,7 @@ def scrape_results_job():
                                                     circle_color_diff = "🟡"  # Tied with goals
 
                                                 alert_message = (
-                                                    f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
+                                                    f"{circle_color}{circle_color_diff} هشدار: در کشور {match['country']} در لیگ {match['league']} "
                                                     f"مسابقه بین {match['team1']} (ضریب: {home_odds}) و {match['team2']} (ضریب: {away_odds}) "
                                                     f"در نیمه اول با نتیجه {score1}-{score2} مساوی است!\n"
                                                     f"📝 پیشنهاد: 1_گل داشتن بازی 2_گل زدن تیم قوی"
@@ -585,7 +585,7 @@ def scrape_results_job():
 
 def run_schedule():
     schedule.every(20).minutes.do(scrape_odds_job)
-    schedule.every(5).minutes.do(scrape_results_job)
+    schedule.every(1).minutes.do(scrape_results_job)
     logging.info("Scheduler started. Odds and Results every 3 minutes.")
     while True:
         schedule.run_pending()
