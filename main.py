@@ -450,15 +450,20 @@ def scrape_results_job():
                         )
                         minute = match["minute"]
                         logging.info(match["status"])
-                        alert_messages.append(match["status"])
+                        alert_messages.append("status 453:",match["status"])
 
-                        if True:
+                        if match["status"] in [
+                            "در جریان",
+                            "وقت اضافه",
+                            "بین دو نیمه",
+                            "تایم اوت",
+                        ]:
                             try:
                                 if not minute or minute.strip() == "":
                                     base_minute = 30
                                 else:
                                     base_minute = int(minute.split("+")[0])
-
+                                alert_messages.append("minute 466 :", base_minute)
                                 if base_minute >= 5:
                                     # if normalize_string(
                                     #     match["country"]
@@ -485,8 +490,11 @@ def scrape_results_job():
                                             circle_color_diff = "🟡"  # یک گل عقب
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
-
-                                        if home_odds >= 1.6 and score1 < score2:
+                                        
+                                        alert_messages.append("before fake:" + score_diff)
+                                        if home_odds >= 1.1 and score1 < score2:
+                                            alert_messages.append("fake")
+                                            
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
@@ -515,7 +523,7 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
 
-                                        if away_odds >= 1.6 and score2 < score1:
+                                        if away_odds >= 1.1 and score2 < score1:
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
