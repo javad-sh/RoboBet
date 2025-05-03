@@ -462,7 +462,7 @@ def scrape_results_job():
                                 else:
                                     base_minute = int(minute.split("+")[0])
 
-                                if base_minute >= 10:
+                                if match["status"] == "در جریان":
                                     # if normalize_string(
                                     #     match["country"]
                                     # ) in WHITELIST and normalize_string(
