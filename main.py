@@ -14,17 +14,6 @@ from datetime import datetime, timedelta
 import os
 import telegram
 import asyncio
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from bs4 import BeautifulSoup
-import json
-import re
-import logging
 
 # Configure logging
 logging.basicConfig(
@@ -93,46 +82,38 @@ WHITELIST = {
 }
 
 
-# def setup_driver():
-#     chrome_options = Options()
-#     chrome_options.add_argument("--headless")
-#     chrome_options.add_argument("--no-sandbox")
-#     chrome_options.add_argument("--disable-dev-shm-usage")
-#     chrome_options.add_argument("--disable-software-rasterizer")
-#     chrome_options.add_argument("--disable-extensions")
-#     chrome_options.add_argument("--disable-gpu")
-#     chrome_options.add_argument("--window-size=1920x1080")
-#     chrome_options.add_argument("--disable-background-networking")
-#     chrome_options.add_argument(
-#         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-#     )
-#     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-#     chrome_options.add_argument("--blink-settings=imagesEnabled=false")
-#     chrome_options.add_experimental_option(
-#         "prefs",
-#         {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}},
-#     )
-
-#     chrome_options.binary_location = "/usr/bin/google-chrome"
-#     service = Service("/usr/bin/chromedriver")
-
-#     driver = webdriver.Chrome(service=service, options=chrome_options)
-
-#     driver.execute_cdp_cmd(
-#         "Network.setBlockedURLs",
-#         {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
-#     )
-
-#     return driver
-
 def setup_driver():
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Enabled to reduce resource usage
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--ignore-certificate-errors")
-    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+    chrome_options.add_argument("--window-size=1920x1080")
+    chrome_options.add_argument("--disable-background-networking")
+    chrome_options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    )
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-    return webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    chrome_options.add_argument("--blink-settings=imagesEnabled=false")
+    chrome_options.add_experimental_option(
+        "prefs",
+        {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}},
+    )
+
+    chrome_options.binary_location = "/usr/bin/google-chrome"
+    service = Service("/usr/bin/chromedriver")
+
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+
+    driver.execute_cdp_cmd(
+        "Network.setBlockedURLs",
+        {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
+    )
+
+    return driver
+
 
 def load_json_file(filename):
     if os.path.exists(filename):
@@ -468,26 +449,24 @@ def scrape_results_job():
                             else 0
                         )
                         minute = match["minute"]
-
-                        if match["status"] in [
+                        if normalize_string(
+                                        match["country"]
+                                    ) in WHITELIST and normalize_string(
+                                        match["league"]
+                                    ) in WHITELIST.get(
+                                        normalize_string(match["country"]), []
+                                    ) and match["status"] in [
                             "در جریان",
                             "وقت اضافه",
                             "بین دو نیمه",
                             "تایم اوت",
-                        ]:  
+                        ] :
                             try:
                                 if not minute or minute.strip() == "":
                                     base_minute = 30
                                 else:
                                     base_minute = int(minute.split("+")[0])
                                 if base_minute >= 5:
-                                    # if normalize_string(
-                                    #     match["country"]
-                                    # ) in WHITELIST and normalize_string(
-                                    #     match["league"]
-                                    # ) in WHITELIST.get(
-                                    #     normalize_string(match["country"]), []
-                                    # ):
                                         # دایره اول بر اساس ضریب
                                         circle_color = "⚪"
                                         if 1.4 < home_odds <= 1.6:
@@ -507,14 +486,14 @@ def scrape_results_job():
                                         elif score_diff > 1:
                                             circle_color_diff = "🟢"  # بیش از یک گل عقب
                                         
-                                        if home_odds >= 1.1 and score1 < score2:                                            
+                                        if home_odds >= 1.1 and score1 < score2:
+                                            
                                             alert_message = (
                                                 f"{circle_color}{circle_color_diff} هشدار: در کشور **{match['country']}** در لیگ **{match['league']}** "
                                                 f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
                                                 f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
                                                 f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
                                             )
-                                            logging.info(alert_message)
                                             alert_messages.append(alert_message)
 
                                         # دایره اول بر اساس ضریب برای تیم میهمان
@@ -543,18 +522,10 @@ def scrape_results_job():
                                                 f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!\n"
                                                 f"📝 پیشنهاد: 1_کرنر یا شوت زدن قوی 2_کرنر یا شوت نزدن ضعیف 3_گل زدن قوی"
                                             )
-                                            logging.info(alert_message)
                                             alert_messages.append(alert_message)
 
                                 # New condition: Halftime, tied score, and low odds
                                 if match["status"] == "بین دو نیمه" and score1 == score2:
-                                    if normalize_string(
-                                        match["country"]
-                                    ) in WHITELIST and normalize_string(
-                                        match["league"]
-                                    ) in WHITELIST.get(
-                                        normalize_string(match["country"]), []
-                                    ):
                                         if home_odds <= 1.6 or away_odds <= 1.6:
                                             # Determine which team has low odds
                                             low_odds_team = None
@@ -589,7 +560,6 @@ def scrape_results_job():
                                                     f"در نیمه اول با نتیجه {score1}-{score2} مساوی است!\n"
                                                     f"📝 پیشنهاد: 1_گل داشتن بازی 2_گل زدن تیم قوی"
                                                 )
-                                                logging.info(alert_message)
                                                 alert_messages.append(alert_message)
 
                             except ValueError:
@@ -615,7 +585,7 @@ def scrape_results_job():
 
 def run_schedule():
     schedule.every(20).minutes.do(scrape_odds_job)
-    schedule.every(1).minutes.do(scrape_results_job)
+    schedule.every(5).minutes.do(scrape_results_job)
     logging.info("Scheduler started. Odds and Results every 3 minutes.")
     while True:
         schedule.run_pending()
