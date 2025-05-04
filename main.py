@@ -562,6 +562,30 @@ def scrape_results_job():
                                                 )
                                                 alert_messages.append(alert_message)
 
+                                if match["status"] == "بین دو نیمه":
+                                    # شرط جدید: تیمی با ضریب پایین‌تر از 1.4، گل نزده و عقب است در بین دو نیمه
+                                    halftime_checks = [
+                                        ("team1", home_odds, score1, score2, match["team1"], match["team2"]),
+                                        ("team2", away_odds, score2, score1, match["team2"], match["team1"]),
+                                    ]
+                                    for team_key, team_odd, team_score, opponent_score, team_name, opponent_name in halftime_checks:
+                                        if team_odd < 1.4 and team_score == 0 and team_score < opponent_score:
+                                            # تعیین رنگ دایره بر اساس ضریب
+                                            if team_odd < 1.2:
+                                                circle_color = "🟢"
+                                            else:
+                                                circle_color = "🟡"
+
+                                            alert_message = (
+                                                f"{circle_color} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
+                                                f"{team_name} (ضریب: {team_odd}) در وضعیت <b>{match['status']}</b> "
+                                                f"با نتیجه {team_score}-{opponent_score} از {opponent_name} (ضریب: "
+                                                f"{away_odds if team_key == 'team1' else home_odds}) عقب است و هنوز گلی نزده!\n"
+                                                f"📝 پیشنهاد: گل داشتن بازی تا دقیقه ۷۰"
+                                            )
+                                            alert_messages.append(alert_message)
+
+
                             except ValueError:
                                 logging.warning(
                                     f"Invalid minute format for {match_id[0]} vs {match_id[1]}: {minute}"
