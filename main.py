@@ -219,33 +219,47 @@ async def send_alerts(messages):
 # اسکرپ کردن ضرایب
 # ============================================================
 def scrape_odds(driver, url):
-    """استخراج ضرایب مسابقات"""
+    """استخراج ضرایب مسابقات (فقط whitelist)"""
     try:
         driver.get(url)
         WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, "c-segment-holder-bc")))
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
         
-        for match in soup.find_all("div", class_="c-segment-holder-bc single-g-info-bc"):
+        for comp in soup.find_all("div", class_="competition-bc"):
             try:
-                teams = match.find_all("span", class_="c-team-info-team-bc team")
-                if len(teams) < 2: continue
+                titles = comp.find_all("span", class_="c-title-bc ellipsis")
+                country = titles[0].text.strip() if len(titles) > 0 else "Unknown"
+                league = titles[1].text.strip() if len(titles) > 1 else "Unknown"
                 
-                odds_elems = match.find_all("span", class_="market-odd-bc")
-                if len(odds_elems) < 3: continue
+                # فیلتر کردن بر اساس whitelist
+                if not is_whitelisted(country, league):
+                    continue
                 
-                matches.append({
-                    "home_team": teams[0].text.strip(),
-                    "away_team": teams[1].text.strip(),
-                    "odds": {
-                        "home_win": odds_elems[0].text.strip(),
-                        "draw": odds_elems[1].text.strip(),
-                        "away_win": odds_elems[2].text.strip()
-                    },
-                    "last_updated": datetime.now().isoformat()
-                })
+                for match in comp.find_all("div", class_="c-segment-holder-bc single-g-info-bc"):
+                    try:
+                        teams = match.find_all("span", class_="c-team-info-team-bc team")
+                        if len(teams) < 2: continue
+                        
+                        odds_elems = match.find_all("span", class_="market-odd-bc")
+                        if len(odds_elems) < 3: continue
+                        
+                        matches.append({
+                            "home_team": teams[0].text.strip(),
+                            "away_team": teams[1].text.strip(),
+                            "country": country,
+                            "league": league,
+                            "odds": {
+                                "home_win": odds_elems[0].text.strip(),
+                                "draw": odds_elems[1].text.strip(),
+                                "away_win": odds_elems[2].text.strip()
+                            },
+                            "last_updated": datetime.now().isoformat()
+                        })
+                    except Exception as e:
+                        logging.error(f"Error processing match: {e}")
             except Exception as e:
-                logging.error(f"Error processing match: {e}")
+                logging.error(f"Error processing competition: {e}")
         
         return matches
     except Exception as e:
@@ -256,7 +270,7 @@ def scrape_odds(driver, url):
 # اسکرپ کردن نتایج زنده
 # ============================================================
 def scrape_results(driver, url):
-    """استخراج نتایج مسابقات زنده"""
+    """استخراج نتایج مسابقات زنده (فقط whitelist)"""
     try:
         driver.get(url)
         WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc")))
@@ -268,6 +282,10 @@ def scrape_results(driver, url):
                 titles = comp.find_all("span", class_="c-title-bc ellipsis")
                 country = titles[0].text.strip() if len(titles) > 0 else "Unknown"
                 league = titles[1].text.strip() if len(titles) > 1 else "Unknown"
+                
+                # فیلتر کردن بر اساس whitelist
+                if not is_whitelisted(country, league):
+                    continue
                 
                 for match in comp.find_all("div", class_="c-segment-holder-bc single-g-info-bc"):
                     try:
