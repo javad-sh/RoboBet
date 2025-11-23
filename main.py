@@ -416,19 +416,20 @@ def check_alerts(match, odds_data):
                     f"📝 پیشنهاد: 1_گل داشتن بازی 2_گل زدن تیم قوی"
                 )
         
-        # شرط 3: بین دو نیمه، ضریب کمتر از 1.4، گل نزده و عقب است
+        # شرط 3: بین دو نیمه، ضریب کمتر از 1.4، مساوی یا عقب است
         if match["status"] == "بین دو نیمه":
             checks = [
                 ("team1", home_odds, score1, score2, match["team1"], match["team2"], away_odds),
                 ("team2", away_odds, score2, score1, match["team2"], match["team1"], home_odds),
             ]
             for team_key, team_odd, team_score, opp_score, team_name, opp_name, opp_odd in checks:
-                if team_odd < 1.4 and team_score == 0 and team_score < opp_score:
-                    circle = "🟢" if team_odd < 1.2 else "🟡"
+                if team_odd < 1.4 and team_score <= opp_score:
+                    circle = "🟢" if team_score < opp_score else "🟠"
+                    status_desc = "عقب است" if team_score < opp_score else "مساوی است"
                     alerts.append(
                         f"{circle} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
                         f"{team_name} (ضریب: {team_odd}) در وضعیت <b>{match['status']}</b> "
-                        f"با نتیجه {team_score}-{opp_score} از {opp_name} (ضریب: {opp_odd}) عقب است و هنوز گلی نزده!\n"
+                        f"با نتیجه {team_score}-{opp_score} {status_desc}!\n"
                         f"📝 پیشنهاد: گل داشتن بازی تا دقیقه ۷۰"
                     )
     except (ValueError, KeyError) as e:
