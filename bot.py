@@ -160,7 +160,15 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     logging.info("🚀 Bot polling started\n✅ Ready for messages\n")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    
+    # تنظیمات polling برای کاهش درخواست‌ها
+    # poll_interval: فاصله بین درخواست‌ها (پیش‌فرض: 0 ثانیه)
+    # timeout: زمان انتظار برای پاسخ تلگرام (پیش‌فرض: 10 ثانیه)
+    app.run_polling(
+        allowed_updates=Update.ALL_TYPES,
+        poll_interval=2.0,  # هر 2 ثانیه یکبار چک می‌کند
+        timeout=30  # 30 ثانیه صبر می‌کند تا پیام جدید بیاید
+    )
 
 if __name__ == "__main__":
     main()
