@@ -1,0 +1,36 @@
+# فایل‌های داده محلی
+betforward_odds.json
+betforward_results.json
+chat_ids.json
+
+# فایل‌های Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# محیط‌های مجازی
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Webdriver cache
+.wdm/
+
+# Temporary files
+*.tmp
+*.temp
