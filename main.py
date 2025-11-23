@@ -102,7 +102,6 @@ def setup_driver():
     
     # تشخیص محیط Termux
     termux_chrome = "/data/data/com.termux/files/usr/bin/chromium-browser"
-    termux_driver = "/data/data/com.termux/files/usr/bin/chromedriver"
     
     try:
         # اگر در Termux هستیم
@@ -110,23 +109,32 @@ def setup_driver():
             logging.info("🔧 Detected Termux environment")
             opts.binary_location = termux_chrome
             
-            # سعی در استفاده از chromedriver موجود در Termux
-            if os.path.exists(termux_driver):
-                from selenium.webdriver.chrome.service import Service
-                service = Service(executable_path=termux_driver)
-                driver = webdriver.Chrome(service=service, options=opts)
-            else:
-                # نصب chromedriver با pkg
-                logging.warning("⚠️ chromedriver not found. Please run: pkg install chromedriver")
-                driver = webdriver.Chrome(options=opts)
+            # در Termux، Selenium Manager خودکار chromedriver را دانلود می‌کند
+            # فقط باید binary_location را تنظیم کنیم
+            logging.info("⏳ Initializing Chrome (first run may take time to download driver)...")
+            driver = webdriver.Chrome(options=opts)
+            logging.info("✅ Chrome initialized successfully")
         else:
             # محیط عادی (Railway/Windows/Linux)
             driver = webdriver.Chrome(options=opts)
             
     except Exception as e:
         logging.error(f"❌ Failed to init Chrome: {e}")
-        logging.error("💡 Termux users: Make sure to install chromium and chromedriver:")
-        logging.error("   pkg install chromium chromedriver")
+        logging.error("\n" + "="*60)
+        logging.error("💡 Troubleshooting for Termux users:")
+        logging.error("="*60)
+        logging.error("1. Make sure Chromium is installed:")
+        logging.error("   pkg install chromium")
+        logging.error("")
+        logging.error("2. Check if chromium-browser exists:")
+        logging.error("   ls -la /data/data/com.termux/files/usr/bin/chromium-browser")
+        logging.error("")
+        logging.error("3. Try running with more permissions:")
+        logging.error("   termux-wake-lock")
+        logging.error("")
+        logging.error("4. Make sure you have enough storage space:")
+        logging.error("   df -h")
+        logging.error("="*60)
         raise
     
     try:

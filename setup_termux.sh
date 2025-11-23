@@ -11,12 +11,29 @@ pkg update -y && pkg upgrade -y
 
 # Install required packages
 echo "Installing required packages..."
-pkg install -y python chromium chromedriver x11-repo
+echo "Step 1/3: Installing Python..."
+pkg install -y python
+
+echo "Step 2/3: Installing x11-repo (for GUI support)..."
+pkg install -y x11-repo
+
+echo "Step 3/3: Installing Chromium..."
+pkg install -y chromium
+
+# Note: chromedriver might not be available in Termux repos
+# Check if chromedriver is available
+if pkg search chromedriver 2>/dev/null | grep -q chromedriver; then
+    echo "Installing chromedriver..."
+    pkg install -y chromedriver
+else
+    echo "⚠️  Warning: chromedriver package not found in repos"
+    echo "   Selenium will try to use Selenium Manager to download it"
+fi
 
 # Install Python packages
 echo "Installing Python packages..."
-pip install --upgrade pip
-pip install -r requirements.txt
+# Don't upgrade pip in Termux - it breaks the system
+pip install -r requirements.txt --no-cache-dir
 
 # Create necessary JSON files if they don't exist
 echo "Setting up data files..."

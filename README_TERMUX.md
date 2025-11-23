@@ -98,9 +98,13 @@ bash setup_termux.sh
 
 این اسکریپت موارد زیر را انجام می‌دهد:
 - به‌روزرسانی پکیج‌های Termux
-- نصب Python، Chromium و ChromeDriver
+- نصب Python و Chromium
 - نصب کتابخانه‌های Python مورد نیاز
 - ایجاد فایل‌های JSON اولیه
+
+⚠️ **نکته مهم درباره pip**:
+- در Termux نباید `pip install --upgrade pip` را اجرا کنید (سیستم را خراب می‌کند)
+- اسکریپت نصب به صورت خودکار این مورد را رعایت می‌کند
 
 ⏱️ **زمان نصب**: حدود 10-15 دقیقه (بسته به سرعت اینترنت)
 
@@ -231,34 +235,35 @@ pip install -r requirements.txt --no-cache-dir
 
 **مشکل: خطای "Chrome binary not found" یا "Unable to obtain driver"**
 
-این خطا نشان می‌دهد که Chromium یا ChromeDriver نصب نشده است:
+این خطا نشان می‌دهد که Chromium نصب نشده یا Selenium نمی‌تواند ChromeDriver را دانلود کند:
 
 ```bash
-# نصب هر دو پکیج ضروری
-pkg install chromium chromedriver
+# نصب Chromium
+pkg install chromium
 
 # بررسی نصب موفق
 which chromium-browser
-which chromedriver
+ls -la /data/data/com.termux/files/usr/bin/chromium-browser
 
-# اگر هنوز مشکل دارید، مسیرها را چک کنید
-ls -la /data/data/com.termux/files/usr/bin/chromium*
-ls -la /data/data/com.termux/files/usr/bin/chromedriver
+# اگر Chromium نصب است اما هنوز خطا می‌دهد:
+# اطمینان حاصل کنید که فضای کافی دارید
+df -h
 
-# اگر chromedriver نصب نشد، از مخزن دیگری امتحان کنید
-pkg update
-pkg upgrade
-pkg install chromium chromedriver -y
+# اجازه دهید Selenium Manager در اولین اجرا chromedriver را دانلود کند
+# (این کار ممکن است چند دقیقه طول بکشد)
+python main.py
 ```
 
-**اگر همچنان خطا دارید:**
-```bash
-# پاک کردن کش
-pkg clean
-rm -rf $PREFIX/var/cache/apt/archives/*
+**نکته**: در اولین اجرا، Selenium Manager به صورت خودکار ChromeDriver را دانلود می‌کند. این کار ممکن است 2-5 دقیقه طول بکشد.
 
-# نصب مجدد
-pkg reinstall chromium chromedriver
+**مشکل: خطای "Installing pip is forbidden"**
+
+```bash
+# هرگز در Termux این دستور را اجرا نکنید:
+# pip install --upgrade pip  ❌
+
+# اگر قبلاً اجرا کرده‌اید، pip را دوباره نصب کنید:
+pkg reinstall python-pip
 ```
 
 ## 📊 بررسی وضعیت
