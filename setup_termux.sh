@@ -11,7 +11,7 @@ pkg update -y && pkg upgrade -y
 
 # Install required packages
 echo "Installing required packages..."
-pkg install -y python chromium x11-repo
+pkg install -y python chromium chromedriver x11-repo
 
 # Install Python packages
 echo "Installing Python packages..."

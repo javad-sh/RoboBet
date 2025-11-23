@@ -100,12 +100,34 @@ def setup_driver():
     
     opts.add_experimental_option("prefs", {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}})
     
+    # تشخیص محیط Termux
+    termux_chrome = "/data/data/com.termux/files/usr/bin/chromium-browser"
+    termux_driver = "/data/data/com.termux/files/usr/bin/chromedriver"
+    
     try:
-        driver = webdriver.Chrome(options=opts)
+        # اگر در Termux هستیم
+        if os.path.exists(termux_chrome):
+            logging.info("🔧 Detected Termux environment")
+            opts.binary_location = termux_chrome
+            
+            # سعی در استفاده از chromedriver موجود در Termux
+            if os.path.exists(termux_driver):
+                from selenium.webdriver.chrome.service import Service
+                service = Service(executable_path=termux_driver)
+                driver = webdriver.Chrome(service=service, options=opts)
+            else:
+                # نصب chromedriver با pkg
+                logging.warning("⚠️ chromedriver not found. Please run: pkg install chromedriver")
+                driver = webdriver.Chrome(options=opts)
+        else:
+            # محیط عادی (Railway/Windows/Linux)
+            driver = webdriver.Chrome(options=opts)
+            
     except Exception as e:
-        logging.error(f"Failed to init Chrome: {e}")
-        opts.binary_location = "/data/data/com.termux/files/usr/bin/chromium-browser"
-        driver = webdriver.Chrome(options=opts)
+        logging.error(f"❌ Failed to init Chrome: {e}")
+        logging.error("💡 Termux users: Make sure to install chromium and chromedriver:")
+        logging.error("   pkg install chromium chromedriver")
+        raise
     
     try:
         driver.execute_cdp_cmd("Network.setBlockedURLs", {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]})

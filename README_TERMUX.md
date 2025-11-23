@@ -19,14 +19,33 @@
 
 ```bash
 pkg install git
-git clone <repository-url>
+git clone https://github.com/javad-sh/RoboBet.git
 cd RoboBet
 ```
 
 **روش دوم: کپی دستی فایل‌ها**
 
-1. فایل‌های پروژه را به گوشی منتقل کنید (مثلاً در پوشه Download)
-2. سپس در Termux دستورات زیر را اجرا کنید:
+فقط این فایل‌ها را به گوشی منتقل کنید:
+
+📁 **فایل‌های ضروری:**
+- ✅ `main.py` - اسکریپت اصلی
+- ✅ `bot.py` - ربات تلگرام
+- ✅ `requirements.txt` - لیست پکیج‌ها
+- ✅ `setup_termux.sh` - اسکریپت نصب
+- ✅ `start_termux.sh` - اسکریپت اجرا
+
+📁 **فایل‌های اختیاری** (خودکار ساخته می‌شوند):
+- `chat_ids.json`
+- `betforward_odds.json`
+- `betforward_results.json`
+
+❌ **فایل‌های غیرضروری** (منتقل نکنید):
+- `Dockerfile`, `supervisord.conf`, `.git/`, گزارش‌ها، یادداشت‌ها
+
+**مراحل انتقال:**
+1. فایل‌های بالا را در یک پوشه (مثلاً `RoboBet`) در گوشی قرار دهید
+2. پوشه را در `Download` یا هر جای دیگری در حافظه داخلی کپی کنید
+3. سپس در Termux دستورات زیر را اجرا کنید:
 
 ```bash
 # ابتدا دسترسی به حافظه را فعال کنید
@@ -79,7 +98,7 @@ bash setup_termux.sh
 
 این اسکریپت موارد زیر را انجام می‌دهد:
 - به‌روزرسانی پکیج‌های Termux
-- نصب Python و Chromium
+- نصب Python، Chromium و ChromeDriver
 - نصب کتابخانه‌های Python مورد نیاز
 - ایجاد فایل‌های JSON اولیه
 
@@ -210,12 +229,36 @@ pip install --upgrade pip
 pip install -r requirements.txt --no-cache-dir
 ```
 
-**مشکل: خطای "Chrome binary not found"**
+**مشکل: خطای "Chrome binary not found" یا "Unable to obtain driver"**
+
+این خطا نشان می‌دهد که Chromium یا ChromeDriver نصب نشده است:
+
 ```bash
-# بررسی نصب Chromium
+# نصب هر دو پکیج ضروری
+pkg install chromium chromedriver
+
+# بررسی نصب موفق
 which chromium-browser
-# اگر نصب نبود:
-pkg install chromium
+which chromedriver
+
+# اگر هنوز مشکل دارید، مسیرها را چک کنید
+ls -la /data/data/com.termux/files/usr/bin/chromium*
+ls -la /data/data/com.termux/files/usr/bin/chromedriver
+
+# اگر chromedriver نصب نشد، از مخزن دیگری امتحان کنید
+pkg update
+pkg upgrade
+pkg install chromium chromedriver -y
+```
+
+**اگر همچنان خطا دارید:**
+```bash
+# پاک کردن کش
+pkg clean
+rm -rf $PREFIX/var/cache/apt/archives/*
+
+# نصب مجدد
+pkg reinstall chromium chromedriver
 ```
 
 ## 📊 بررسی وضعیت
