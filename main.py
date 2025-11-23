@@ -21,6 +21,13 @@ import asyncio
 # تنظیمات و متغیرهای سراسری
 # ============================================================
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# مخفی کردن لاگ‌های HTTP تلگرام
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logging.getLogger('telegram').setLevel(logging.WARNING)
+logging.getLogger('selenium').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
+
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
 # لیست سفید کشورها و لیگ‌ها
@@ -172,6 +179,25 @@ def setup_driver():
 # ============================================================
 # ارسال هشدار به تلگرام
 # ============================================================
+async def send_error_alert(error_message):
+    """ارسال پیام خطا به کاربران"""
+    bot = telegram.Bot(token=BOT_TOKEN)
+    chat_ids = load_json("chat_ids.json")
+    
+    if not chat_ids:
+        logging.warning("⚠️ No subscribers to send error alert")
+        return
+    
+    error_msg = f"⚠️ <b>خطای سیستم</b>\n\n{error_message}\n\n🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    
+    logging.info(f"📤 Sending error alert to {len(chat_ids)} chat(s)")
+    for chat_id in chat_ids:
+        try:
+            await bot.send_message(chat_id=chat_id, text=error_msg, parse_mode="HTML")
+            await asyncio.sleep(1)
+        except Exception as e:
+            logging.error(f"❌ Error sending alert to {chat_id}: {e}")
+
 async def send_alerts(messages):
     """ارسال پیام‌های هشدار به کاربران"""
     bot = telegram.Bot(token=BOT_TOKEN)
@@ -415,8 +441,9 @@ def check_alerts(match, odds_data):
 def scrape_odds_job():
     """وظیفه اسکرپ ضرایب"""
     logging.info("\n" + "="*60 + "\n🎲 Starting ODDS job\n" + "="*60)
-    driver = setup_driver()
+    driver = None
     try:
+        driver = setup_driver()
         odds = scrape_odds(driver, "https://m.betforward.com/fa/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches")
         if odds:
             logging.info(f"📊 Retrieved {len(odds)} odds")
@@ -424,17 +451,22 @@ def scrape_odds_job():
             logging.info("✅ Odds updated")
         else:
             logging.warning("⚠️ No odds retrieved")
+            asyncio.run(send_error_alert("❌ خطا در دریافت ضرایب\n\nسیستم نتوانست اطلاعات ضرایب را از سایت betforward دریافت کند."))
     except Exception as e:
+        error_msg = f"❌ خطا در دریافت ضرایب\n\nجزئیات: {str(e)}"
         logging.error(f"❌ Error in odds job: {e}")
+        asyncio.run(send_error_alert(error_msg))
     finally:
-        driver.quit()
+        if driver:
+            driver.quit()
         logging.info("🏁 Odds job completed\n")
 
 def scrape_results_job():
     """وظیفه اسکرپ نتایج"""
     logging.info("\n" + "="*60 + "\n⚽ Starting RESULTS job\n" + "="*60)
-    driver = setup_driver()
+    driver = None
     try:
+        driver = setup_driver()
         results = scrape_results(driver, "https://m.betforward.com/fa/sports/live/event-view/Soccer")
         if results:
             logging.info(f"📊 Retrieved {len(results)} live matches")
@@ -455,10 +487,14 @@ def scrape_results_job():
             logging.info("✅ Results updated")
         else:
             logging.warning("⚠️ No results retrieved")
+            asyncio.run(send_error_alert("❌ خطا در دریافت نتایج زنده\n\nسیستم نتوانست اطلاعات نتایج زنده را از سایت betforward دریافت کند."))
     except Exception as e:
+        error_msg = f"❌ خطا در دریافت نتایج زنده\n\nجزئیات: {str(e)}"
         logging.error(f"❌ Error in results job: {e}")
+        asyncio.run(send_error_alert(error_msg))
     finally:
-        driver.quit()
+        if driver:
+            driver.quit()
         logging.info("🏁 Results job completed\n")
 
 def run_schedule():

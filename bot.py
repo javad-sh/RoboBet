@@ -12,6 +12,11 @@ from telegram.constants import ParseMode
 # تنظیمات
 # ============================================================
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# مخفی کردن لاگ‌های HTTP تلگرام
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logging.getLogger('telegram').setLevel(logging.WARNING)
+
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
 # ============================================================
