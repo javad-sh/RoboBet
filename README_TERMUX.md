@@ -107,18 +107,17 @@ bash setup_termux.sh
 
 این اسکریپت موارد زیر را انجام می‌دهد:
 - به‌روزرسانی پکیج‌های Termux
-- نصب Python و Chromium
-- نصب کتابخانه‌های Python مورد نیاز (شامل `webdriver-manager`)
+- نصب TUR repository (Termux User Repository)
+- نصب Python، Chromium و ChromeDriver
+- نصب کتابخانه‌های Python مورد نیاز
 - ایجاد فایل‌های JSON اولیه
 
 ⚠️ **نکات مهم**:
 - در Termux نباید `pip install --upgrade pip` را اجرا کنید (سیستم را خراب می‌کند)
-- اسکریپت نصب به صورت خودکار این مورد را رعایت می‌کند
-- `webdriver-manager` به صورت خودکار ChromeDriver مناسب را دانلود و مدیریت می‌کند
+- ChromeDriver باید از TUR repository نصب شود (برای سازگاری با ARM)
+- اسکریپت نصب به صورت خودکار همه چیز را انجام می‌دهد
 
-⏱️ **زمان نصب**: 
-- نصب پکیج‌ها: حدود 10-15 دقیقه
-- اولین اجرای برنامه: 2-5 دقیقه اضافی (برای دانلود ChromeDriver)
+⏱️ **زمان نصب**: حدود 10-15 دقیقه (بسته به سرعت اینترنت)
 
 ### 5. تنظیم توکن ربات (اختیاری)
 
@@ -247,44 +246,41 @@ pip install -r requirements.txt --no-cache-dir
 
 **مشکل: خطای "Chrome binary not found" یا "Unable to obtain driver"**
 
-این خطا نشان می‌دهد که Chromium نصب نشده است:
+این خطا نشان می‌دهد که Chromium یا ChromeDriver به درستی نصب نشده:
 
 ```bash
-# نصب Chromium
-pkg install chromium
+# 1. نصب TUR repository (اگر نصب نشده)
+pkg install tur-repo
 
-# بررسی نصب موفق
+# 2. نصب Chromium و ChromeDriver
+pkg install chromium chromium-chromedriver
+
+# 3. بررسی نصب موفق
 which chromium-browser
-ls -la /data/data/com.termux/files/usr/bin/chromium-browser
+which chromedriver
 
-# اگر Chromium نصب است اما هنوز خطا می‌دهد:
-# نصب مجدد پکیج‌های Python
-pip install -r requirements.txt --no-cache-dir --force-reinstall
-
-# اطمینان حاصل کنید که فضای کافی دارید (حداقل 100MB)
-df -h
-
-# پاک کردن کش webdriver-manager و تلاش مجدد
-rm -rf ~/.wdm
-python main.py
+# 4. تست chromedriver
+chromedriver --version
 ```
 
-**نکته**: برنامه از `webdriver-manager` استفاده می‌کند که ChromeDriver را خودکار دانلود و مدیریت می‌کند. در اولین اجرا، این کتابخانه ChromeDriver مناسب را دانلود می‌کند (2-5 دقیقه).
+**مشکل: خطای "Exec format error"**
 
-**مشکل: خطای دانلود ChromeDriver**
+این خطا نشان می‌دهد ChromeDriver برای معماری اشتباه (x64 به جای ARM) دانلود شده:
 
 ```bash
-# اگر webdriver-manager نمی‌تواند ChromeDriver را دانلود کند:
-# 1. بررسی اتصال اینترنت
-ping -c 3 google.com
-
-# 2. پاک کردن کش و تلاش مجدد
+# 1. پاک کردن کش webdriver-manager
 rm -rf ~/.wdm
-pip install --upgrade webdriver-manager
-python main.py
 
-# 3. بررسی فضای خالی (نیاز به حداقل 100MB)
-df -h $HOME
+# 2. اطمینان از نصب chromedriver از TUR
+pkg uninstall chromium-chromedriver
+pkg install tur-repo
+pkg install chromium-chromedriver
+
+# 3. بررسی مسیر صحیح
+ls -la /data/data/com.termux/files/usr/bin/chromedriver
+
+# 4. اجرای مجدد
+python main.py
 ```
 
 **مشکل: خطای "Installing pip is forbidden"**

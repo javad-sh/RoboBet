@@ -105,6 +105,7 @@ def setup_driver():
     
     # تشخیص محیط Termux
     termux_chrome = "/data/data/com.termux/files/usr/bin/chromium-browser"
+    termux_chromedriver = "/data/data/com.termux/files/usr/bin/chromedriver"
     
     try:
         # اگر در Termux هستیم
@@ -112,13 +113,21 @@ def setup_driver():
             logging.info("🔧 Detected Termux environment")
             opts.binary_location = termux_chrome
             
-            # استفاده از webdriver-manager برای دانلود و مدیریت ChromeDriver
-            logging.info("⏳ Initializing Chrome with webdriver-manager...")
-            logging.info("   (First run may take 2-5 minutes to download driver)")
+            # چک کردن اینکه آیا chromedriver از Termux نصب شده
+            if os.path.exists(termux_chromedriver):
+                logging.info("✅ Using chromedriver from Termux repository")
+                service = Service(executable_path=termux_chromedriver)
+                driver = webdriver.Chrome(service=service, options=opts)
+            else:
+                # اگر chromedriver نصب نیست، سعی در نصب آن
+                logging.warning("⚠️  chromedriver not found in Termux")
+                logging.info("💡 Installing chromedriver from Termux repository...")
+                logging.info("   Please run: pkg install tur-repo && pkg install chromium-chromedriver")
+                logging.error("❌ chromedriver is required but not installed")
+                raise FileNotFoundError(
+                    "chromedriver not found. Install it with: pkg install tur-repo && pkg install chromium-chromedriver"
+                )
             
-            # استفاده از ChromeType.CHROMIUM برای Termux
-            service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
-            driver = webdriver.Chrome(service=service, options=opts)
             logging.info("✅ Chrome initialized successfully")
         else:
             # محیط عادی (Railway/Windows/Linux)
@@ -127,28 +136,29 @@ def setup_driver():
             driver = webdriver.Chrome(service=service, options=opts)
             logging.info("✅ Chrome initialized successfully")
             
+    except FileNotFoundError as e:
+        logging.error(f"❌ {e}")
+        raise
     except Exception as e:
         logging.error(f"❌ Failed to init Chrome: {e}")
         logging.error("\n" + "="*60)
         logging.error("💡 Troubleshooting for Termux users:")
         logging.error("="*60)
-        logging.error("1. Make sure Chromium is installed:")
-        logging.error("   pkg install chromium")
+        logging.error("1. Install Termux User Repository (TUR):")
+        logging.error("   pkg install tur-repo")
         logging.error("")
-        logging.error("2. Check if chromium-browser exists:")
-        logging.error("   ls -la /data/data/com.termux/files/usr/bin/chromium-browser")
+        logging.error("2. Install chromium and chromedriver from TUR:")
+        logging.error("   pkg install chromium chromium-chromedriver")
         logging.error("")
-        logging.error("3. Make sure webdriver-manager is installed:")
-        logging.error("   pip install webdriver-manager")
+        logging.error("3. Verify installation:")
+        logging.error("   which chromium-browser")
+        logging.error("   which chromedriver")
         logging.error("")
-        logging.error("4. Try running with more permissions:")
-        logging.error("   termux-wake-lock")
-        logging.error("")
-        logging.error("5. Make sure you have enough storage space (need ~100MB):")
-        logging.error("   df -h")
-        logging.error("")
-        logging.error("6. Clear webdriver-manager cache if needed:")
+        logging.error("4. Clear webdriver-manager cache (if exists):")
         logging.error("   rm -rf ~/.wdm")
+        logging.error("")
+        logging.error("5. Make sure you have enough storage:")
+        logging.error("   df -h")
         logging.error("="*60)
         raise
     
