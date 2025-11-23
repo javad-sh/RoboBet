@@ -1,740 +1,430 @@
-# ============================================================
-# کتابخانه‌های مورد نیاز برای Web Scraping و مدیریت ربات
-# ============================================================
-from selenium import webdriver  # برای کنترل مرورگر و اسکرپ کردن صفحات وب
-from selenium.webdriver.chrome.service import Service  # برای مدیریت سرویس Chromedriver
-from selenium.webdriver.chrome.options import Options  # برای تنظیمات مرورگر Chrome
-from selenium.webdriver.common.by import By  # برای یافتن المان‌های HTML
-from selenium.webdriver.support.ui import WebDriverWait  # برای انتظار تا بارگذاری المان‌ها
-from selenium.webdriver.support import expected_conditions as EC  # برای شرایط انتظار
-from bs4 import BeautifulSoup  # برای پارس کردن HTML
-import json  # برای کار با فایل‌های JSON
-import re  # برای عملیات Regex
-import logging  # برای ثبت لاگ‌ها
-import schedule  # برای زمان‌بندی وظایف
-import time  # برای مدیریت زمان و تأخیرها
-from datetime import datetime, timedelta  # برای کار با تاریخ و زمان
-import os  # برای عملیات فایل و سیستم
-import telegram  # برای ارسال پیام به تلگرام
-import asyncio  # برای عملیات async
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+import json
+import re
+import logging
+import schedule
+import time
+from datetime import datetime, timedelta
+import os
+import telegram
+import asyncio
 
 # ============================================================
-# پیکربندی سیستم لاگ‌گیری
+# تنظیمات و متغیرهای سراسری
 # ============================================================
-# تنظیم سطح لاگ به INFO و فرمت زمان، سطح، و پیام
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
-# ============================================================
-# توکن ربات تلگرام
-# ============================================================
-# این توکن از BotFather دریافت شده و برای احراز هویت ربات استفاده می‌شود
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
-
-# ============================================================
-# تابع نرمال سازی رشته‌ها
-# ============================================================
-def normalize_string(s):
-    """
-    این تابع رشته‌ها را نرمال می‌کند با:
-    - حذف فاصله‌های اضافی
-    - حذف فاصله‌های ابتدا و انتها
-    این برای مقایسه بهتر نام کشورها و لیگ‌ها استفاده می‌شود
-    """
-    if not s:
-        return ""
-    return " ".join(s.split()).strip()
-
-
-# ============================================================
-# لیست سفید (WHITELIST) کشورها و لیگ‌های مجاز
-# ============================================================
-# فقط مسابقاتی که در این لیست باشند بررسی و هشدار داده می‌شوند
-# ساختار: {'کشور': ['لیگ1', 'لیگ2', ...]}
-# ============================================================
+# لیست سفید کشورها و لیگ‌ها
 WHITELIST = {
-    normalize_string("انگلیس"): [
-        normalize_string("لیگ برتر انگلیس"),
-        normalize_string("جام حذفی انگلیس"),
-        normalize_string("چمپیونشیپ انگلیس"),
-        normalize_string("جام اتحادیه انگلیس"),
-        normalize_string("سوپرجام انگلیس (جام خیریه)"),
-        
-    ],
-    normalize_string("اروپا"): [
-        normalize_string("لیگ قهرمانان اروپا"),
-        normalize_string("لیگ اروپا"),
-        normalize_string("لیگ کنفرانس اروپا"),
-        normalize_string("سوپر جام اروپا"),
-    ],
-    normalize_string("آسیا"): [
-        normalize_string("لیگ نخبگان آسیا"),
-        normalize_string("لیگ قهرمانان آسیا ۲"),
-    ],
-    normalize_string("ایتالیا"): [
-        normalize_string("سری آ ایتالیا"),
-        normalize_string("جام حذفی ایتالیا"),
-        normalize_string("سوپر جام ایتالیا"),
-    ],
-    normalize_string("اسپانیا"): [
-        normalize_string("لالیگا اسپانیا"),
-        normalize_string("کوپا دل ری اسپانیا"),
-    ],
-    normalize_string("آلمان"): [
-        normalize_string("بوندس‌لیگا آلمان"),
-        normalize_string("جام حذفی آلمان"),
-    ],
-    normalize_string("فرانسه"): [
-        normalize_string("لیگ ۱ فرانسه"),
-        normalize_string("جام حذفی فرانسه"),
-    ],
-    normalize_string("برزیل"): [normalize_string("سری آ برزیل")],
-    normalize_string("عربستان سعودی"): [normalize_string("لیگ حرفه‌ای عربستان سعودی")],
-    normalize_string("ترکیه"): [normalize_string("سوپر لیگ ترکیه")],
-    normalize_string("هلند"): [
-        normalize_string("لیگ برتر هلند"),
-        normalize_string("جام حذفی هلند"),
-    ],
-    normalize_string("پرتغال"): [
-        normalize_string("لیگ برتر پرتغال"),
-        normalize_string("جام حذفی پرتغال"),
-    ],
-    normalize_string("اندونزی"): [
-        normalize_string("سوپر لیگ اندونزی"),
-    ],
+    "انگلیس": ["لیگ برتر انگلیس", "جام حذفی انگلیس", "چمپیونشیپ انگلیس", "جام اتحادیه انگلیس", "سوپرجام انگلیس (جام خیریه)"],
+    "اروپا": ["لیگ قهرمانان اروپا", "لیگ اروپا", "لیگ کنفرانس اروپا", "سوپر جام اروپا"],
+    "آسیا": ["لیگ نخبگان آسیا", "لیگ قهرمانان آسیا ۲"],
+    "ایتالیا": ["سری آ ایتالیا", "جام حذفی ایتالیا", "سوپر جام ایتالیا"],
+    "اسپانیا": ["لالیگا اسپانیا", "کوپا دل ری اسپانیا"],
+    "آلمان": ["بوندس‌لیگا آلمان", "جام حذفی آلمان"],
+    "فرانسه": ["لیگ ۱ فرانسه", "جام حذفی فرانسه"],
+    "برزیل": ["سری آ برزیل"],
+    "عربستان سعودی": ["لیگ حرفه‌ای عربستان سعودی"],
+    "ترکیه": ["سوپر لیگ ترکیه"],
+    "هلند": ["لیگ برتر هلند", "جام حذفی هلند"],
+    "پرتغال": ["لیگ برتر پرتغال", "جام حذفی پرتغال"],
+    "اندونزی": ["سوپر لیگ اندونزی"],
 }
 
+# نرمال سازی WHITELIST
+WHITELIST = {k.strip(): [l.strip() for l in v] for k, v in WHITELIST.items()}
 
 # ============================================================
-# تابع راه‌اندازی مرورگر Chrome
+# توابع کمکی
 # ============================================================
-def setup_driver():
-    """
-    این تابع مرورگر Chrome را با تنظیمات بهینه برای اسکرپ کردن راه‌اندازی می‌کند.
-    
-    تنظیمات اعمال شده:
-    - headless: اجرا بدون نمایش پنجره (کاهش مصرف منابع)
-    - no-sandbox: غیرفعال کردن سندباکس (ضروری برای Termux)
-    - disable-dev-shm-usage: کاهش مصرف حافظه
-    - disable-gpu: غیرفعال کردن پردازش گرافیکی
-    - blink-settings: غیرفعال کردن تصاویر (سرعت بیشتر)
-    
-    برای Termux:
-    - خودکار Chromium را شناسایی می‌کند
-    - در صورت عدم موفقیت، مسیر دستی را امتحان می‌کند
-    """
-    # ایجاد شیء تنظیمات Chrome
-    chrome_options = Options()
-    
-    # افزودن آرگومان‌های بهینه‌سازی
-    chrome_options.add_argument("--headless")  # اجرا در پس‌زمینه
-    chrome_options.add_argument("--no-sandbox")  # برای اجرا در Termux
-    chrome_options.add_argument("--disable-dev-shm-usage")  # کاهش مصرف RAM
-    chrome_options.add_argument("--disable-software-rasterizer")  # غیرفعال کردن rasterizer
-    chrome_options.add_argument("--disable-extensions")  # غیرفعال کردن افزونه‌ها
-    chrome_options.add_argument("--disable-gpu")  # غیرفعال کردن GPU
-    chrome_options.add_argument("--window-size=1920x1080")  # اندازه پنجره
-    chrome_options.add_argument("--disable-background-networking")  # غیرفعال کردن شبکه پس‌زمینه
-    
-    # تنظیم User Agent برای جلوگیری از شناسایی به عنوان ربات
-    chrome_options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    )
-    
-    # تنظیم زبان برای دریافت محتوای فارسی
-    chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
-    
-    # غیرفعال کردن بارگذاری تصاویر (سرعت بیشتر)
-    chrome_options.add_argument("--blink-settings=imagesEnabled=false")
-    
-    # تنظیمات پیشرفته برای غیرفعال کردن تصاویر و CSS
-    chrome_options.add_experimental_option(
-        "prefs",
-        {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}},
-    )
+def normalize(s):
+    """حذف فاصله‌های اضافی"""
+    return " ".join(s.split()).strip() if s else ""
 
-    # پیکربندی Termux - Chromium از طریق pkg install chromium نصب می‌شود
-    # نیازی به تعیین مسیر binary یا service در Termux نیست
-    # Selenium به صورت خودکار Chromium را شناسایی می‌کند
-    
-    try:
-        # تلاش برای راه‌اندازی با شناسایی خودکار
-        driver = webdriver.Chrome(options=chrome_options)
-    except Exception as e:
-        # در صورت خطا، تلاش با مسیر دستی Termux
-        logging.error(f"Failed to initialize Chrome driver: {e}")
-        logging.info("Attempting with explicit Chromium path for Termux...")
-        chrome_options.binary_location = "/data/data/com.termux/files/usr/bin/chromium-browser"
-        driver = webdriver.Chrome(options=chrome_options)
+def get_circle_color(odds):
+    """تعیین رنگ دایره بر اساس ضریب"""
+    if odds <= 1.2: return "🟢"
+    if odds <= 1.4: return "🟡"
+    if odds <= 1.6: return "🟠"
+    return "⚪"
 
-    try:
-        # مسدود کردن URLهای غیرضروری (تصاویر، CSS) برای سرعت بیشتر
-        driver.execute_cdp_cmd(
-            "Network.setBlockedURLs",
-            {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
-        )
-    except Exception as e:
-        # برخی نسخه‌ها از این قابلیت پشتیبانی نمی‌کنند
-        logging.warning(f"Could not set blocked URLs: {e}")
+def get_score_circle(score_diff):
+    """تعیین رنگ دایره بر اساس اختلاف گل"""
+    if score_diff > 1: return "🟢"
+    if score_diff == 1: return "🟡"
+    return "⚪"
 
-    return driver
+def is_whitelisted(country, league):
+    """بررسی اینکه مسابقه در لیست سفید است یا خیر"""
+    country_norm = normalize(country)
+    league_norm = normalize(league)
+    return country_norm in WHITELIST and league_norm in WHITELIST.get(country_norm, [])
 
-
-def load_json_file(filename):
+def load_json(filename):
+    """بارگذاری فایل JSON"""
     if os.path.exists(filename):
         try:
             with open(filename, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
             logging.error(f"Error loading {filename}: {e}")
-            return []
     return []
 
-
-async def send_all_alerts(messages):
-    """Send all alert messages to subscribed chat IDs with a 5-second delay between each."""
-    bot = telegram.Bot(token=BOT_TOKEN)
-    chat_ids = load_json_file("chat_ids.json")
-    
-    logging.info(f"📤 Starting to send {len(messages)} alert(s) to {len(chat_ids)} chat ID(s)")
-    
-    for idx, message in enumerate(messages, 1):
-        logging.info(f"\n{'='*60}")
-        logging.info(f"📨 Alert {idx}/{len(messages)}:")
-        logging.info(f"{'='*60}")
-        logging.info(f"Message content:\n{message}")
-        logging.info(f"{'='*60}\n")
-        
-        for chat_id in chat_ids:
-            try:
-                await bot.send_message(
-                    chat_id=chat_id,
-                    text=message,
-                    parse_mode="HTML",
-                )
-                logging.info(f"✅ Successfully sent alert {idx} to chat ID {chat_id}")
-                await asyncio.sleep(2)
-            except Exception as e:
-                logging.error(f"❌ Error sending message to chat ID {chat_id}: {e}")
-                logging.error(f"Failed message was: {message[:100]}...")
-
-
-def scrape_betforward_odds(driver, url):
-    try:
-        driver.get(url)
-        WebDriverWait(driver, 40).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "c-segment-holder-bc"))
-        )
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        matches = []
-        match_elements = soup.find_all(
-            "div", class_="c-segment-holder-bc single-g-info-bc"
-        )
-
-        for match in match_elements:
-            try:
-                teams = match.find_all("span", class_="c-team-info-team-bc team")
-                if len(teams) < 2:
-                    logging.warning("Number of teams is less than 2")
-                    continue
-                home_team = teams[0].text.strip()
-                away_team = teams[1].text.strip()
-
-                odds_elements = match.find_all("span", class_="market-odd-bc")
-                odds = {"home_win": "N/A", "draw": "N/A", "away_win": "N/A"}
-                if len(odds_elements) >= 3:
-                    odds["home_win"] = odds_elements[0].text.strip()
-                    odds["draw"] = odds_elements[1].text.strip()
-                    odds["away_win"] = odds_elements[2].text.strip()
-                else:
-                    logging.warning(f"Insufficient odds for {home_team} vs {away_team}")
-                    continue
-
-                match_info = {
-                    "home_team": home_team,
-                    "away_team": away_team,
-                    "odds": odds,
-                    "last_updated": datetime.now().isoformat(),
-                }
-                matches.append(match_info)
-            except Exception as e:
-                logging.error(f"Error processing match: {e}")
-                continue
-
-        return matches
-
-    except Exception as e:
-        logging.error(f"Error scraping odds: {e}")
-        return []
-
-
-def scrape_betforward_results(driver, url):
-    try:
-        driver.get(url)
-        WebDriverWait(driver, 40).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc"))
-        )
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        matches = []
-        competition_elements = soup.find_all("div", class_="competition-bc")
-
-        for competition in competition_elements:
-            try:
-                title_elements = competition.find_all(
-                    "span", class_="c-title-bc ellipsis"
-                )
-                if len(title_elements) < 2:
-                    logging.warning("Insufficient title elements for competition")
-                    country = "Unknown"
-                    league = "Unknown"
-                else:
-                    country = title_elements[0].text.strip()
-                    league = title_elements[1].text.strip()
-
-                match_elements = competition.find_all(
-                    "div", class_="c-segment-holder-bc single-g-info-bc"
-                )
-
-                for match in match_elements:
-                    try:
-                        team_names = match.find_all(
-                            "span", class_="c-team-info-team-bc team"
-                        )
-                        scores = match.find_all("b", class_="c-team-info-scores-bc")
-                        time_info = match.find(
-                            "span", class_="c-info-score-bc fixed-direction"
-                        )
-
-                        if len(team_names) < 2 or len(scores) < 2:
-                            logging.warning("Insufficient number of teams or scores")
-                            continue
-
-                        team1 = team_names[0].text.strip()
-                        team2 = team_names[1].text.strip()
-                        score1 = scores[0].text.strip()
-                        score2 = scores[1].text.strip()
-
-                        minute = None
-                        match_status = "Unknown"
-                        extra_info = None
-
-                        if time_info:
-                            time_text = time_info.text.strip()
-                            minute_match = re.search(
-                                r"(\d+)(?:\s*\+\s*(\d+))?\s*`", time_text
-                            )
-                            if minute_match:
-                                base_minute = int(minute_match.group(1))
-                                extra_minute = (
-                                    int(minute_match.group(2))
-                                    if minute_match.group(2)
-                                    else 0
-                                )
-                                minute = (
-                                    f"{base_minute}+{extra_minute}"
-                                    if extra_minute
-                                    else str(base_minute)
-                                )
-                                if base_minute > 90 or extra_minute:
-                                    match_status = "وقت اضافه"
-                                else:
-                                    match_status = "در جریان"
-                            else:
-                                sibling_status_tag = match.find(
-                                    "span", class_="c-info-score-bc"
-                                )
-                                if sibling_status_tag:
-                                    match_status = sibling_status_tag.text.strip()
-                                else:
-                                    match_status = "Unknown"
-
-                            extra_info_match = re.search(r"\((\d+):(\d+)\)", time_text)
-                            if extra_info_match:
-                                extra_info = [
-                                    {
-                                        "team1": int(extra_info_match.group(1)),
-                                        "team2": int(extra_info_match.group(2)),
-                                    }
-                                ]
-                        else:
-                            match_status = "شروع نشده"
-
-                        match_info = {
-                            "team1": team1,
-                            "team2": team2,
-                            "score": {"team1": score1, "team2": score2},
-                            "minute": minute,
-                            "status": match_status,
-                            "extra_info": extra_info,
-                            "country": country,
-                            "league": league,
-                            "last_updated": datetime.now().isoformat(),
-                        }
-                        matches.append(match_info)
-                    except Exception as e:
-                        logging.error(f"Error processing match: {e}")
-                        continue
-            except Exception as e:
-                logging.error(f"Error processing competition: {e}")
-                continue
-
-        return matches
-
-    except Exception as e:
-        logging.error(f"Error scraping results: {e}")
-        return []
-
-
-def save_to_file(data, filename):
+def save_json(data, filename):
+    """ذخیره داده در فایل JSON"""
     try:
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
         logging.info(f"Data saved to {filename}")
     except IOError as e:
-        logging.error(f"Error saving data: {e}")
+        logging.error(f"Error saving {filename}: {e}")
 
+# ============================================================
+# راه‌اندازی مرورگر
+# ============================================================
+def setup_driver():
+    """راه‌اندازی Chrome با تنظیمات بهینه"""
+    opts = Options()
+    for arg in ["--headless", "--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu",
+                "--disable-extensions", "--disable-software-rasterizer", "--disable-background-networking",
+                "--window-size=1920x1080", "--blink-settings=imagesEnabled=false",
+                "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "accept-language=fa-IR,fa;q=0.9"]:
+        opts.add_argument(arg)
+    
+    opts.add_experimental_option("prefs", {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}})
+    
+    try:
+        driver = webdriver.Chrome(options=opts)
+    except Exception as e:
+        logging.error(f"Failed to init Chrome: {e}")
+        opts.binary_location = "/data/data/com.termux/files/usr/bin/chromium-browser"
+        driver = webdriver.Chrome(options=opts)
+    
+    try:
+        driver.execute_cdp_cmd("Network.setBlockedURLs", {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]})
+    except Exception as e:
+        logging.warning(f"Could not block URLs: {e}")
+    
+    return driver
 
+# ============================================================
+# ارسال هشدار به تلگرام
+# ============================================================
+async def send_alerts(messages):
+    """ارسال پیام‌های هشدار به کاربران"""
+    bot = telegram.Bot(token=BOT_TOKEN)
+    chat_ids = load_json("chat_ids.json")
+    logging.info(f"📤 Sending {len(messages)} alert(s) to {len(chat_ids)} chat(s)")
+    
+    for idx, msg in enumerate(messages, 1):
+        logging.info(f"\n{'='*60}\n📨 Alert {idx}/{len(messages)}:\n{'='*60}\n{msg}\n{'='*60}")
+        for chat_id in chat_ids:
+            try:
+                await bot.send_message(chat_id=chat_id, text=msg, parse_mode="HTML")
+                logging.info(f"✅ Sent to {chat_id}")
+                await asyncio.sleep(2)
+            except Exception as e:
+                logging.error(f"❌ Error sending to {chat_id}: {e}")
+
+# ============================================================
+# اسکرپ کردن ضرایب
+# ============================================================
+def scrape_odds(driver, url):
+    """استخراج ضرایب مسابقات"""
+    try:
+        driver.get(url)
+        WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, "c-segment-holder-bc")))
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        matches = []
+        
+        for match in soup.find_all("div", class_="c-segment-holder-bc single-g-info-bc"):
+            try:
+                teams = match.find_all("span", class_="c-team-info-team-bc team")
+                if len(teams) < 2: continue
+                
+                odds_elems = match.find_all("span", class_="market-odd-bc")
+                if len(odds_elems) < 3: continue
+                
+                matches.append({
+                    "home_team": teams[0].text.strip(),
+                    "away_team": teams[1].text.strip(),
+                    "odds": {
+                        "home_win": odds_elems[0].text.strip(),
+                        "draw": odds_elems[1].text.strip(),
+                        "away_win": odds_elems[2].text.strip()
+                    },
+                    "last_updated": datetime.now().isoformat()
+                })
+            except Exception as e:
+                logging.error(f"Error processing match: {e}")
+        
+        return matches
+    except Exception as e:
+        logging.error(f"Error scraping odds: {e}")
+        return []
+
+# ============================================================
+# اسکرپ کردن نتایج زنده
+# ============================================================
+def scrape_results(driver, url):
+    """استخراج نتایج مسابقات زنده"""
+    try:
+        driver.get(url)
+        WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc")))
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        matches = []
+        
+        for comp in soup.find_all("div", class_="competition-bc"):
+            try:
+                titles = comp.find_all("span", class_="c-title-bc ellipsis")
+                country = titles[0].text.strip() if len(titles) > 0 else "Unknown"
+                league = titles[1].text.strip() if len(titles) > 1 else "Unknown"
+                
+                for match in comp.find_all("div", class_="c-segment-holder-bc single-g-info-bc"):
+                    try:
+                        teams = match.find_all("span", class_="c-team-info-team-bc team")
+                        scores = match.find_all("b", class_="c-team-info-scores-bc")
+                        time_info = match.find("span", class_="c-info-score-bc fixed-direction")
+                        
+                        if len(teams) < 2 or len(scores) < 2: continue
+                        
+                        minute, status = None, "Unknown"
+                        if time_info:
+                            time_text = time_info.text.strip()
+                            minute_match = re.search(r"(\d+)(?:\s*\+\s*(\d+))?\s*`", time_text)
+                            if minute_match:
+                                base = int(minute_match.group(1))
+                                extra = int(minute_match.group(2)) if minute_match.group(2) else 0
+                                minute = f"{base}+{extra}" if extra else str(base)
+                                status = "وقت اضافه" if base > 90 or extra else "در جریان"
+                            else:
+                                sibling = match.find("span", class_="c-info-score-bc")
+                                status = sibling.text.strip() if sibling else "Unknown"
+                        else:
+                            status = "شروع نشده"
+                        
+                        matches.append({
+                            "team1": teams[0].text.strip(),
+                            "team2": teams[1].text.strip(),
+                            "score": {"team1": scores[0].text.strip(), "team2": scores[1].text.strip()},
+                            "minute": minute,
+                            "status": status,
+                            "country": country,
+                            "league": league,
+                            "last_updated": datetime.now().isoformat()
+                        })
+                    except Exception as e:
+                        logging.error(f"Error processing match: {e}")
+            except Exception as e:
+                logging.error(f"Error processing competition: {e}")
+        
+        return matches
+    except Exception as e:
+        logging.error(f"Error scraping results: {e}")
+        return []
+
+# ============================================================
+# به‌روزرسانی فایل‌های JSON
+# ============================================================
 def update_odds_file(new_odds, filename="betforward_odds.json"):
-    current_odds = load_json_file(filename)
-    updated_odds = []
+    """به‌روزرسانی فایل ضرایب"""
+    current = load_json(filename)
+    updated = []
     current_time = datetime.now()
-
-    new_matches = {(match["home_team"], match["away_team"]) for match in new_odds}
-
-    for new_match in new_odds:
-        match_id = (new_match["home_team"], new_match["away_team"])
-        existing_match = next(
-            (m for m in current_odds if (m["home_team"], m["away_team"]) == match_id),
-            None,
-        )
-
-        if existing_match:
-            if existing_match["odds"] != new_match["odds"]:
-                new_match["last_updated"] = current_time.isoformat()
-                updated_odds.append(new_match)
-                logging.info(f"Updated odds for {match_id[0]} vs {match_id[1]}")
-            else:
-                updated_odds.append(existing_match)
-        else:
-            updated_odds.append(new_match)
-            logging.info(f"Added new match: {match_id[0]} vs {match_id[1]}")
-
-    for existing_match in current_odds:
-        match_id = (existing_match["home_team"], existing_match["away_team"])
-        if match_id not in new_matches:
-            last_updated = datetime.fromisoformat(existing_match["last_updated"])
-            if current_time - last_updated > timedelta(hours=3):
-                logging.info(f"Removing old match: {match_id[0]} vs {match_id[1]}")
-                continue
-            updated_odds.append(existing_match)
-
-    save_to_file(updated_odds, filename)
-
+    new_set = {(m["home_team"], m["away_team"]) for m in new_odds}
+    
+    for new_m in new_odds:
+        match_id = (new_m["home_team"], new_m["away_team"])
+        existing = next((m for m in current if (m["home_team"], m["away_team"]) == match_id), None)
+        
+        if existing and existing["odds"] != new_m["odds"]:
+            new_m["last_updated"] = current_time.isoformat()
+            logging.info(f"Updated odds: {match_id[0]} vs {match_id[1]}")
+        updated.append(new_m if not existing or existing["odds"] != new_m["odds"] else existing)
+    
+    for old_m in current:
+        match_id = (old_m["home_team"], old_m["away_team"])
+        if match_id not in new_set:
+            last = datetime.fromisoformat(old_m["last_updated"])
+            if current_time - last <= timedelta(hours=3):
+                updated.append(old_m)
+    
+    save_json(updated, filename)
 
 def update_results_file(new_results, filename="betforward_results.json"):
-    current_results = load_json_file(filename)
-    updated_results = []
-    new_matches = {(match["team1"], match["team2"]) for match in new_results}
+    """به‌روزرسانی فایل نتایج"""
+    current = load_json(filename)
+    updated = []
     current_time = datetime.now()
-
-    for new_match in new_results:
-        match_id = (new_match["team1"], new_match["team2"])
-        existing_match = next(
-            (m for m in current_results if (m["team1"], m["team2"]) == match_id), None
-        )
-
-        if existing_match:
-            updated_results.append(new_match)
-            if (
-                existing_match["score"] != new_match["score"]
-                or existing_match["status"] != new_match["status"]
-                or existing_match["minute"] != new_match["minute"]
-            ):
-                logging.info(f"Updated result for {match_id[0]} vs {match_id[1]}")
-        else:
-            updated_results.append(new_match)
-            logging.info(f"Added new result: {match_id[0]} vs {match_id[1]}")
-
-    for existing_match in current_results:
-        match_id = (existing_match["team1"], existing_match["team2"])
-        if match_id not in new_matches:
-            last_updated = datetime.fromisoformat(existing_match["last_updated"])
-            if current_time - last_updated > timedelta(minutes=30):
-                logging.info(f"Removing old match: {match_id[0]} vs {match_id[1]}")
-                continue
-            updated_results.append(existing_match)
-
-    save_to_file(updated_results, filename)
-
-
-def scrape_odds_job():
-    logging.info("\n" + "="*60)
-    logging.info("🎲 Starting ODDS scraping job...")
-    logging.info("="*60)
+    new_set = {(m["team1"], m["team2"]) for m in new_results}
     
-    odds_url = "https://m.betforward.com/fa/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
+    for new_m in new_results:
+        updated.append(new_m)
+    
+    for old_m in current:
+        match_id = (old_m["team1"], old_m["team2"])
+        if match_id not in new_set:
+            last = datetime.fromisoformat(old_m["last_updated"])
+            if current_time - last <= timedelta(minutes=30):
+                updated.append(old_m)
+    
+    save_json(updated, filename)
+
+# ============================================================
+# تولید هشدارها
+# ============================================================
+def generate_alert(match, home_odds, away_odds, team_key, team_name, opponent_name, team_odds, team_score, opp_score, minute):
+    """تولید پیام هشدار برای یک تیم"""
+    circle1 = get_circle_color(team_odds)
+    circle2 = get_score_circle(opp_score - team_score)
+    opp_odds = away_odds if team_key == "team1" else home_odds
+    
+    return (
+        f"{circle1}{circle2} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
+        f"{team_name} (ضریب: {team_odds}) در دقیقه {minute or match['status']} "
+        f"با نتیجه {team_score}-{opp_score} از {opponent_name} (ضریب: {opp_odds}) عقب است!\n"
+        f"📝 پیشنهاد: 1- کرنر یا شوت زدن قوی 2- کرنر یا شوت نزدن ضعیف 3- گل زدن قوی"
+    )
+
+def check_alerts(match, odds_data):
+    """بررسی و تولید هشدارها برای یک مسابقه"""
+    if not is_whitelisted(match["country"], match["league"]):
+        return []
+    
+    if match["status"] not in ["در جریان", "وقت اضافه", "بین دو نیمه", "تایم اوت"]:
+        return []
+    
+    odds_match = next((m for m in odds_data if (m["home_team"], m["away_team"]) == (match["team1"], match["team2"])), None)
+    if not odds_match:
+        return []
+    
+    alerts = []
+    try:
+        home_odds = float(odds_match["odds"]["home_win"]) if odds_match["odds"]["home_win"] != "N/A" else float("inf")
+        away_odds = float(odds_match["odds"]["away_win"]) if odds_match["odds"]["away_win"] != "N/A" else float("inf")
+        score1 = int(match["score"]["team1"]) if match["score"]["team1"].isdigit() else 0
+        score2 = int(match["score"]["team2"]) if match["score"]["team2"].isdigit() else 0
+        minute = match["minute"]
+        
+        base_minute = 30 if not minute or not minute.strip() else int(minute.split("+")[0])
+        
+        # شرط 1: دقیقه 60+ و تیم با ضریب پایین عقب است
+        if base_minute >= 60:
+            if home_odds <= 1.6 and score1 < score2:
+                alerts.append(generate_alert(match, home_odds, away_odds, "team1", match["team1"], match["team2"], home_odds, score1, score2, minute))
+            if away_odds <= 1.6 and score2 < score1:
+                alerts.append(generate_alert(match, home_odds, away_odds, "team2", match["team2"], match["team1"], away_odds, score2, score1, minute))
+        
+        # شرط 2: بین دو نیمه و مساوی
+        if match["status"] == "بین دو نیمه" and score1 == score2:
+            if home_odds <= 1.6 or away_odds <= 1.6:
+                circle1 = get_circle_color(min(home_odds, away_odds))
+                circle2 = "🟢" if score1 == 0 and score2 == 0 else "🟡"
+                alerts.append(
+                    f"{circle1}{circle2} هشدار: در کشور {match['country']} در لیگ {match['league']} "
+                    f"مسابقه بین {match['team1']} (ضریب: {home_odds}) و {match['team2']} (ضریب: {away_odds}) "
+                    f"در نیمه اول با نتیجه {score1}-{score2} مساوی است!\n"
+                    f"📝 پیشنهاد: 1_گل داشتن بازی 2_گل زدن تیم قوی"
+                )
+        
+        # شرط 3: بین دو نیمه، ضریب کمتر از 1.4، گل نزده و عقب است
+        if match["status"] == "بین دو نیمه":
+            checks = [
+                ("team1", home_odds, score1, score2, match["team1"], match["team2"], away_odds),
+                ("team2", away_odds, score2, score1, match["team2"], match["team1"], home_odds),
+            ]
+            for team_key, team_odd, team_score, opp_score, team_name, opp_name, opp_odd in checks:
+                if team_odd < 1.4 and team_score == 0 and team_score < opp_score:
+                    circle = "🟢" if team_odd < 1.2 else "🟡"
+                    alerts.append(
+                        f"{circle} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
+                        f"{team_name} (ضریب: {team_odd}) در وضعیت <b>{match['status']}</b> "
+                        f"با نتیجه {team_score}-{opp_score} از {opp_name} (ضریب: {opp_odd}) عقب است و هنوز گلی نزده!\n"
+                        f"📝 پیشنهاد: گل داشتن بازی تا دقیقه ۷۰"
+                    )
+    except (ValueError, KeyError) as e:
+        logging.warning(f"Error processing match data: {e}")
+    
+    return alerts
+
+# ============================================================
+# Job ها
+# ============================================================
+def scrape_odds_job():
+    """وظیفه اسکرپ ضرایب"""
+    logging.info("\n" + "="*60 + "\n🎲 Starting ODDS job\n" + "="*60)
     driver = setup_driver()
     try:
-        odds = scrape_betforward_odds(driver, odds_url)
+        odds = scrape_odds(driver, "https://m.betforward.com/fa/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches")
         if odds:
-            logging.info(f"📊 Retrieved {len(odds)} odds from website")
-            update_odds_file(odds, "betforward_odds.json")
-            logging.info("✅ Odds updated successfully")
+            logging.info(f"📊 Retrieved {len(odds)} odds")
+            update_odds_file(odds)
+            logging.info("✅ Odds updated")
         else:
-            logging.warning("⚠️ No odds retrieved.")
+            logging.warning("⚠️ No odds retrieved")
     except Exception as e:
-        logging.error(f"❌ Error in scrape_odds_job: {e}")
+        logging.error(f"❌ Error in odds job: {e}")
     finally:
         driver.quit()
-        logging.info("🏁 Odds scraping job completed\n")
-
+        logging.info("🏁 Odds job completed\n")
 
 def scrape_results_job():
-    logging.info("\n" + "="*60)
-    logging.info("⚽ Starting RESULTS scraping job...")
-    logging.info("="*60)
-    
-    results_url = "https://m.betforward.com/fa/sports/live/event-view/Soccer"
+    """وظیفه اسکرپ نتایج"""
+    logging.info("\n" + "="*60 + "\n⚽ Starting RESULTS job\n" + "="*60)
     driver = setup_driver()
     try:
-        results = scrape_betforward_results(driver, results_url)
+        results = scrape_results(driver, "https://m.betforward.com/fa/sports/live/event-view/Soccer")
         if results:
-            logging.info(f"📊 Retrieved {len(results)} live matches from website")
-            odds_data = load_json_file("betforward_odds.json")
-            logging.info(f"📋 Loaded {len(odds_data)} odds records for comparison")
-            alert_messages = []
-
+            logging.info(f"📊 Retrieved {len(results)} live matches")
+            odds_data = load_json("betforward_odds.json")
+            
+            alerts = []
             for match in results:
-                match_id = (match["team1"], match["team2"])
-                odds_match = next(
-                    (
-                        m
-                        for m in odds_data
-                        if (m["home_team"], m["away_team"]) == match_id
-                    ),
-                    None,
-                )
-
-                if odds_match:
-                    try:
-                        home_odds = (
-                            float(odds_match["odds"]["home_win"])
-                            if odds_match["odds"]["home_win"] != "N/A"
-                            else float("inf")
-                        )
-                        away_odds = (
-                            float(odds_match["odds"]["away_win"])
-                            if odds_match["odds"]["away_win"] != "N/A"
-                            else float("inf")
-                        )
-                        score1 = (
-                            int(match["score"]["team1"])
-                            if match["score"]["team1"].isdigit()
-                            else 0
-                        )
-                        score2 = (
-                            int(match["score"]["team2"])
-                            if match["score"]["team2"].isdigit()
-                            else 0
-                        )
-                        minute = match["minute"]
-                        if normalize_string(
-                                        match["country"]
-                                    ) in WHITELIST and normalize_string(
-                                        match["league"]
-                                    ) in WHITELIST.get(
-                                        normalize_string(match["country"]), []
-                                    ) and match["status"] in [
-                            "در جریان",
-                            "وقت اضافه",
-                            "بین دو نیمه",
-                            "تایم اوت",
-                        ] :
-                            try:
-                                if not minute or minute.strip() == "":
-                                    base_minute = 30
-                                else:
-                                    base_minute = int(minute.split("+")[0])
-                                if base_minute >= 60:
-                                        # دایره اول بر اساس ضریب
-                                        circle_color = "⚪"
-                                        if 1.4 < home_odds <= 1.6:
-                                            circle_color = "🟠"
-                                        elif 1.2 < home_odds <= 1.4:
-                                            circle_color = "🟡"
-                                        elif home_odds <= 1.2:
-                                            circle_color = "🟢"
-
-                                        # دایره دوم بر اساس اختلاف گل برای تیم میزبان
-                                        circle_color_diff = "⚪"
-                                        score_diff = (
-                                            score2 - score1
-                                        )  # اختلاف گل (میهمان - میزبان)
-                                        if score_diff == 1:
-                                            circle_color_diff = "🟡"  # یک گل عقب
-                                        elif score_diff > 1:
-                                            circle_color_diff = "🟢"  # بیش از یک گل عقب
-                                        
-                                        if home_odds <= 1.6 and score1 < score2:
-                                            
-                                            alert_message = (
-                                                f"{circle_color}{circle_color_diff} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
-                                                f"{match['team1']} (ضریب: {home_odds}) در دقیقه {minute or match['status']} "
-                                                f"با نتیجه {score1}-{score2} از {match['team2']} (ضریب: {away_odds}) عقب است!\n"
-                                                f"📝 پیشنهاد: 1- کرنر یا شوت زدن قوی 2- کرنر یا شوت نزدن ضعیف 3- گل زدن قوی"
-                                            )
-                                            alert_messages.append(alert_message)
-
-                                        # دایره اول بر اساس ضریب برای تیم میهمان
-                                        circle_color = "⚪"
-                                        if 1.4 < away_odds <= 1.6:
-                                            circle_color = "🟠"
-                                        elif 1.2 < away_odds <= 1.4:
-                                            circle_color = "🟡"
-                                        elif away_odds <= 1.2:
-                                            circle_color = "🟢"
-
-                                        # دایره دوم بر اساس اختلاف گل برای تیم میهمان
-                                        circle_color_diff = "⚪"
-                                        score_diff = (
-                                            score1 - score2
-                                        )  # اختلاف گل (میزبان - میهمان)
-                                        if score_diff == 1:
-                                            circle_color_diff = "🟡"  # یک گل عقب
-                                        elif score_diff > 1:
-                                            circle_color_diff = "🟢"  # بیش از یک گل عقب
-
-                                        if away_odds <= 1.6 and score2 < score1:
-                                            alert_message = (
-                                                f"{circle_color}{circle_color_diff} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
-                                                f"{match['team2']} (ضریب: {away_odds}) در دقیقه {minute or match['status']} "
-                                                f"با نتیجه {score2}-{score1} از {match['team1']} (ضریب: {home_odds}) عقب است!\n"
-                                                f"📝 پیشنهاد: 1- کرنر یا شوت زدن قوی 2- کرنر یا شوت نزدن ضعیف 3- گل زدن قوی"
-                                            )
-                                            alert_messages.append(alert_message)
-
-                                # New condition: Halftime, tied score, and low odds
-                                if match["status"] == "بین دو نیمه" and score1 == score2:
-                                        if home_odds <= 1.6 or away_odds <= 1.6:
-                                            # Determine which team has low odds
-                                            low_odds_team = None
-                                            low_odds_value = None
-                                            if home_odds <= 1.6:
-                                                low_odds_team = match["team1"]
-                                                low_odds_value = home_odds
-                                            elif away_odds <= 1.6:
-                                                low_odds_team = match["team2"]
-                                                low_odds_value = away_odds
-
-                                            if low_odds_team:
-                                                # دایره اول بر اساس ضریب
-                                                circle_color = "⚪"
-                                                if 1.4 < low_odds_value <= 1.6:
-                                                    circle_color = "🟠"
-                                                elif 1.2 < low_odds_value <= 1.4:
-                                                    circle_color = "🟡"
-                                                elif low_odds_value <= 1.2:
-                                                    circle_color = "🟢"
-
-                                                # دایره دوم بر اساس نتیجه
-                                                circle_color_diff = "⚪"
-                                                if score1 == 0 and score2 == 0:
-                                                    circle_color_diff = "🟢"  # 0-0
-                                                elif score1 > 0 and score2 > 0:
-                                                    circle_color_diff = "🟡"  # Tied with goals
-
-                                                alert_message = (
-                                                    f"{circle_color}{circle_color_diff} هشدار: در کشور {match['country']} در لیگ {match['league']} "
-                                                    f"مسابقه بین {match['team1']} (ضریب: {home_odds}) و {match['team2']} (ضریب: {away_odds}) "
-                                                    f"در نیمه اول با نتیجه {score1}-{score2} مساوی است!\n"
-                                                    f"📝 پیشنهاد: 1_گل داشتن بازی 2_گل زدن تیم قوی"
-                                                )
-                                                alert_messages.append(alert_message)
-
-                                if match["status"] == "بین دو نیمه":
-                                    # شرط جدید: تیمی با ضریب پایین‌تر از 1.4، گل نزده و عقب است در بین دو نیمه
-                                    halftime_checks = [
-                                        ("team1", home_odds, score1, score2, match["team1"], match["team2"]),
-                                        ("team2", away_odds, score2, score1, match["team2"], match["team1"]),
-                                    ]
-                                    for team_key, team_odd, team_score, opponent_score, team_name, opponent_name in halftime_checks:
-                                        if team_odd < 1.4 and team_score == 0 and team_score < opponent_score:
-                                            # تعیین رنگ دایره بر اساس ضریب
-                                            if team_odd < 1.2:
-                                                circle_color = "🟢"
-                                            else:
-                                                circle_color = "🟡"
-
-                                            alert_message = (
-                                                f"{circle_color} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
-                                                f"{team_name} (ضریب: {team_odd}) در وضعیت <b>{match['status']}</b> "
-                                                f"با نتیجه {team_score}-{opponent_score} از {opponent_name} (ضریب: "
-                                                f"{away_odds if team_key == 'team1' else home_odds}) عقب است و هنوز گلی نزده!\n"
-                                                f"📝 پیشنهاد: گل داشتن بازی تا دقیقه ۷۰"
-                                            )
-                                            alert_messages.append(alert_message)
-
-
-                            except ValueError:
-                                logging.warning(
-                                    f"Invalid minute format for {match_id[0]} vs {match_id[1]}: {minute}"
-                                )
-                    except ValueError as e:
-                        logging.warning(
-                            f"Error processing odds or scores for {match_id[0]} vs {match_id[1]}: {e}"
-                        )
-
-            if alert_messages:
-                logging.info(f"\n🚨 Generated {len(alert_messages)} alert message(s)")
-                logging.info("📤 Sending alerts to Telegram bot...\n")
-                asyncio.run(send_all_alerts(alert_messages))
-                logging.info(f"\n✅ All {len(alert_messages)} alerts sent successfully")
+                alerts.extend(check_alerts(match, odds_data))
+            
+            if alerts:
+                logging.info(f"\n🚨 Generated {len(alerts)} alerts")
+                asyncio.run(send_alerts(alerts))
+                logging.info("\n✅ All alerts sent")
             else:
-                logging.info("ℹ️ No alerts generated for this cycle")
-
-            update_results_file(results, "betforward_results.json")
-            logging.info("✅ Results updated successfully")
+                logging.info("ℹ️ No alerts generated")
+            
+            update_results_file(results)
+            logging.info("✅ Results updated")
         else:
-            logging.warning("⚠️ No results retrieved.")
+            logging.warning("⚠️ No results retrieved")
     except Exception as e:
-        logging.error(f"❌ Error in scrape_results_job: {e}")
+        logging.error(f"❌ Error in results job: {e}")
     finally:
         driver.quit()
-        logging.info("🏁 Results scraping job completed\n")
-
+        logging.info("🏁 Results job completed\n")
 
 def run_schedule():
+    """اجرای زمان‌بند"""
     schedule.every(20).minutes.do(scrape_odds_job)
     schedule.every(5).minutes.do(scrape_results_job)
-    
-    logging.info("\n" + "="*60)
-    logging.info("⏰ Scheduler started!")
-    logging.info("📅 Odds scraping: Every 20 minutes")
-    logging.info("📅 Results scraping: Every 5 minutes")
-    logging.info("="*60 + "\n")
-    
+    logging.info("\n" + "="*60 + "\n⏰ Scheduler started\n📅 Odds: Every 20min | Results: Every 5min\n" + "="*60 + "\n")
     while True:
         schedule.run_pending()
         time.sleep(60)
 
-
+# ============================================================
+# نقطه ورود برنامه
+# ============================================================
 if __name__ == "__main__":
     try:
-        logging.info("\n" + "#"*60)
-        logging.info("#" + " "*58 + "#")
-        logging.info("#" + " "*15 + "🤖 RoboBet Started 🤖" + " "*22 + "#")
-        logging.info("#" + " "*58 + "#")
-        logging.info("#"*60 + "\n")
-        
-        logging.info("🚀 Running initial scraping jobs...\n")
+        logging.info("\n" + "#"*60 + "\n# 🤖 RoboBet Started 🤖\n" + "#"*60 + "\n")
         scrape_odds_job()
         scrape_results_job()
-        
-        logging.info("\n🔄 Starting scheduled jobs...\n")
         run_schedule()
     except KeyboardInterrupt:
-        logging.info("\n\n🛑 Scheduler stopped by user.")
+        logging.info("\n\n🛑 Stopped by user")
     except Exception as e:
         logging.error(f"\n\n❌ Fatal error: {e}")

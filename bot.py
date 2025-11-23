@@ -8,195 +8,154 @@ from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import Application, MessageHandler, CommandHandler, ContextTypes, filters
 from telegram.constants import ParseMode
 
-# Configure logging
+# ============================================================
+# تنظیمات
+# ============================================================
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Bot token
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
-def load_json_file(filename):
-    """Load JSON file and return its contents."""
+# ============================================================
+# توابع کمکی
+# ============================================================
+def load_json(filename):
+    """بارگذاری فایل JSON"""
     try:
         if os.path.exists(filename):
             with open(filename, "r", encoding="utf-8") as f:
                 return json.load(f)
-        else:
-            logging.warning(f"File {filename} does not exist")
-            return []
+        logging.warning(f"File {filename} not found")
     except Exception as e:
         logging.error(f"Error loading {filename}: {e}")
-        return []
+    return []
 
-def save_json_file(data, filename):
-    """Save data to JSON file."""
+def save_json(data, filename):
+    """ذخیره داده در JSON"""
     try:
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
-        logging.info(f"Data saved to {filename}")
+        logging.info(f"Saved to {filename}")
     except Exception as e:
         logging.error(f"Error saving {filename}: {e}")
 
 def add_chat_id(chat_id):
-    """Add a chat ID to the list of subscribers if not already present."""
-    chat_ids_file = "chat_ids.json"
-    chat_ids = load_json_file(chat_ids_file)
-    if str(chat_id) not in chat_ids:
-        chat_ids.append(str(chat_id))
-        save_json_file(chat_ids, chat_ids_file)
-        logging.info(f"➕ Added new chat ID {chat_id} to subscribers (Total: {len(chat_ids)})")
+    """افزودن chat ID به لیست مشترکین"""
+    chat_ids = load_json("chat_ids.json")
+    chat_id_str = str(chat_id)
+    if chat_id_str not in chat_ids:
+        chat_ids.append(chat_id_str)
+        save_json(chat_ids, "chat_ids.json")
+        logging.info(f"➕ New subscriber: {chat_id} (Total: {len(chat_ids)})")
     else:
-        logging.info(f"ℹ️ Chat ID {chat_id} already subscribed")
+        logging.info(f"ℹ️ Already subscribed: {chat_id}")
 
-def convert_to_persian_time(iso_str):
-    """Convert ISO time string to Persian (Jalali) datetime string in Iran timezone."""
+def to_persian_time(iso_str):
+    """تبدیل ISO time به زمان شمسی"""
     try:
-        dt = datetime.fromisoformat(iso_str)
-        tehran = pytz.timezone("Asia/Tehran")
-        dt_tehran = dt.astimezone(tehran)
-        jdt = jdatetime.datetime.fromgregorian(datetime=dt_tehran)
-        return jdt.strftime("%m/%d - %H:%M")
+        dt = datetime.fromisoformat(iso_str).astimezone(pytz.timezone("Asia/Tehran"))
+        return jdatetime.datetime.fromgregorian(datetime=dt).strftime("%m/%d - %H:%M")
     except Exception as e:
-        logging.warning(f"Cannot parse time: {iso_str} — {e}")
+        logging.warning(f"Time parse error: {iso_str} - {e}")
         return "N/A"
 
-def format_odds_match(match):
-    """Format odds match data for Telegram message."""
+def format_odds(match):
+    """فرمت ضرایب برای نمایش"""
     odds = match.get("odds", {})
-    updated = convert_to_persian_time(match.get("last_updated", ""))
     return (
-        f"🏟 مسابقه: {match['home_team']} vs {match['away_team']}\n"
+        f"🏟 {match['home_team']} vs {match['away_team']}\n"
         f"🎲 ضرایب:\n"
         f"▫️ برد میزبان: {odds.get('home_win', 'N/A')}\n"
         f"▫️ مساوی: {odds.get('draw', 'N/A')}\n"
         f"▫️ برد میهمان: {odds.get('away_win', 'N/A')}\n"
-        f"🕓 آخرین به‌روزرسانی: {updated}"
+        f"🕓 {to_persian_time(match.get('last_updated', ''))}"
     )
 
-def format_results_match(match):
-    """Format results match data for Telegram message."""
+def format_results(match):
+    """فرمت نتایج برای نمایش"""
     score = match.get("score", {})
-    updated = convert_to_persian_time(match.get("last_updated", ""))
     return (
-        f"🏟 مسابقه: {match['team1']} vs {match['team2']}\n"
-        f"🌍 کشور: {match.get('country', 'N/A')}\n"
-        f"🏆 لیگ: {match.get('league', 'N/A')}\n"
-        f"🔢 امتیاز: {score.get('team1', 'N/A')} - {score.get('team2', 'N/A')}\n"
-        f"⏱ دقیقه: {match.get('minute', 'N/A')}\n"
-        f"📊 وضعیت: {match.get('status', 'N/A')}\n"
-        f"🕓 آخرین به‌روزرسانی: {updated}"
+        f"🏟 {match['team1']} vs {match['team2']}\n"
+        f"🌍 {match.get('country', 'N/A')} | 🏆 {match.get('league', 'N/A')}\n"
+        f"🔢 {score.get('team1', 'N/A')} - {score.get('team2', 'N/A')}\n"
+        f"⏱ دقیقه: {match.get('minute', 'N/A')} | 📊 {match.get('status', 'N/A')}\n"
+        f"🕓 {to_persian_time(match.get('last_updated', ''))}"
     )
 
-def get_reply_keyboard():
-    """Return the persistent reply keyboard."""
-    keyboard = [["لیست ضرایب", "نتایج زنده"]]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
+def get_keyboard():
+    """صفحه کلید دائمی"""
+    return ReplyKeyboardMarkup([["لیست ضرایب", "نتایج زنده"]], resize_keyboard=True, one_time_keyboard=False)
 
+# ============================================================
+# Handler ها
+# ============================================================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Send welcome message with keyboard on /start and store chat ID."""
+    """دستور /start"""
     chat_id = update.effective_chat.id
     username = update.effective_user.username or "Unknown"
     
-    logging.info(f"\n{'='*60}")
-    logging.info(f"👤 /start command received from:")
-    logging.info(f"   Chat ID: {chat_id}")
-    logging.info(f"   Username: @{username}")
-    logging.info(f"{'='*60}\n")
+    logging.info(f"\n{'='*60}\n👤 /start from: {chat_id} (@{username})\n{'='*60}")
     
     add_chat_id(chat_id)
-    reply_markup = get_reply_keyboard()
-    await update.message.reply_text(
-        "سلام! یکی از گزینه‌های زیر را انتخاب کن:",
-        reply_markup=reply_markup
-    )
-    logging.info(f"✅ Welcome message sent to chat ID {chat_id}")
+    await update.message.reply_text("سلام! یکی از گزینه‌های زیر را انتخاب کن:", reply_markup=get_keyboard())
+    logging.info(f"✅ Welcome sent to {chat_id}")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle incoming messages, store chat ID, and respond based on user input."""
+    """پردازش پیام‌های دریافتی"""
     chat_id = update.effective_chat.id
     username = update.effective_user.username or "Unknown"
     text = update.message.text
     
-    logging.info(f"\n{'='*60}")
-    logging.info(f"📩 Message received:")
-    logging.info(f"   From: @{username} (Chat ID: {chat_id})")
-    logging.info(f"   Text: '{text}'")
-    logging.info(f"{'='*60}\n")
+    logging.info(f"\n{'='*60}\n📩 Message from @{username} ({chat_id}): '{text}'\n{'='*60}")
     
     add_chat_id(chat_id)
-    reply_markup = get_reply_keyboard()
-
+    keyboard = get_keyboard()
+    
     if text == "لیست ضرایب":
-        logging.info(f"🎲 Processing 'لیست ضرایب' request for chat ID {chat_id}")
-        odds = load_json_file("betforward_odds.json")
+        logging.info(f"🎲 Processing odds request for {chat_id}")
+        odds = load_json("betforward_odds.json")
         if odds:
-            logging.info(f"📊 Sending {len(odds)} odds records to chat ID {chat_id}")
+            logging.info(f"📊 Sending {len(odds)} odds to {chat_id}")
             for idx, match in enumerate(odds, 1):
-                formatted_message = format_odds_match(match)
-                logging.info(f"   Sending odds {idx}/{len(odds)}: {match['home_team']} vs {match['away_team']}")
-                await update.message.reply_text(
-                    formatted_message,
-                    parse_mode=ParseMode.MARKDOWN,
-                    reply_markup=reply_markup
-                )
-            logging.info(f"✅ All odds sent successfully to chat ID {chat_id}")
+                logging.info(f"   [{idx}/{len(odds)}] {match['home_team']} vs {match['away_team']}")
+                await update.message.reply_text(format_odds(match), parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
+            logging.info(f"✅ All odds sent to {chat_id}")
         else:
-            logging.warning(f"⚠️ No odds data available for chat ID {chat_id}")
-            await update.message.reply_text(
-                "هیچ داده‌ای برای ضرایب موجود نیست.",
-                parse_mode=ParseMode.MARKDOWN,
-                reply_markup=reply_markup
-            )
+            logging.warning(f"⚠️ No odds for {chat_id}")
+            await update.message.reply_text("هیچ داده‌ای برای ضرایب موجود نیست.", parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
+    
     elif text == "نتایج زنده":
-        logging.info(f"⚽ Processing 'نتایج زنده' request for chat ID {chat_id}")
-        results = load_json_file("betforward_results.json")
+        logging.info(f"⚽ Processing results request for {chat_id}")
+        results = load_json("betforward_results.json")
         if results:
-            logging.info(f"📊 Sending {len(results)} live results to chat ID {chat_id}")
+            logging.info(f"📊 Sending {len(results)} results to {chat_id}")
             for idx, match in enumerate(results, 1):
-                formatted_message = format_results_match(match)
-                logging.info(f"   Sending result {idx}/{len(results)}: {match['team1']} vs {match['team2']}")
-                await update.message.reply_text(
-                    formatted_message,
-                    parse_mode=ParseMode.MARKDOWN,
-                    reply_markup=reply_markup
-                )
-            logging.info(f"✅ All results sent successfully to chat ID {chat_id}")
+                logging.info(f"   [{idx}/{len(results)}] {match['team1']} vs {match['team2']}")
+                await update.message.reply_text(format_results(match), parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
+            logging.info(f"✅ All results sent to {chat_id}")
         else:
-            logging.warning(f"⚠️ No live results available for chat ID {chat_id}")
-            await update.message.reply_text(
-                "هیچ داده‌ای برای نتایج زنده موجود نیست.",
-                parse_mode=ParseMode.MARKDOWN,
-                reply_markup=reply_markup
-            )
+            logging.warning(f"⚠️ No results for {chat_id}")
+            await update.message.reply_text("هیچ داده‌ای برای نتایج زنده موجود نیست.", parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
+    
     else:
-        logging.info(f"❓ Unknown message from chat ID {chat_id}: '{text}'")
-        await update.message.reply_text(
-            "لطفاً یکی از گزینه‌های زیر را انتخاب کنید:",
-            parse_mode=ParseMode.MARKDOWN,
-            reply_markup=reply_markup
-        )
+        logging.info(f"❓ Unknown message from {chat_id}")
+        await update.message.reply_text("لطفاً یکی از گزینه‌های زیر را انتخاب کنید:", parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
 
+# ============================================================
+# نقطه ورود
+# ============================================================
 def main():
-    """Run the Telegram bot."""
+    """اجرای ربات"""
     if not BOT_TOKEN:
-        logging.error("❌ TELEGRAM_BOT_TOKEN not set in environment variables")
+        logging.error("❌ BOT_TOKEN not set")
         return
-
-    logging.info("\n" + "#"*60)
-    logging.info("#" + " "*58 + "#")
-    logging.info("#" + " "*12 + "🤖 Telegram Bot Starting 🤖" + " "*17 + "#")
-    logging.info("#" + " "*58 + "#")
-    logging.info("#"*60 + "\n")
-
-    application = Application.builder().token(BOT_TOKEN).build()
-
-    # Add handlers
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
-    # Start the bot
-    logging.info("🚀 Starting Telegram bot polling...")
-    logging.info("✅ Bot is ready and listening for messages\n")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    
+    logging.info("\n" + "#"*60 + "\n# 🤖 Telegram Bot Starting 🤖\n" + "#"*60 + "\n")
+    
+    app = Application.builder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
+    logging.info("🚀 Bot polling started\n✅ Ready for messages\n")
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
     main()
