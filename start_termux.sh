@@ -3,8 +3,24 @@
 # Script to run RoboBet in Termux
 echo "Starting RoboBet..."
 
+# Check if bot is already running
+echo "Checking for existing processes..."
+EXISTING_PROCS=$(ps aux | grep -E "python.*(main|bot)\.py" | grep -v grep)
+
+if [ ! -z "$EXISTING_PROCS" ]; then
+    echo "⚠️  Found existing Python processes:"
+    echo "$EXISTING_PROCS"
+    echo ""
+    echo "Stopping existing processes..."
+    pkill -f "python.*main.py"
+    pkill -f "python.*bot.py"
+    sleep 2
+    echo "✅ Existing processes stopped"
+fi
+
 # Function to cleanup on exit
 cleanup() {
+    echo ""
     echo "Stopping all processes..."
     kill $BOT_PID $MAIN_PID 2>/dev/null
     exit 0

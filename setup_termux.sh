@@ -36,6 +36,7 @@ echo "Setting up data files..."
 
 # Make start script executable
 chmod +x start_termux.sh
+chmod +x stop_termux.sh
 
 echo "=========================================="
 echo "Setup Complete!"
