@@ -13,9 +13,10 @@ from telegram.constants import ParseMode
 # ============================================================
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# مخفی کردن لاگ‌های HTTP تلگرام
-logging.getLogger('httpx').setLevel(logging.WARNING)
-logging.getLogger('telegram').setLevel(logging.WARNING)
+# مخفی کردن لاگ‌های HTTP تلگرام و خطاهای شبکه
+logging.getLogger('httpx').setLevel(logging.CRITICAL)  # فقط خطاهای بحرانی
+logging.getLogger('telegram').setLevel(logging.ERROR)  # فقط خطاهای مهم
+logging.getLogger('httpcore').setLevel(logging.CRITICAL)
 
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
@@ -92,6 +93,20 @@ def get_keyboard():
 # ============================================================
 # Handler ها
 # ============================================================
+async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """مدیریت خطاهای ربات"""
+    error = context.error
+    
+    # خطاهای شبکه‌ای که نیاز به لاگ ندارند
+    if isinstance(error, Exception):
+        error_name = type(error).__name__
+        if any(x in error_name for x in ['Network', 'Timeout', 'RemoteProtocol', 'Connection']):
+            # این خطاها طبیعی هستند و خودکار retry می‌شوند
+            return
+    
+    # فقط خطاهای مهم را لاگ کن
+    logging.error(f"⚠️ Bot error: {error}")
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """دستور /start"""
     chat_id = update.effective_chat.id
@@ -156,8 +171,13 @@ def main():
     logging.info("\n" + "#"*60 + "\n# 🤖 Telegram Bot Starting 🤖\n" + "#"*60 + "\n")
     
     app = Application.builder().token(BOT_TOKEN).build()
+    
+    # اضافه کردن handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
+    # اضافه کردن error handler
+    app.add_error_handler(error_handler)
     
     logging.info("🚀 Bot polling started\n✅ Ready for messages\n")
     

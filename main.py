@@ -22,9 +22,10 @@ import asyncio
 # ============================================================
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# مخفی کردن لاگ‌های HTTP تلگرام
-logging.getLogger('httpx').setLevel(logging.WARNING)
-logging.getLogger('telegram').setLevel(logging.WARNING)
+# مخفی کردن لاگ‌های HTTP تلگرام و خطاهای شبکه
+logging.getLogger('httpx').setLevel(logging.CRITICAL)  # فقط خطاهای بحرانی
+logging.getLogger('telegram').setLevel(logging.ERROR)  # فقط خطاهای مهم
+logging.getLogger('httpcore').setLevel(logging.CRITICAL)
 logging.getLogger('selenium').setLevel(logging.WARNING)
 logging.getLogger('urllib3').setLevel(logging.WARNING)
 
