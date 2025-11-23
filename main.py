@@ -79,6 +79,9 @@ WHITELIST = {
         normalize_string("لیگ برتر پرتغال"),
         normalize_string("جام حذفی پرتغال"),
     ],
+        normalize_string("اندونزی"): [
+        normalize_string("سوپر لیگ اندونزی"),
+    ],
 }
 
 
