@@ -102,15 +102,25 @@ def setup_driver():
         {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}},
     )
 
-    chrome_options.binary_location = "/usr/bin/google-chrome"
-    service = Service("/usr/bin/chromedriver")
+    # Termux configuration - Chromium is installed via pkg install chromium
+    # No need to specify binary location or service path in Termux
+    # Selenium will auto-detect the chromium installation
+    
+    try:
+        driver = webdriver.Chrome(options=chrome_options)
+    except Exception as e:
+        logging.error(f"Failed to initialize Chrome driver: {e}")
+        logging.info("Attempting with explicit Chromium path for Termux...")
+        chrome_options.binary_location = "/data/data/com.termux/files/usr/bin/chromium-browser"
+        driver = webdriver.Chrome(options=chrome_options)
 
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-
-    driver.execute_cdp_cmd(
-        "Network.setBlockedURLs",
-        {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
-    )
+    try:
+        driver.execute_cdp_cmd(
+            "Network.setBlockedURLs",
+            {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
+        )
+    except Exception as e:
+        logging.warning(f"Could not set blocked URLs: {e}")
 
     return driver
 
@@ -130,7 +140,16 @@ async def send_all_alerts(messages):
     """Send all alert messages to subscribed chat IDs with a 5-second delay between each."""
     bot = telegram.Bot(token=BOT_TOKEN)
     chat_ids = load_json_file("chat_ids.json")
-    for message in messages:
+    
+    logging.info(f"📤 Starting to send {len(messages)} alert(s) to {len(chat_ids)} chat ID(s)")
+    
+    for idx, message in enumerate(messages, 1):
+        logging.info(f"\n{'='*60}")
+        logging.info(f"📨 Alert {idx}/{len(messages)}:")
+        logging.info(f"{'='*60}")
+        logging.info(f"Message content:\n{message}")
+        logging.info(f"{'='*60}\n")
+        
         for chat_id in chat_ids:
             try:
                 await bot.send_message(
@@ -138,10 +157,11 @@ async def send_all_alerts(messages):
                     text=message,
                     parse_mode="HTML",
                 )
-                logging.info(f"Sent alert to chat ID {chat_id}: {message[:50]}...")
+                logging.info(f"✅ Successfully sent alert {idx} to chat ID {chat_id}")
                 await asyncio.sleep(2)
             except Exception as e:
-                logging.error(f"Error sending message to chat ID {chat_id}: {e}")
+                logging.error(f"❌ Error sending message to chat ID {chat_id}: {e}")
+                logging.error(f"Failed message was: {message[:100]}...")
 
 
 def scrape_betforward_odds(driver, url):
@@ -393,26 +413,40 @@ def update_results_file(new_results, filename="betforward_results.json"):
 
 
 def scrape_odds_job():
+    logging.info("\n" + "="*60)
+    logging.info("🎲 Starting ODDS scraping job...")
+    logging.info("="*60)
+    
     odds_url = "https://m.betforward.com/fa/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches"
     driver = setup_driver()
     try:
         odds = scrape_betforward_odds(driver, odds_url)
         if odds:
+            logging.info(f"📊 Retrieved {len(odds)} odds from website")
             update_odds_file(odds, "betforward_odds.json")
-            logging.info("Odds updated successfully")
+            logging.info("✅ Odds updated successfully")
         else:
-            logging.warning("No odds retrieved.")
+            logging.warning("⚠️ No odds retrieved.")
+    except Exception as e:
+        logging.error(f"❌ Error in scrape_odds_job: {e}")
     finally:
         driver.quit()
+        logging.info("🏁 Odds scraping job completed\n")
 
 
 def scrape_results_job():
+    logging.info("\n" + "="*60)
+    logging.info("⚽ Starting RESULTS scraping job...")
+    logging.info("="*60)
+    
     results_url = "https://m.betforward.com/fa/sports/live/event-view/Soccer"
     driver = setup_driver()
     try:
         results = scrape_betforward_results(driver, results_url)
         if results:
+            logging.info(f"📊 Retrieved {len(results)} live matches from website")
             odds_data = load_json_file("betforward_odds.json")
+            logging.info(f"📋 Loaded {len(odds_data)} odds records for comparison")
             alert_messages = []
 
             for match in results:
@@ -596,21 +630,34 @@ def scrape_results_job():
                         )
 
             if alert_messages:
+                logging.info(f"\n🚨 Generated {len(alert_messages)} alert message(s)")
+                logging.info("📤 Sending alerts to Telegram bot...\n")
                 asyncio.run(send_all_alerts(alert_messages))
-                logging.info("All alerts sent successfully")
+                logging.info(f"\n✅ All {len(alert_messages)} alerts sent successfully")
+            else:
+                logging.info("ℹ️ No alerts generated for this cycle")
 
             update_results_file(results, "betforward_results.json")
-            logging.info("Results updated successfully")
+            logging.info("✅ Results updated successfully")
         else:
-            logging.warning("No results retrieved.")
+            logging.warning("⚠️ No results retrieved.")
+    except Exception as e:
+        logging.error(f"❌ Error in scrape_results_job: {e}")
     finally:
         driver.quit()
+        logging.info("🏁 Results scraping job completed\n")
 
 
 def run_schedule():
     schedule.every(20).minutes.do(scrape_odds_job)
     schedule.every(5).minutes.do(scrape_results_job)
-    logging.info("Scheduler started. Odds and Results every 3 minutes.")
+    
+    logging.info("\n" + "="*60)
+    logging.info("⏰ Scheduler started!")
+    logging.info("📅 Odds scraping: Every 20 minutes")
+    logging.info("📅 Results scraping: Every 5 minutes")
+    logging.info("="*60 + "\n")
+    
     while True:
         schedule.run_pending()
         time.sleep(60)
@@ -618,8 +665,19 @@ def run_schedule():
 
 if __name__ == "__main__":
     try:
+        logging.info("\n" + "#"*60)
+        logging.info("#" + " "*58 + "#")
+        logging.info("#" + " "*15 + "🤖 RoboBet Started 🤖" + " "*22 + "#")
+        logging.info("#" + " "*58 + "#")
+        logging.info("#"*60 + "\n")
+        
+        logging.info("🚀 Running initial scraping jobs...\n")
         scrape_odds_job()
         scrape_results_job()
+        
+        logging.info("\n🔄 Starting scheduled jobs...\n")
         run_schedule()
     except KeyboardInterrupt:
-        logging.info("Scheduler stopped by user.")
+        logging.info("\n\n🛑 Scheduler stopped by user.")
+    except Exception as e:
+        logging.error(f"\n\n❌ Fatal error: {e}")
