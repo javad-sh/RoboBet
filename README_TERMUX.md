@@ -99,14 +99,17 @@ bash setup_termux.sh
 این اسکریپت موارد زیر را انجام می‌دهد:
 - به‌روزرسانی پکیج‌های Termux
 - نصب Python و Chromium
-- نصب کتابخانه‌های Python مورد نیاز
+- نصب کتابخانه‌های Python مورد نیاز (شامل `webdriver-manager`)
 - ایجاد فایل‌های JSON اولیه
 
-⚠️ **نکته مهم درباره pip**:
+⚠️ **نکات مهم**:
 - در Termux نباید `pip install --upgrade pip` را اجرا کنید (سیستم را خراب می‌کند)
 - اسکریپت نصب به صورت خودکار این مورد را رعایت می‌کند
+- `webdriver-manager` به صورت خودکار ChromeDriver مناسب را دانلود و مدیریت می‌کند
 
-⏱️ **زمان نصب**: حدود 10-15 دقیقه (بسته به سرعت اینترنت)
+⏱️ **زمان نصب**: 
+- نصب پکیج‌ها: حدود 10-15 دقیقه
+- اولین اجرای برنامه: 2-5 دقیقه اضافی (برای دانلود ChromeDriver)
 
 ### 5. تنظیم توکن ربات (اختیاری)
 
@@ -235,7 +238,7 @@ pip install -r requirements.txt --no-cache-dir
 
 **مشکل: خطای "Chrome binary not found" یا "Unable to obtain driver"**
 
-این خطا نشان می‌دهد که Chromium نصب نشده یا Selenium نمی‌تواند ChromeDriver را دانلود کند:
+این خطا نشان می‌دهد که Chromium نصب نشده است:
 
 ```bash
 # نصب Chromium
@@ -246,15 +249,34 @@ which chromium-browser
 ls -la /data/data/com.termux/files/usr/bin/chromium-browser
 
 # اگر Chromium نصب است اما هنوز خطا می‌دهد:
-# اطمینان حاصل کنید که فضای کافی دارید
+# نصب مجدد پکیج‌های Python
+pip install -r requirements.txt --no-cache-dir --force-reinstall
+
+# اطمینان حاصل کنید که فضای کافی دارید (حداقل 100MB)
 df -h
 
-# اجازه دهید Selenium Manager در اولین اجرا chromedriver را دانلود کند
-# (این کار ممکن است چند دقیقه طول بکشد)
+# پاک کردن کش webdriver-manager و تلاش مجدد
+rm -rf ~/.wdm
 python main.py
 ```
 
-**نکته**: در اولین اجرا، Selenium Manager به صورت خودکار ChromeDriver را دانلود می‌کند. این کار ممکن است 2-5 دقیقه طول بکشد.
+**نکته**: برنامه از `webdriver-manager` استفاده می‌کند که ChromeDriver را خودکار دانلود و مدیریت می‌کند. در اولین اجرا، این کتابخانه ChromeDriver مناسب را دانلود می‌کند (2-5 دقیقه).
+
+**مشکل: خطای دانلود ChromeDriver**
+
+```bash
+# اگر webdriver-manager نمی‌تواند ChromeDriver را دانلود کند:
+# 1. بررسی اتصال اینترنت
+ping -c 3 google.com
+
+# 2. پاک کردن کش و تلاش مجدد
+rm -rf ~/.wdm
+pip install --upgrade webdriver-manager
+python main.py
+
+# 3. بررسی فضای خالی (نیاز به حداقل 100MB)
+df -h $HOME
+```
 
 **مشکل: خطای "Installing pip is forbidden"**
 

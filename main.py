@@ -1,8 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.os_manager import ChromeType
 from bs4 import BeautifulSoup
 import json
 import re
@@ -109,14 +112,20 @@ def setup_driver():
             logging.info("🔧 Detected Termux environment")
             opts.binary_location = termux_chrome
             
-            # در Termux، Selenium Manager خودکار chromedriver را دانلود می‌کند
-            # فقط باید binary_location را تنظیم کنیم
-            logging.info("⏳ Initializing Chrome (first run may take time to download driver)...")
-            driver = webdriver.Chrome(options=opts)
+            # استفاده از webdriver-manager برای دانلود و مدیریت ChromeDriver
+            logging.info("⏳ Initializing Chrome with webdriver-manager...")
+            logging.info("   (First run may take 2-5 minutes to download driver)")
+            
+            # استفاده از ChromeType.CHROMIUM برای Termux
+            service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
+            driver = webdriver.Chrome(service=service, options=opts)
             logging.info("✅ Chrome initialized successfully")
         else:
             # محیط عادی (Railway/Windows/Linux)
-            driver = webdriver.Chrome(options=opts)
+            logging.info("⏳ Initializing Chrome...")
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=opts)
+            logging.info("✅ Chrome initialized successfully")
             
     except Exception as e:
         logging.error(f"❌ Failed to init Chrome: {e}")
@@ -129,11 +138,17 @@ def setup_driver():
         logging.error("2. Check if chromium-browser exists:")
         logging.error("   ls -la /data/data/com.termux/files/usr/bin/chromium-browser")
         logging.error("")
-        logging.error("3. Try running with more permissions:")
+        logging.error("3. Make sure webdriver-manager is installed:")
+        logging.error("   pip install webdriver-manager")
+        logging.error("")
+        logging.error("4. Try running with more permissions:")
         logging.error("   termux-wake-lock")
         logging.error("")
-        logging.error("4. Make sure you have enough storage space:")
+        logging.error("5. Make sure you have enough storage space (need ~100MB):")
         logging.error("   df -h")
+        logging.error("")
+        logging.error("6. Clear webdriver-manager cache if needed:")
+        logging.error("   rm -rf ~/.wdm")
         logging.error("="*60)
         raise
     
