@@ -1,37 +1,59 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup
-import json
-import re
-import logging
-import schedule
-import time
-from datetime import datetime, timedelta
-import os
-import telegram
-import asyncio
+# ============================================================
+# کتابخانه‌های مورد نیاز برای Web Scraping و مدیریت ربات
+# ============================================================
+from selenium import webdriver  # برای کنترل مرورگر و اسکرپ کردن صفحات وب
+from selenium.webdriver.chrome.service import Service  # برای مدیریت سرویس Chromedriver
+from selenium.webdriver.chrome.options import Options  # برای تنظیمات مرورگر Chrome
+from selenium.webdriver.common.by import By  # برای یافتن المان‌های HTML
+from selenium.webdriver.support.ui import WebDriverWait  # برای انتظار تا بارگذاری المان‌ها
+from selenium.webdriver.support import expected_conditions as EC  # برای شرایط انتظار
+from bs4 import BeautifulSoup  # برای پارس کردن HTML
+import json  # برای کار با فایل‌های JSON
+import re  # برای عملیات Regex
+import logging  # برای ثبت لاگ‌ها
+import schedule  # برای زمان‌بندی وظایف
+import time  # برای مدیریت زمان و تأخیرها
+from datetime import datetime, timedelta  # برای کار با تاریخ و زمان
+import os  # برای عملیات فایل و سیستم
+import telegram  # برای ارسال پیام به تلگرام
+import asyncio  # برای عملیات async
 
-# Configure logging
+# ============================================================
+# پیکربندی سیستم لاگ‌گیری
+# ============================================================
+# تنظیم سطح لاگ به INFO و فرمت زمان، سطح، و پیام
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# Bot token
+# ============================================================
+# توکن ربات تلگرام
+# ============================================================
+# این توکن از BotFather دریافت شده و برای احراز هویت ربات استفاده می‌شود
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
 
+# ============================================================
+# تابع نرمال سازی رشته‌ها
+# ============================================================
 def normalize_string(s):
-    """Normalize a string by removing extra spaces and trimming."""
+    """
+    این تابع رشته‌ها را نرمال می‌کند با:
+    - حذف فاصله‌های اضافی
+    - حذف فاصله‌های ابتدا و انتها
+    این برای مقایسه بهتر نام کشورها و لیگ‌ها استفاده می‌شود
+    """
     if not s:
         return ""
     return " ".join(s.split()).strip()
 
 
-# Define whitelist as a dictionary mapping countries to allowed leagues
+# ============================================================
+# لیست سفید (WHITELIST) کشورها و لیگ‌های مجاز
+# ============================================================
+# فقط مسابقاتی که در این لیست باشند بررسی و هشدار داده می‌شوند
+# ساختار: {'کشور': ['لیگ1', 'لیگ2', ...]}
+# ============================================================
 WHITELIST = {
     normalize_string("انگلیس"): [
         normalize_string("لیگ برتر انگلیس"),
@@ -79,50 +101,82 @@ WHITELIST = {
         normalize_string("لیگ برتر پرتغال"),
         normalize_string("جام حذفی پرتغال"),
     ],
-        normalize_string("اندونزی"): [
+    normalize_string("اندونزی"): [
         normalize_string("سوپر لیگ اندونزی"),
     ],
 }
 
 
+# ============================================================
+# تابع راه‌اندازی مرورگر Chrome
+# ============================================================
 def setup_driver():
+    """
+    این تابع مرورگر Chrome را با تنظیمات بهینه برای اسکرپ کردن راه‌اندازی می‌کند.
+    
+    تنظیمات اعمال شده:
+    - headless: اجرا بدون نمایش پنجره (کاهش مصرف منابع)
+    - no-sandbox: غیرفعال کردن سندباکس (ضروری برای Termux)
+    - disable-dev-shm-usage: کاهش مصرف حافظه
+    - disable-gpu: غیرفعال کردن پردازش گرافیکی
+    - blink-settings: غیرفعال کردن تصاویر (سرعت بیشتر)
+    
+    برای Termux:
+    - خودکار Chromium را شناسایی می‌کند
+    - در صورت عدم موفقیت، مسیر دستی را امتحان می‌کند
+    """
+    # ایجاد شیء تنظیمات Chrome
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-software-rasterizer")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--window-size=1920x1080")
-    chrome_options.add_argument("--disable-background-networking")
+    
+    # افزودن آرگومان‌های بهینه‌سازی
+    chrome_options.add_argument("--headless")  # اجرا در پس‌زمینه
+    chrome_options.add_argument("--no-sandbox")  # برای اجرا در Termux
+    chrome_options.add_argument("--disable-dev-shm-usage")  # کاهش مصرف RAM
+    chrome_options.add_argument("--disable-software-rasterizer")  # غیرفعال کردن rasterizer
+    chrome_options.add_argument("--disable-extensions")  # غیرفعال کردن افزونه‌ها
+    chrome_options.add_argument("--disable-gpu")  # غیرفعال کردن GPU
+    chrome_options.add_argument("--window-size=1920x1080")  # اندازه پنجره
+    chrome_options.add_argument("--disable-background-networking")  # غیرفعال کردن شبکه پس‌زمینه
+    
+    # تنظیم User Agent برای جلوگیری از شناسایی به عنوان ربات
     chrome_options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     )
+    
+    # تنظیم زبان برای دریافت محتوای فارسی
     chrome_options.add_argument("accept-language=fa-IR,fa;q=0.9,en-US;q=0.8,en;q=0.7")
+    
+    # غیرفعال کردن بارگذاری تصاویر (سرعت بیشتر)
     chrome_options.add_argument("--blink-settings=imagesEnabled=false")
+    
+    # تنظیمات پیشرفته برای غیرفعال کردن تصاویر و CSS
     chrome_options.add_experimental_option(
         "prefs",
         {"profile.default_content_setting_values": {"images": 2, "stylesheets": 2}},
     )
 
-    # Termux configuration - Chromium is installed via pkg install chromium
-    # No need to specify binary location or service path in Termux
-    # Selenium will auto-detect the chromium installation
+    # پیکربندی Termux - Chromium از طریق pkg install chromium نصب می‌شود
+    # نیازی به تعیین مسیر binary یا service در Termux نیست
+    # Selenium به صورت خودکار Chromium را شناسایی می‌کند
     
     try:
+        # تلاش برای راه‌اندازی با شناسایی خودکار
         driver = webdriver.Chrome(options=chrome_options)
     except Exception as e:
+        # در صورت خطا، تلاش با مسیر دستی Termux
         logging.error(f"Failed to initialize Chrome driver: {e}")
         logging.info("Attempting with explicit Chromium path for Termux...")
         chrome_options.binary_location = "/data/data/com.termux/files/usr/bin/chromium-browser"
         driver = webdriver.Chrome(options=chrome_options)
 
     try:
+        # مسدود کردن URLهای غیرضروری (تصاویر، CSS) برای سرعت بیشتر
         driver.execute_cdp_cmd(
             "Network.setBlockedURLs",
             {"urls": ["*.css", "*.jpg", "*.jpeg", "*.png", "*.gif"]},
         )
     except Exception as e:
+        # برخی نسخه‌ها از این قابلیت پشتیبانی نمی‌کنند
         logging.warning(f"Could not set blocked URLs: {e}")
 
     return driver
