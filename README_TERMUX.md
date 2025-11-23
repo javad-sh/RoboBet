@@ -96,6 +96,15 @@ bash setup_termux.sh
 bash setup_termux.sh
 ```
 
+⚠️ **اگر قبلاً اسکریپت نصب را اجرا کرده‌اید**:
+```bash
+# فقط پکیج‌های Python جدید را نصب کنید:
+pip install -r requirements.txt --no-cache-dir
+
+# یا نصب مجدد کامل:
+bash setup_termux.sh
+```
+
 این اسکریپت موارد زیر را انجام می‌دهد:
 - به‌روزرسانی پکیج‌های Termux
 - نصب Python و Chromium
