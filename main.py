@@ -313,6 +313,31 @@ def setup_driver():
     
     return driver
 
+def navigate_to_url(driver, url):
+    """رفتن به URL با رفرش و اطمینان از لود کامل (برای سایت‌های JS)"""
+    try:
+        current_url = driver.current_url
+        
+        # همیشه به URL جدید برویم (برای تضمین لود صحیح)
+        logging.info(f"🌐 Navigating to URL")
+        driver.get(url)
+        
+        # صبر کمی برای اجرای JS
+        time.sleep(2)
+        
+        # رفرش برای اطمینان از لود کامل داده‌ها
+        logging.info("🔄 Refreshing page to ensure JS loaded")
+        driver.refresh()
+        
+        # صبر دوباره بعد از رفرش
+        time.sleep(1)
+        
+        logging.info("✅ Page loaded and refreshed")
+        
+    except Exception as e:
+        logging.error(f"❌ Error navigating to URL: {e}")
+        raise
+
 def retry_on_failure(func, *args, max_retries=MAX_RETRIES, delay=RETRY_DELAY, **kwargs):
     """اجرای تابع با تلاش مجدد در صورت خطا یا نتیجه خالی"""
     for attempt in range(1, max_retries + 1):
@@ -411,7 +436,7 @@ async def send_alerts(messages):
 def scrape_odds(driver, url):
     """استخراج ضرایب مسابقات (بدون فیلتر - صفحه ضرایب کشور/لیگ ندارد)"""
     try:
-        driver.get(url)
+        navigate_to_url(driver, url)
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "c-segment-holder-bc")))
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
@@ -448,12 +473,15 @@ def scrape_odds(driver, url):
 def scrape_results(driver, url):
     """استخراج نتایج مسابقات زنده (فقط whitelist)"""
     try:
-        driver.get(url)
+        navigate_to_url(driver, url)
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc")))
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
         
-        for comp in soup.find_all("div", class_="competition-bc"):
+        competitions = soup.find_all("div", class_="competition-bc")
+        logging.info(f"🔍 Found {len(competitions)} competitions on page")
+        
+        for comp in competitions:
             try:
                 titles = comp.find_all("span", class_="c-title-bc ellipsis")
                 country = titles[0].text.strip() if len(titles) > 0 else "Unknown"
