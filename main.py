@@ -36,8 +36,8 @@ BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 RESULTS_HISTORY_FILE = "results_history.json"
 
 # تنظیمات retry و driver مشترک
-MAX_RETRIES = 3
-RETRY_DELAY = 20  # ثانیه
+MAX_RETRIES = 10
+RETRY_DELAY = 5  # ثانیه
 shared_driver = None  # driver مشترک بین jobها
 
 # لیست سفید کشورها و لیگ‌ها
@@ -407,7 +407,7 @@ def scrape_odds(driver, url):
     """استخراج ضرایب مسابقات (بدون فیلتر - صفحه ضرایب کشور/لیگ ندارد)"""
     try:
         driver.get(url)
-        WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, "c-segment-holder-bc")))
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "c-segment-holder-bc")))
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
         
@@ -444,7 +444,7 @@ def scrape_results(driver, url):
     """استخراج نتایج مسابقات زنده (فقط whitelist)"""
     try:
         driver.get(url)
-        WebDriverWait(driver, 40).until(EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc")))
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "c-team-info-scores-bc")))
         soup = BeautifulSoup(driver.page_source, "html.parser")
         matches = []
         
