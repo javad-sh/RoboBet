@@ -34,6 +34,11 @@ BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 # فایل ذخیره تاریخچه نتایج برای ردیابی از دست دادن برتری
 RESULTS_HISTORY_FILE = "results_history.json"
 
+# تنظیمات retry و driver مشترک
+MAX_RETRIES = 3
+RETRY_DELAY = 20  # ثانیه
+shared_driver = None  # driver مشترک بین jobها
+
 # لیست سفید کشورها و لیگ‌ها
 WHITELIST = {
     "انگلیس": ["لیگ برتر انگلیس", "جام حذفی انگلیس", "چمپیونشیپ انگلیس", "جام اتحادیه انگلیس", "سوپرجام انگلیس (جام خیریه)"],
@@ -183,6 +188,41 @@ def check_lead_loss(current_match, history_data):
 # ============================================================
 # راه‌اندازی مرورگر
 # ============================================================
+def get_shared_driver():
+    """دریافت driver مشترک یا ساخت آن در صورت نیاز"""
+    global shared_driver
+    
+    # بررسی اینکه driver موجود است و سالم است
+    if shared_driver is not None:
+        try:
+            # تست سلامت driver با گرفتن عنوان صفحه
+            _ = shared_driver.title
+            logging.info("♻️ Reusing existing driver")
+            return shared_driver
+        except Exception as e:
+            logging.warning(f"⚠️ Existing driver is dead, creating new one: {e}")
+            try:
+                shared_driver.quit()
+            except:
+                pass
+            shared_driver = None
+    
+    # ساخت driver جدید
+    logging.info("🆕 Creating new shared driver")
+    shared_driver = setup_driver()
+    return shared_driver
+
+def reset_shared_driver():
+    """بستن و reset کردن driver مشترک"""
+    global shared_driver
+    if shared_driver is not None:
+        try:
+            shared_driver.quit()
+            logging.info("🔄 Shared driver reset")
+        except Exception as e:
+            logging.warning(f"⚠️ Error closing driver: {e}")
+        shared_driver = None
+
 def setup_driver():
     """راه‌اندازی Chrome با تنظیمات بهینه"""
     opts = Options()
@@ -260,6 +300,30 @@ def setup_driver():
         logging.warning(f"Could not block URLs: {e}")
     
     return driver
+
+def retry_on_failure(func, *args, max_retries=MAX_RETRIES, delay=RETRY_DELAY, **kwargs):
+    """اجرای تابع با تلاش مجدد در صورت خطا"""
+    for attempt in range(1, max_retries + 1):
+        try:
+            logging.info(f"🔄 Attempt {attempt}/{max_retries}")
+            result = func(*args, **kwargs)
+            if attempt > 1:
+                logging.info(f"✅ Success on attempt {attempt}")
+            return result
+        except Exception as e:
+            logging.error(f"❌ Attempt {attempt}/{max_retries} failed: {e}")
+            
+            if attempt < max_retries:
+                logging.info(f"⏳ Waiting {delay} seconds before retry...")
+                time.sleep(delay)
+                
+                # اگر خطای driver است، driver را reset می‌کنیم
+                if "driver" in str(e).lower() or "chrome" in str(e).lower() or "session" in str(e).lower():
+                    logging.info("🔧 Resetting driver due to driver-related error")
+                    reset_shared_driver()
+            else:
+                logging.error(f"❌ All {max_retries} attempts failed")
+                raise
 
 # ============================================================
 # ارسال هشدار به تلگرام
@@ -569,32 +633,37 @@ def check_alerts(match, odds_data):
 def scrape_odds_job():
     """وظیفه اسکرپ ضرایب"""
     logging.info("\n" + "="*60 + "\n🎲 Starting ODDS job\n" + "="*60)
-    driver = None
-    try:
-        driver = setup_driver()
+    
+    def _scrape():
+        driver = get_shared_driver()
         odds = scrape_odds(driver, "https://m.betforward.com/fa/sports/pre-match/event-view/Soccer?specialSection=upcoming-matches")
         if odds:
             logging.info(f"📊 Retrieved {len(odds)} odds")
             update_odds_file(odds)
             logging.info("✅ Odds updated")
+            return True
         else:
             logging.warning("⚠️ No odds retrieved")
+            return False
+    
+    try:
+        success = retry_on_failure(_scrape)
+        if not success:
             asyncio.run(send_error_alert("❌ خطا در دریافت ضرایب\n\nسیستم نتوانست اطلاعات ضرایب را از سایت betforward دریافت کند."))
     except Exception as e:
         error_msg = f"❌ خطا در دریافت ضرایب\n\nجزئیات: {str(e)}"
         logging.error(f"❌ Error in odds job: {e}")
         asyncio.run(send_error_alert(error_msg))
+        reset_shared_driver()
     finally:
-        if driver:
-            driver.quit()
         logging.info("🏁 Odds job completed\n")
 
 def scrape_results_job():
     """وظیفه اسکرپ نتایج"""
     logging.info("\n" + "="*60 + "\n⚽ Starting RESULTS job\n" + "="*60)
-    driver = None
-    try:
-        driver = setup_driver()
+    
+    def _scrape():
+        driver = get_shared_driver()
         results = scrape_results(driver, "https://m.betforward.com/fa/sports/live/event-view/Soccer")
         if results:
             logging.info(f"📊 Retrieved {len(results)} live matches")
@@ -640,16 +709,21 @@ def scrape_results_job():
             update_results_file(results)
             update_results_history(results)
             logging.info("✅ Results and history updated")
+            return True
         else:
             logging.warning("⚠️ No results retrieved")
+            return False
+    
+    try:
+        success = retry_on_failure(_scrape)
+        if not success:
             asyncio.run(send_error_alert("❌ خطا در دریافت نتایج زنده\n\nسیستم نتوانست اطلاعات نتایج زنده را از سایت betforward دریافت کند."))
     except Exception as e:
         error_msg = f"❌ خطا در دریافت نتایج زنده\n\nجزئیات: {str(e)}"
         logging.error(f"❌ Error in results job: {e}")
         asyncio.run(send_error_alert(error_msg))
+        reset_shared_driver()
     finally:
-        if driver:
-            driver.quit()
         logging.info("🏁 Results job completed\n")
 
 def run_schedule():
@@ -674,3 +748,7 @@ if __name__ == "__main__":
         logging.info("\n\n🛑 Stopped by user")
     except Exception as e:
         logging.error(f"\n\n❌ Fatal error: {e}")
+    finally:
+        # پاکسازی driver در پایان
+        reset_shared_driver()
+        logging.info("👋 Cleanup completed")
