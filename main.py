@@ -75,6 +75,11 @@ def is_whitelisted(country, league):
     """بررسی اینکه مسابقه در لیست سفید است یا خیر"""
     country_norm = normalize(country)
     league_norm = normalize(league)
+    
+    # استرالیا را بدون فیلتر لیگ قبول می‌کنیم
+    if country_norm == "استرالیا":
+        return True
+    
     return country_norm in WHITELIST and league_norm in WHITELIST.get(country_norm, [])
 
 def load_json(filename):
