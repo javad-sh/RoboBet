@@ -309,14 +309,28 @@ def setup_driver():
     return driver
 
 def retry_on_failure(func, *args, max_retries=MAX_RETRIES, delay=RETRY_DELAY, **kwargs):
-    """اجرای تابع با تلاش مجدد در صورت خطا"""
+    """اجرای تابع با تلاش مجدد در صورت خطا یا نتیجه خالی"""
     for attempt in range(1, max_retries + 1):
         try:
             logging.info(f"🔄 Attempt {attempt}/{max_retries}")
             result = func(*args, **kwargs)
+            
+            # بررسی نتیجه: اگر False یا None بود و تلاش باقی مانده، تلاش مجدد
+            if result is False or result is None:
+                logging.warning(f"⚠️ Attempt {attempt}/{max_retries} returned empty result")
+                if attempt < max_retries:
+                    logging.info(f"⏳ Waiting {delay} seconds before retry...")
+                    time.sleep(delay)
+                    continue
+                else:
+                    logging.error(f"❌ All {max_retries} attempts returned empty results")
+                    return result
+            
+            # موفقیت‌آمیز
             if attempt > 1:
                 logging.info(f"✅ Success on attempt {attempt}")
             return result
+            
         except Exception as e:
             logging.error(f"❌ Attempt {attempt}/{max_retries} failed: {e}")
             
