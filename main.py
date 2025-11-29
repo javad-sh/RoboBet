@@ -152,8 +152,15 @@ def check_lead_loss(current_match, history_data):
         if base_minute < 80:
             return None
         
-        score1 = int(current_match["score"]["team1"])
-        score2 = int(current_match["score"]["team2"])
+        # استخراج نتیجه با مدیریت خط تیره یا کاراکترهای غیرعددی
+        score1_str = current_match["score"]["team1"]
+        score2_str = current_match["score"]["team2"]
+        
+        if not score1_str.isdigit() or not score2_str.isdigit():
+            return None  # اگر نتیجه عدد نباشد، skip می‌کنیم
+        
+        score1 = int(score1_str)
+        score2 = int(score2_str)
         
         # شرط 2: نتیجه باید مساوی و گلدار باشد
         if score1 != score2 or (score1 == 0 and score2 == 0):
@@ -165,8 +172,14 @@ def check_lead_loss(current_match, history_data):
             return None
         
         prev_match = history_data[match_key]
-        prev_score1 = int(prev_match["score"]["team1"])
-        prev_score2 = int(prev_match["score"]["team2"])
+        prev_score1_str = prev_match["score"]["team1"]
+        prev_score2_str = prev_match["score"]["team2"]
+        
+        if not prev_score1_str.isdigit() or not prev_score2_str.isdigit():
+            return None  # اگر نتیجه قبلی عدد نباشد، skip
+        
+        prev_score1 = int(prev_score1_str)
+        prev_score2 = int(prev_score2_str)
         
         # شرط 3: در دریافت قبلی باید یکی جلو بوده باشد
         if prev_score1 == prev_score2:
