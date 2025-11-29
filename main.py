@@ -22,7 +22,7 @@ import threading
 # ============================================================
 # تنظیمات و متغیرهای سراسری
 # ============================================================
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # مخفی کردن لاگ‌های HTTP تلگرام و خطاهای شبکه
 logging.getLogger('httpx').setLevel(logging.CRITICAL)  # فقط خطاهای بحرانی
@@ -481,15 +481,26 @@ def scrape_results(driver, url):
         competitions = soup.find_all("div", class_="competition-bc")
         logging.info(f"🔍 Found {len(competitions)} competitions on page")
         
+        filtered_count = 0
+        accepted_count = 0
+        
         for comp in competitions:
             try:
                 titles = comp.find_all("span", class_="c-title-bc ellipsis")
                 country = titles[0].text.strip() if len(titles) > 0 else "Unknown"
                 league = titles[1].text.strip() if len(titles) > 1 else "Unknown"
                 
+                # لاگ برای debug
+                logging.debug(f"📋 Processing: {country} - {league}")
+                
                 # فیلتر کردن بر اساس whitelist
                 if not is_whitelisted(country, league):
+                    logging.debug(f"❌ Filtered out: {country} - {league}")
+                    filtered_count += 1
                     continue
+                
+                logging.info(f"✅ Accepted: {country} - {league}")
+                accepted_count += 1
                 
                 for match in comp.find_all("div", class_="c-segment-holder-bc single-g-info-bc"):
                     try:
@@ -529,6 +540,7 @@ def scrape_results(driver, url):
             except Exception as e:
                 logging.error(f"Error processing competition: {e}")
         
+        logging.info(f"📊 Total: {len(competitions)} | Accepted: {accepted_count} | Filtered: {filtered_count} | Matches found: {len(matches)}")
         return matches
     except Exception as e:
         logging.error(f"Error scraping results: {e}")
