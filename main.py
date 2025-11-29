@@ -31,6 +31,9 @@ logging.getLogger('urllib3').setLevel(logging.WARNING)
 
 BOT_TOKEN = "7697466323:AAFXXszQt_lAPn4qCefx3VnnZYVhTuQiuno"
 
+# فایل ذخیره تاریخچه نتایج برای ردیابی از دست دادن برتری
+RESULTS_HISTORY_FILE = "results_history.json"
+
 # لیست سفید کشورها و لیگ‌ها
 WHITELIST = {
     "انگلیس": ["لیگ برتر انگلیس", "جام حذفی انگلیس", "چمپیونشیپ انگلیس", "جام اتحادیه انگلیس", "سوپرجام انگلیس (جام خیریه)"],
@@ -100,6 +103,82 @@ def save_json(data, filename):
         logging.info(f"Data saved to {filename}")
     except IOError as e:
         logging.error(f"Error saving {filename}: {e}")
+
+def get_match_key(team1, team2):
+    """ساخت کلید یکتا برای مسابقه"""
+    return f"{team1}|{team2}"
+
+def clean_old_matches(history_data, max_hours=1):
+    """حذف مسابقات قدیمی از تاریخچه (بیش از max_hours ساعت)"""
+    current_time = datetime.now()
+    cleaned = {}
+    for key, data in history_data.items():
+        last_update = datetime.fromisoformat(data["last_updated"])
+        if current_time - last_update <= timedelta(hours=max_hours):
+            cleaned[key] = data
+    return cleaned
+
+def check_lead_loss(current_match, history_data):
+    """بررسی از دست دادن برتری در دقایق پایانی
+    
+    شرایط:
+    - دقیقه >= 80
+    - نتیجه فعلی مساوی و گلدار (نه 0-0)
+    - در دریافت قبلی یکی از تیم‌ها جلو بود
+    """
+    try:
+        # استخراج اطلاعات مسابقه فعلی
+        minute = current_match.get("minute")
+        if not minute:
+            return None
+            
+        base_minute = int(minute.split("+")[0])
+        
+        # شرط 1: دقیقه باید >= 80 باشد
+        if base_minute < 80:
+            return None
+        
+        score1 = int(current_match["score"]["team1"])
+        score2 = int(current_match["score"]["team2"])
+        
+        # شرط 2: نتیجه باید مساوی و گلدار باشد
+        if score1 != score2 or (score1 == 0 and score2 == 0):
+            return None
+        
+        # بررسی تاریخچه
+        match_key = get_match_key(current_match["team1"], current_match["team2"])
+        if match_key not in history_data:
+            return None
+        
+        prev_match = history_data[match_key]
+        prev_score1 = int(prev_match["score"]["team1"])
+        prev_score2 = int(prev_match["score"]["team2"])
+        
+        # شرط 3: در دریافت قبلی باید یکی جلو بوده باشد
+        if prev_score1 == prev_score2:
+            return None
+        
+        # تعیین تیمی که برتری را از دست داده
+        if prev_score1 > prev_score2:
+            losing_team = current_match["team1"]
+            opponent = current_match["team2"]
+        else:
+            losing_team = current_match["team2"]
+            opponent = current_match["team1"]
+        
+        return {
+            "losing_team": losing_team,
+            "opponent": opponent,
+            "current_score": f"{score1}-{score2}",
+            "previous_score": f"{prev_score1}-{prev_score2}",
+            "minute": minute,
+            "country": current_match["country"],
+            "league": current_match["league"]
+        }
+        
+    except (ValueError, KeyError) as e:
+        logging.warning(f"Error checking lead loss: {e}")
+        return None
 
 # ============================================================
 # راه‌اندازی مرورگر
@@ -368,6 +447,44 @@ def update_results_file(new_results, filename="betforward_results.json"):
     
     save_json(updated, filename)
 
+def update_results_history(new_results, filename=RESULTS_HISTORY_FILE):
+    """به‌روزرسانی تاریخچه نتایج (فقط دقایق 70+)"""
+    history = load_json(filename)
+    if isinstance(history, list):
+        history = {}
+    
+    # پاکسازی مسابقات قدیمی
+    history = clean_old_matches(history)
+    
+    current_time = datetime.now()
+    
+    for match in new_results:
+        try:
+            # فقط مسابقات دقیقه 70+ ذخیره می‌شوند
+            minute = match.get("minute")
+            if not minute:
+                continue
+            
+            base_minute = int(minute.split("+")[0])
+            if base_minute < 70:
+                continue
+            
+            match_key = get_match_key(match["team1"], match["team2"])
+            history[match_key] = {
+                "team1": match["team1"],
+                "team2": match["team2"],
+                "score": match["score"],
+                "minute": match["minute"],
+                "country": match["country"],
+                "league": match["league"],
+                "last_updated": current_time.isoformat()
+            }
+        except (ValueError, KeyError) as e:
+            logging.warning(f"Error updating history for match: {e}")
+    
+    save_json(history, filename)
+    return history
+
 # ============================================================
 # تولید هشدارها
 # ============================================================
@@ -483,19 +600,46 @@ def scrape_results_job():
             logging.info(f"📊 Retrieved {len(results)} live matches")
             odds_data = load_json("betforward_odds.json")
             
+            # بارگذاری تاریخچه برای بررسی از دست دادن برتری
+            history_data = load_json(RESULTS_HISTORY_FILE)
+            if isinstance(history_data, list):
+                history_data = {}
+            
             alerts = []
+            lead_loss_alerts = []
+            
+            # بررسی هشدارهای معمول و از دست دادن برتری
             for match in results:
                 alerts.extend(check_alerts(match, odds_data))
+                
+                # بررسی از دست دادن برتری
+                lead_loss = check_lead_loss(match, history_data)
+                if lead_loss:
+                    lead_loss_alerts.append(
+                        f"⚠️🔴 <b>از دست دادن برتری در دقایق پایانی!</b>\n\n"
+                        f"🏆 کشور: <b>{lead_loss['country']}</b>\n"
+                        f"🏟️ لیگ: <b>{lead_loss['league']}</b>\n\n"
+                        f"⚽ <b>{lead_loss['losing_team']}</b> برتری خود را در مقابل "
+                        f"<b>{lead_loss['opponent']}</b> در دقایق پایانی از دست داد!\n\n"
+                        f"📊 نتیجه قبلی: {lead_loss['previous_score']}\n"
+                        f"📊 نتیجه فعلی: {lead_loss['current_score']}\n"
+                        f"⏱️ دقیقه: {lead_loss['minute']}"
+                    )
+                    logging.info(f"🔴 Lead loss detected: {lead_loss['losing_team']} vs {lead_loss['opponent']}")
             
-            if alerts:
-                logging.info(f"\n🚨 Generated {len(alerts)} alerts")
-                asyncio.run(send_alerts(alerts))
+            # ارسال هشدارها
+            all_alerts = alerts + lead_loss_alerts
+            if all_alerts:
+                logging.info(f"\n🚨 Generated {len(alerts)} regular alerts + {len(lead_loss_alerts)} lead-loss alerts")
+                asyncio.run(send_alerts(all_alerts))
                 logging.info("\n✅ All alerts sent")
             else:
                 logging.info("ℹ️ No alerts generated")
             
+            # به‌روزرسانی فایل‌ها
             update_results_file(results)
-            logging.info("✅ Results updated")
+            update_results_history(results)
+            logging.info("✅ Results and history updated")
         else:
             logging.warning("⚠️ No results retrieved")
             asyncio.run(send_error_alert("❌ خطا در دریافت نتایج زنده\n\nسیستم نتوانست اطلاعات نتایج زنده را از سایت betforward دریافت کند."))
