@@ -17,6 +17,7 @@ import os
 import telegram
 import asyncio
 import html
+import threading
 
 # ============================================================
 # تنظیمات و متغیرهای سراسری
@@ -39,6 +40,7 @@ RESULTS_HISTORY_FILE = "results_history.json"
 MAX_RETRIES = 10
 RETRY_DELAY = 5  # ثانیه
 shared_driver = None  # driver مشترک بین jobها
+driver_lock = threading.Lock()  # قفل برای جلوگیری از تداخل
 
 # لیست سفید کشورها و لیگ‌ها
 WHITELIST = {
@@ -196,39 +198,42 @@ def check_lead_loss(current_match, history_data):
 # راه‌اندازی مرورگر
 # ============================================================
 def get_shared_driver():
-    """دریافت driver مشترک یا ساخت آن در صورت نیاز"""
+    """دریافت driver مشترک یا ساخت آن در صورت نیاز (با Lock برای Thread Safety)"""
     global shared_driver
     
-    # بررسی اینکه driver موجود است و سالم است
-    if shared_driver is not None:
-        try:
-            # تست سلامت driver با گرفتن عنوان صفحه
-            _ = shared_driver.title
-            logging.info("♻️ Reusing existing driver")
-            return shared_driver
-        except Exception as e:
-            logging.warning(f"⚠️ Existing driver is dead, creating new one: {e}")
+    with driver_lock:  # قفل برای جلوگیری از تداخل
+        # بررسی اینکه driver موجود است و سالم است
+        if shared_driver is not None:
             try:
-                shared_driver.quit()
-            except:
-                pass
-            shared_driver = None
-    
-    # ساخت driver جدید
-    logging.info("🆕 Creating new shared driver")
-    shared_driver = setup_driver()
-    return shared_driver
+                # تست سلامت driver با چند روش
+                _ = shared_driver.title
+                _ = shared_driver.current_url
+                logging.info("♻️ Reusing existing driver")
+                return shared_driver
+            except Exception as e:
+                logging.warning(f"⚠️ Existing driver is dead, creating new one: {e}")
+                try:
+                    shared_driver.quit()
+                except:
+                    pass
+                shared_driver = None
+        
+        # ساخت driver جدید
+        logging.info("🆕 Creating new shared driver")
+        shared_driver = setup_driver()
+        return shared_driver
 
 def reset_shared_driver():
-    """بستن و reset کردن driver مشترک"""
+    """بستن و reset کردن driver مشترک (با Lock)"""
     global shared_driver
-    if shared_driver is not None:
-        try:
-            shared_driver.quit()
-            logging.info("🔄 Shared driver reset")
-        except Exception as e:
-            logging.warning(f"⚠️ Error closing driver: {e}")
-        shared_driver = None
+    with driver_lock:
+        if shared_driver is not None:
+            try:
+                shared_driver.quit()
+                logging.info("🔄 Shared driver reset")
+            except Exception as e:
+                logging.warning(f"⚠️ Error closing driver: {e}")
+            shared_driver = None
 
 def setup_driver():
     """راه‌اندازی Chrome با تنظیمات بهینه"""
