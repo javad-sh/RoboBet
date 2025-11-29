@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 import os
 import telegram
 import asyncio
+import html
 
 # ============================================================
 # تنظیمات و متغیرهای سراسری
@@ -65,6 +66,12 @@ WHITELIST = {k.strip(): [l.strip() for l in v] for k, v in WHITELIST.items()}
 def normalize(s):
     """حذف فاصله‌های اضافی"""
     return " ".join(s.split()).strip() if s else ""
+
+def escape_html(text):
+    """Escape کردن کاراکترهای خاص HTML برای تلگرام"""
+    if text is None:
+        return ""
+    return html.escape(str(text))
 
 def get_circle_color(odds):
     """تعیین رنگ دایره بر اساس ضریب"""
@@ -337,7 +344,7 @@ async def send_error_alert(error_message):
         logging.warning("⚠️ No subscribers to send error alert")
         return
     
-    error_msg = f"⚠️ <b>خطای سیستم</b>\n\n{error_message}\n\n🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    error_msg = f"⚠️ <b>خطای سیستم</b>\n\n{escape_html(error_message)}\n\n🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     
     logging.info(f"📤 Sending error alert to {len(chat_ids)} chat(s)")
     for chat_id in chat_ids:
@@ -345,7 +352,14 @@ async def send_error_alert(error_message):
             await bot.send_message(chat_id=chat_id, text=error_msg, parse_mode="HTML")
             await asyncio.sleep(1)
         except Exception as e:
-            logging.error(f"❌ Error sending alert to {chat_id}: {e}")
+            logging.error(f"❌ Error sending HTML alert to {chat_id}: {e}")
+            # تلاش با Markdown اگر HTML کار نکرد
+            try:
+                plain_msg = f"⚠️ خطای سیستم\n\n{error_message}\n\n🕐 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                await bot.send_message(chat_id=chat_id, text=plain_msg)
+                logging.info(f"✅ Sent as plain text to {chat_id}")
+            except Exception as e2:
+                logging.error(f"❌ Failed to send even plain text to {chat_id}: {e2}")
 
 async def send_alerts(messages):
     """ارسال پیام‌های هشدار به کاربران"""
@@ -361,7 +375,16 @@ async def send_alerts(messages):
                 logging.info(f"✅ Sent to {chat_id}")
                 await asyncio.sleep(2)
             except Exception as e:
-                logging.error(f"❌ Error sending to {chat_id}: {e}")
+                logging.error(f"❌ Error sending HTML to {chat_id}: {e}")
+                # تلاش با متن ساده
+                try:
+                    # حذف تگ‌های HTML برای fallback
+                    import re
+                    plain_msg = re.sub(r'<[^>]+>', '', msg)
+                    await bot.send_message(chat_id=chat_id, text=plain_msg)
+                    logging.info(f"✅ Sent as plain text to {chat_id}")
+                except Exception as e2:
+                    logging.error(f"❌ Failed to send even plain text to {chat_id}: {e2}")
 
 # ============================================================
 # اسکرپ کردن ضرایب
@@ -559,9 +582,9 @@ def generate_alert(match, home_odds, away_odds, team_key, team_name, opponent_na
     opp_odds = away_odds if team_key == "team1" else home_odds
     
     return (
-        f"{circle1}{circle2} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
-        f"{team_name} (ضریب: {team_odds}) در دقیقه {minute or match['status']} "
-        f"با نتیجه {team_score}-{opp_score} از {opponent_name} (ضریب: {opp_odds}) عقب است!\n"
+        f"{circle1}{circle2} هشدار: در کشور <b>{escape_html(match['country'])}</b> در لیگ <b>{escape_html(match['league'])}</b> "
+        f"{escape_html(team_name)} (ضریب: {team_odds}) در دقیقه {minute or match['status']} "
+        f"با نتیجه {team_score}-{opp_score} از {escape_html(opponent_name)} (ضریب: {opp_odds}) عقب است!\n"
         f"📝 پیشنهاد: 1- کرنر یا شوت زدن قوی 2- کرنر یا شوت نزدن ضعیف 3- گل زدن قوی"
     )
 
@@ -600,8 +623,8 @@ def check_alerts(match, odds_data):
                 circle1 = get_circle_color(min(home_odds, away_odds))
                 circle2 = "🟢" if score1 == 0 and score2 == 0 else "🟡"
                 alerts.append(
-                    f"{circle1}{circle2} هشدار: در کشور {match['country']} در لیگ {match['league']} "
-                    f"مسابقه بین {match['team1']} (ضریب: {home_odds}) و {match['team2']} (ضریب: {away_odds}) "
+                    f"{circle1}{circle2} هشدار: در کشور {escape_html(match['country'])} در لیگ {escape_html(match['league'])} "
+                    f"مسابقه بین {escape_html(match['team1'])} (ضریب: {home_odds}) و {escape_html(match['team2'])} (ضریب: {away_odds}) "
                     f"در نیمه اول با نتیجه {score1}-{score2} مساوی است!\n"
                     f"📝 پیشنهاد: 1_گل داشتن بازی 2_گل زدن تیم قوی"
                 )
@@ -617,8 +640,8 @@ def check_alerts(match, odds_data):
                     circle = "🟢" if team_score < opp_score else "🟠"
                     status_desc = "عقب است" if team_score < opp_score else "مساوی است"
                     alerts.append(
-                        f"{circle} هشدار: در کشور <b>{match['country']}</b> در لیگ <b>{match['league']}</b> "
-                        f"{team_name} (ضریب: {team_odd}) در وضعیت <b>{match['status']}</b> "
+                        f"{circle} هشدار: در کشور <b>{escape_html(match['country'])}</b> در لیگ <b>{escape_html(match['league'])}</b> "
+                        f"{escape_html(team_name)} (ضریب: {team_odd}) در وضعیت <b>{escape_html(match['status'])}</b> "
                         f"با نتیجه {team_score}-{opp_score} {status_desc}!\n"
                         f"📝 پیشنهاد: گل داشتن بازی تا دقیقه ۷۰"
                     )
@@ -686,13 +709,13 @@ def scrape_results_job():
                 if lead_loss:
                     lead_loss_alerts.append(
                         f"⚠️🔴 <b>از دست دادن برتری در دقایق پایانی!</b>\n\n"
-                        f"🏆 کشور: <b>{lead_loss['country']}</b>\n"
-                        f"🏟️ لیگ: <b>{lead_loss['league']}</b>\n\n"
-                        f"⚽ <b>{lead_loss['losing_team']}</b> برتری خود را در مقابل "
-                        f"<b>{lead_loss['opponent']}</b> در دقایق پایانی از دست داد!\n\n"
-                        f"📊 نتیجه قبلی: {lead_loss['previous_score']}\n"
-                        f"📊 نتیجه فعلی: {lead_loss['current_score']}\n"
-                        f"⏱️ دقیقه: {lead_loss['minute']}"
+                        f"🏆 کشور: <b>{escape_html(lead_loss['country'])}</b>\n"
+                        f"🏟️ لیگ: <b>{escape_html(lead_loss['league'])}</b>\n\n"
+                        f"⚽ <b>{escape_html(lead_loss['losing_team'])}</b> برتری خود را در مقابل "
+                        f"<b>{escape_html(lead_loss['opponent'])}</b> در دقایق پایانی از دست داد!\n\n"
+                        f"📊 نتیجه قبلی: {escape_html(lead_loss['previous_score'])}\n"
+                        f"📊 نتیجه فعلی: {escape_html(lead_loss['current_score'])}\n"
+                        f"⏱️ دقیقه: {escape_html(lead_loss['minute'])}"
                     )
                     logging.info(f"🔴 Lead loss detected: {lead_loss['losing_team']} vs {lead_loss['opponent']}")
             
