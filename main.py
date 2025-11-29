@@ -508,7 +508,19 @@ def scrape_results(driver, url):
                         scores = match.find_all("b", class_="c-team-info-scores-bc")
                         time_info = match.find("span", class_="c-info-score-bc fixed-direction")
                         
-                        if len(teams) < 2 or len(scores) < 2: continue
+                        # حداقل باید 2 تیم داشته باشیم
+                        if len(teams) < 2:
+                            logging.debug(f"⚠️ Skipping match: less than 2 teams found")
+                            continue
+                        
+                        # نتیجه ممکن است خط تیره یا خالی باشد (مسابقه شروع نشده)
+                        score1 = scores[0].text.strip() if len(scores) > 0 else "-"
+                        score2 = scores[1].text.strip() if len(scores) > 1 else "-"
+                        
+                        # اگر هر دو خط تیره باشند، مسابقه شروع نشده
+                        if score1 == "-" and score2 == "-":
+                            logging.debug(f"⚠️ Skipping: {teams[0].text.strip()} vs {teams[1].text.strip()} (not started yet)")
+                            continue
                         
                         minute, status = None, "Unknown"
                         if time_info:
@@ -528,13 +540,14 @@ def scrape_results(driver, url):
                         matches.append({
                             "team1": teams[0].text.strip(),
                             "team2": teams[1].text.strip(),
-                            "score": {"team1": scores[0].text.strip(), "team2": scores[1].text.strip()},
+                            "score": {"team1": score1, "team2": score2},
                             "minute": minute,
                             "status": status,
                             "country": country,
                             "league": league,
                             "last_updated": datetime.now().isoformat()
                         })
+                        logging.debug(f"✅ Match added: {teams[0].text.strip()} {score1}-{score2} {teams[1].text.strip()}")
                     except Exception as e:
                         logging.error(f"Error processing match: {e}")
             except Exception as e:
@@ -747,54 +760,61 @@ def scrape_results_job():
     def _scrape():
         driver = get_shared_driver()
         results = scrape_results(driver, "https://m.betforward.com/fa/sports/live/event-view/Soccer")
-        if results:
-            logging.info(f"📊 Retrieved {len(results)} live matches")
-            odds_data = load_json("betforward_odds.json")
+        
+        # همیشه لیست را برمی‌گردانیم، حتی اگر خالی باشد
+        logging.info(f"📊 Retrieved {len(results)} live matches")
+        
+        if len(results) == 0:
+            logging.info("ℹ️ No matches found in whitelist at this time")
+            # لیست خالی ذخیره می‌کنیم
+            update_results_file([])
+            update_results_history([])
+            return True  # این موفقیت است، نه خطا!
+        
+        # اگر نتایج داریم، پردازش می‌کنیم
+        odds_data = load_json("betforward_odds.json")
+        
+        # بارگذاری تاریخچه برای بررسی از دست دادن برتری
+        history_data = load_json(RESULTS_HISTORY_FILE)
+        if isinstance(history_data, list):
+            history_data = {}
+        
+        alerts = []
+        lead_loss_alerts = []
+        
+        # بررسی هشدارهای معمول و از دست دادن برتری
+        for match in results:
+            alerts.extend(check_alerts(match, odds_data))
             
-            # بارگذاری تاریخچه برای بررسی از دست دادن برتری
-            history_data = load_json(RESULTS_HISTORY_FILE)
-            if isinstance(history_data, list):
-                history_data = {}
-            
-            alerts = []
-            lead_loss_alerts = []
-            
-            # بررسی هشدارهای معمول و از دست دادن برتری
-            for match in results:
-                alerts.extend(check_alerts(match, odds_data))
-                
-                # بررسی از دست دادن برتری
-                lead_loss = check_lead_loss(match, history_data)
-                if lead_loss:
-                    lead_loss_alerts.append(
-                        f"⚠️🔴 <b>از دست دادن برتری در دقایق پایانی!</b>\n\n"
-                        f"🏆 کشور: <b>{escape_html(lead_loss['country'])}</b>\n"
-                        f"🏟️ لیگ: <b>{escape_html(lead_loss['league'])}</b>\n\n"
-                        f"⚽ <b>{escape_html(lead_loss['losing_team'])}</b> برتری خود را در مقابل "
-                        f"<b>{escape_html(lead_loss['opponent'])}</b> در دقایق پایانی از دست داد!\n\n"
-                        f"📊 نتیجه قبلی: {escape_html(lead_loss['previous_score'])}\n"
-                        f"📊 نتیجه فعلی: {escape_html(lead_loss['current_score'])}\n"
-                        f"⏱️ دقیقه: {escape_html(lead_loss['minute'])}"
-                    )
-                    logging.info(f"🔴 Lead loss detected: {lead_loss['losing_team']} vs {lead_loss['opponent']}")
-            
-            # ارسال هشدارها
-            all_alerts = alerts + lead_loss_alerts
-            if all_alerts:
-                logging.info(f"\n🚨 Generated {len(alerts)} regular alerts + {len(lead_loss_alerts)} lead-loss alerts")
-                asyncio.run(send_alerts(all_alerts))
-                logging.info("\n✅ All alerts sent")
-            else:
-                logging.info("ℹ️ No alerts generated")
-            
-            # به‌روزرسانی فایل‌ها
-            update_results_file(results)
-            update_results_history(results)
-            logging.info("✅ Results and history updated")
-            return True
+            # بررسی از دست دادن برتری
+            lead_loss = check_lead_loss(match, history_data)
+            if lead_loss:
+                lead_loss_alerts.append(
+                    f"⚠️🔴 <b>از دست دادن برتری در دقایق پایانی!</b>\n\n"
+                    f"🏆 کشور: <b>{escape_html(lead_loss['country'])}</b>\n"
+                    f"🏟️ لیگ: <b>{escape_html(lead_loss['league'])}</b>\n\n"
+                    f"⚽ <b>{escape_html(lead_loss['losing_team'])}</b> برتری خود را در مقابل "
+                    f"<b>{escape_html(lead_loss['opponent'])}</b> در دقایق پایانی از دست داد!\n\n"
+                    f"📊 نتیجه قبلی: {escape_html(lead_loss['previous_score'])}\n"
+                    f"📊 نتیجه فعلی: {escape_html(lead_loss['current_score'])}\n"
+                    f"⏱️ دقیقه: {escape_html(lead_loss['minute'])}"
+                )
+                logging.info(f"🔴 Lead loss detected: {lead_loss['losing_team']} vs {lead_loss['opponent']}")
+        
+        # ارسال هشدارها
+        all_alerts = alerts + lead_loss_alerts
+        if all_alerts:
+            logging.info(f"\n🚨 Generated {len(alerts)} regular alerts + {len(lead_loss_alerts)} lead-loss alerts")
+            asyncio.run(send_alerts(all_alerts))
+            logging.info("\n✅ All alerts sent")
         else:
-            logging.warning("⚠️ No results retrieved")
-            return False
+            logging.info("ℹ️ No alerts generated")
+        
+        # به‌روزرسانی فایل‌ها
+        update_results_file(results)
+        update_results_history(results)
+        logging.info("✅ Results and history updated")
+        return True
     
     try:
         success = retry_on_failure(_scrape)
